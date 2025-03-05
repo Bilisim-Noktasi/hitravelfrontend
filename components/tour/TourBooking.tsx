@@ -49,10 +49,10 @@ export default function TourBooking({ tour }: { tour: Tour | null }) {
           {" "}
           <strong className="text-md-bold neutral-1000">{t("Hours")}:</strong>
           <div className="line-booking-right flex-wrap">
-            {tour?.tourDays.times.map((item, index) => (
+            {tour?.startTimes?.map((item, index) => (
               <label key={index}>
                 <input key={index} type="radio" name="time" />
-                {item}
+                {item.startTime}
               </label>
             ))}
           </div>
@@ -183,9 +183,11 @@ export default function TourBooking({ tour }: { tour: Tour | null }) {
               </div>
 
               <div className="include-price">
-                <ul className="">
+                <ul>
                   {tour?.tourExtras.map((extra, index) => (
-                    <p className="text-md-bold neutral-1000">${extra.priceUSD}</p>
+                    <li key={index} className="text-md-bold neutral-1000">
+                      ${extra.priceUSD}
+                    </li>
                   ))}
                 </ul>
               </div>

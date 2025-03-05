@@ -248,10 +248,10 @@ export interface Tour {
 //     pictures: string[]
 // }
 
-// export interface TourState {
-//     tour: Tour | null;
-//     tours: Tour[]
-// }
+export interface TourState {
+    tour: Tour | null;
+    tours: Tour[]
+}
 
 // export type Tour = {
 //     name: string,
