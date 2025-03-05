@@ -70,8 +70,7 @@ export default function YourJourney() {
                   <SwiperSlide key={index}>
                     <div className="card-journey-small background-card">
                       <div className="card-image">
-                        {" "}
-                        <Link className="wish" href={`/tours/${item.slug}`}>
+                        <Link className="wish" href={`/tours/${item.id}`}>
                           <svg
                             width={20}
                             height={18}
@@ -89,41 +88,34 @@ export default function YourJourney() {
                           </svg>
                         </Link>
                         <img src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
-
                       </div>
                       <div className="card-info background-card">
                         <div className="card-rating">
-                          <div className="card-left"> </div>
+                          <div className="card-left"></div>
                           <div className="card-right">
-                            {" "}
                             <span className="rating">
-                              {item.rating}{" "}5.0
+                              {item.isPopular} 5.0
                             </span>
                           </div>
                         </div>
                         <div className="card-title">
-                          {" "}
-                          <Link className="heading-6 neutral-1000" href={`/tours/${item.slug}`}>
-                            {item.name}{" "}
+                          <Link className="heading-6 neutral-1000" href={`/tours/${item.id}`}>
+                            {item.name}
                           </Link>
                         </div>
                         <div className="card-program">
                           <div className="duration">
                             <p className="text-md-medium neutral-500">
-                              {item.stateName}
-                              ,
-                              {item.cityName}
+                              {item.stateName}, {item.cityName}
                             </p>
                           </div>
-
                           <div className="endtime">
                             <div className="card-price">
                               <h6 className="heading-6 neutral-1000">$ {item.tourPriceUSD}</h6>
                               <p className="text-md-medium neutral-500">/ {t_card('person')}</p>
                             </div>
                             <div className="card-button">
-                              {" "}
-                              <Link className="btn btn-gray" href={`/tours/${item.slug}`}>
+                              <Link className="btn btn-gray" href={`/tours/${item.id}`}>
                                 {t("book")}
                               </Link>
                             </div>
@@ -134,6 +126,7 @@ export default function YourJourney() {
                   </SwiperSlide>
                 ))}
               </Swiper>
+
             </div>
           </div>
         </div>

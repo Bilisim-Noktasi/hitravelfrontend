@@ -20,11 +20,7 @@ export const getRequest = async (
 
   try {
     const response: AxiosResponse = await axios.get(url, {
-      params: {
-        ...requestParameter.params,
-        PageIndex: 0,
-        PageSize: 10,
-      },
+      params: requestParameter.params, // Sayfa bilgilerini eklemiyoruz
     });
     return response.data;
   } catch (err) {
@@ -34,34 +30,37 @@ export const getRequest = async (
 };
 
 export const getGuardRequest = async (
-  requestParameter: RequestParameter,
-  id: string
-) => {
-  const accessToken = getCookie('next-auth.session-token');
-  if (!accessToken) {
-    return signIn();
-  }
+  requestParameter: RequestParameter
+): Promise<any> => {
+  const accessToken = getCookie("next-auth.session-token");
+  if (!accessToken) return signIn();
 
-  let url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
+  // URL formatını oluşturuyoruz
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
     requestParameter.action ? `/${requestParameter.action}` : ""
-  }${id ? `/${id}` : ""}`;
-  
+  }${requestParameter.id ? `/${requestParameter.id}` : ""}`;
+
   try {
-    const response = await axios.get(url, {
+    const response: AxiosResponse = await axios.get(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
+      params: requestParameter.params,
     });
+
     return response.data;
   } catch (err) {
     const error = err as AxiosError;
     console.error("Guard API request error", error);
 
-    if (error.response && error.response.status === 401) {
-      deleteCookie('next-auth.session-token');
+    // 401 hatasında çerezi silip oturum açmaya yönlendir
+    if (error.response?.status === 401) {
+      deleteCookie("next-auth.session-token");
       signIn();
     }
+
     throw err;
   }
 };
+
 
 export const postRequest = async (
   requestParameter: RequestParameter,
