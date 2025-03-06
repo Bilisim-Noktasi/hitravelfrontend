@@ -33,8 +33,8 @@ export default function HotelCard1({ villa }: any) {
               />
             </svg>
           </Link>
-          <Link href="/hotel-detail">
-            <img src={`${villa?.resim}`} alt="Travila" />
+          <Link href={`/villa-detail/${villa?.homeId || ''}`}>
+            <img src={villa?.imageUrl} alt="Travila" />
           </Link>
         </div>
         <div className="card-info">
@@ -52,7 +52,7 @@ export default function HotelCard1({ villa }: any) {
           </div>
           <div className="card-title">
             {" "}
-            <Link className="text-lg-bold neutral-1000" href="/hotel-detail">
+            <Link className="text-lg-bold neutral-1000" href={`/villa-detail/${villa?.homeId || ''}`}>
               {villa?.title}{" "}
             </Link>
           </div>
@@ -69,7 +69,7 @@ export default function HotelCard1({ villa }: any) {
                 {" "}
                 <Link
                   className="btn btn-gray"
-                  href={`/villa-detail/${urlParser(villa.url)}`}
+                  href={`/villa-detail/${villa?.homeId || ''}`}
                 >
                   {t("bookNow")}
                 </Link>

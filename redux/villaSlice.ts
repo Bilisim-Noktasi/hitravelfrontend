@@ -1,6 +1,7 @@
 import { getRequest } from "@/service/requestService";
 import { VillaState } from "@/types";
 import { createSlice, Dispatch } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState: VillaState = {
     villas: [],
@@ -23,12 +24,12 @@ const villaSlice = createSlice({
 // ✅ Tüm villaları getir
 export const getVillasDispatch = () => async (dispatch: Dispatch) => {
     try {
-        const res = await getRequest({ url: "https://www.villareyonu.com/api/transfer/3022025-144721" });
-
-        if (res?.data?.items) {
-            dispatch(getVillas(res.data.items));
+        const response = await axios.get('http://localhost:60805/api/Villa');
+        
+        if (response?.data) {
+            dispatch(getVillas(response.data));
         } else {
-            console.warn("⚠️ Beklenen villa verisi alınamadı:", res);
+            console.warn("⚠️ Beklenen villa verisi alınamadı:", response);
         }
     } catch (error) {
         console.error("❌ Villa API Hatası:", error);
@@ -36,17 +37,29 @@ export const getVillasDispatch = () => async (dispatch: Dispatch) => {
 };
 
 // ✅ Belirli bir villayı getir
-export const getVillaDispatch = (villaId: string, setLoading: (value: boolean) => void) => async (dispatch: Dispatch) => {
+export const getVillaDispatch = (homeId: string, setLoading: (value: boolean) => void) => async (dispatch: Dispatch) => {
     try {
-        const res = await getRequest({ url: `https://www.villareyonu.com/api/transfer/3022025-144721` });
-
-        if (res?.data) {
-            dispatch(getVilla(res.data));
+        const response = await axios.get(`http://localhost:60805/api/Villa/detail/${homeId}`);
+        
+        if (response?.data) {
+            // API'den gelen veriyi VillaDetail tipine uygun şekilde dönüştür
+            const villaData = {
+                ...response.data,
+                // Eğer API'den gelen veri yapısı farklıysa, burada dönüşüm yapılabilir
+                // Örneğin, API'den gelen 'images' alanı 'pictures' olarak da kullanılıyor
+                pictures: response.data.images || [],
+                // 'description' alanı 'icerik' olarak da kullanılıyor
+                icerik: response.data.description || "",
+                // 'capacity' alanı 'people' olarak da kullanılıyor
+                people: response.data.capacity || 0
+            };
+            
+            dispatch(getVilla(villaData));
         } else {
-            console.warn(`⚠️ Villa ID ${villaId} için veri bulunamadı.`);
+            console.warn(`⚠️ Villa ID ${homeId} için veri bulunamadı.`);
         }
     } catch (error) {
-        console.error(`❌ Villa ID ${villaId} API Hatası:`, error);
+        console.error(`❌ Villa ID ${homeId} API Hatası:`, error);
     } finally {
         setLoading(false);
     }

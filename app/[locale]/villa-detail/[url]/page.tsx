@@ -16,6 +16,14 @@ import { PiBedThin } from "react-icons/pi";
 import { PiPersonSimpleSwimThin } from "react-icons/pi";
 import News1 from "@/components/sections/News1";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+
+// Dinamik olarak harita bileşenini yükle (SSR olmadan)
+// Using a simple loading state without translations
+const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
+  ssr: false,
+  loading: () => <div style={{ height: '400px', width: '100%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading map...</div>
+});
 
 const SlickArrowLeft = ({ currentSlide, slideCount, ...props }: any) => (
   <button
@@ -91,6 +99,13 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(true);
   const { villa } = useSelector((state: RootState) => state.villa);
+  const t = useTranslations("villaDetail");
+  
+  // Move the dynamic import here where t is available
+  const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
+    ssr: false,
+    loading: () => <div style={{ height: '400px', width: '100%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t("Harita_yükleniyor")}</div>
+  });
 
   useEffect(() => {
     dispatch(getVillaDispatch(url, setLoading));
@@ -109,10 +124,27 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   const handleAccordion = (key: any) => {
     setIsAccordion((prevState) => (prevState === key ? null : key));
   };
-  const t = useTranslations("villaDetail");
+  
   if (loading) {
     return <Preloader />;
   }
+
+  // Harita bileşeni için yükleme durumu
+  const MapWithLoading = () => {
+    if (!villa?.latitude || !villa?.longitude) {
+      return <p>{t("Bu_villa_için_konum_bilgisi_bulunmamaktadır")}</p>;
+    }
+    
+    return (
+      <div className="villa-map" style={{ height: "400px", width: "100%" }}>
+        <MapComponent 
+          latitude={villa.latitude} 
+          longitude={villa.longitude} 
+          title={villa.title}
+        />
+      </div>
+    );
+  };
 
   return (
     <>
@@ -207,7 +239,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                     </p>
                     <Link
                       className="text-md-medium neutral-1000 mr-30"
-                      href="#"
+                      href="#map-section"
                     >
                       {t("maps")}
                     </Link>
@@ -285,7 +317,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                   <div className="container" />
                 </div>
                 <div className="container-banner container">
-                  <VillaSlider urlList={villa?.pictures || []} />
+                  <VillaSlider urlList={villa?.images || []} />
                 </div>
               </div>
             </section>
@@ -306,12 +338,14 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                           {t("capacity")}
                         </p>
                         <p className="text-lg-bold neutral-1000">
-                          {villa?.people} {t("kisi")}
+                          {villa?.capacity} {t("kisi")}
                         </p>
                       </div>
                     </div>
                     <div className="tour-info-group">
-                      <div className="icon-item background-8">
+                      <div
+                        className="icon-item background-8"
+                      >
                         <div
                           className="icon-item background-10"
                           style={{ fontSize: "1.5rem" }}
@@ -424,7 +458,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
 
                           <div
                             dangerouslySetInnerHTML={{
-                              __html: villa?.icerik || "",
+                              __html: villa?.description || "",
                             }}
                           ></div>
                         </div>
@@ -468,9 +502,12 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         id="collapseHighlight"
                       >
                         <div className="card card-body">
-                          <ul>
-                            {villa?.highlights.map((item, index) => (
-                              <li key={index}>{item}</li>
+                          <ul className="list-highlights">
+                            {villa?.highlights.map((highlight, index) => (
+                              <li key={index}>
+                                
+                                <span className="text-md-regular">{highlight}</span>
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -485,12 +522,12 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         }
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#collapseIncluded"
+                        data-bs-target="#collapseFeatures"
                         aria-expanded="false"
-                        aria-controls="collapseIncluded"
+                        aria-controls="collapseFeatures"
                         onClick={() => handleAccordion(3)}
                       >
-                        <h6>💰 {t("fiyat")}</h6>
+                        <h6>🏠 {t("Özellikler")}</h6>
                         <svg
                           width={12}
                           height={7}
@@ -511,23 +548,25 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         className={
                           isAccordion == 3 ? "collapse" : "collapse show"
                         }
-                        id="collapseIncluded"
+                        id="collapseFeatures"
                       >
                         <div className="card card-body">
                           <div className="row">
                             <div className="col-lg-6">
-                              <p className="text-md-bold">{t("inc")}:</p>
-                              <ul>
-                                {villa?.included?.map((item, index) => (
-                                  <li key={index}>{item}</li>
+                              <ul className="list-features">
+                                {villa?.features.slice(0, Math.ceil(villa.features.length / 2)).map((feature, index) => (
+                                  <li key={index}>
+                                    <span className="text-md-regular">{feature}</span>
+                                  </li>
                                 ))}
                               </ul>
                             </div>
                             <div className="col-lg-6">
-                              <p className="text-md-bold">{t("exc")}:</p>
-                              <ul>
-                                {villa?.notIncluded?.map((item, index) => (
-                                  <li key={index}>{item}</li>
+                              <ul className="list-features">
+                                {villa?.features.slice(Math.ceil(villa.features.length / 2)).map((feature, index) => (
+                                  <li key={index}>
+                                    <span className="text-md-regular">{feature}</span>
+                                  </li>
                                 ))}
                               </ul>
                             </div>
@@ -535,10 +574,96 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+       
                     <div className="group-collapse-expand">
                       <button
                         className={
-                          isAccordion == 4
+                          isAccordion == 5 ? "btn btn-collapse collapsed" : "btn btn-collapse"
+                        }
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseIncluded"
+                        aria-expanded="false"
+                        aria-controls="collapseIncluded"
+                        onClick={() => handleAccordion(5)}
+                      >
+                        <h6>💰 {t("fiyat")}</h6>
+                        <svg width={12} height={7} viewBox="0 0 12 7" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M1 1L6 6L11 1"
+                            stroke=""
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            fill="none"
+                          />
+                        </svg>
+                      </button>
+                      <div className={isAccordion == 5 ? "collapse" : "collapse show"} id="collapseIncluded">
+                        <div className="card card-body">
+                          <div className="box-included row">
+                            <div className="item-included col-md-6">
+                              <h6 className="color-brand-1 mb-15">{t("Fiyata Dahil Olanlar")}</h6>
+                              <ul className="list-included">
+                                {villa?.included.map((item, index) => (
+                                  <li key={index}>
+                                    <span className="text-md-regular">{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="item-included col-md-6">
+                              <h6 className="color-brand-1 mb-15">{t("Fiyata Dahil Olmayanlar")}</h6>
+                              <ul className="list-excluded">
+                                {villa?.notIncluded.map((item, index) => (
+                                  <li key={index}>
+                                    <span className="text-md-regular">{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                          {villa?.prices && villa.prices.length > 0 ? (
+                            <div className="table-responsive">
+                              <table className="table table-bordered">
+                                <thead>
+                                  <tr>
+                                    <th>{t("Başlangıç Tarihi")}</th>
+                                    <th>{t("Bitiş Tarihi")}</th>
+                                    <th>{t("Gecelik Fiyat")}</th>
+                                    <th>{t("Min_Gece")}</th>
+                                    <th>{t("Temizlik Periyodu")}</th>
+                                    <th>{t("Temizlik Ücreti")}</th>
+                                    <th>{t("Isıtma Ücreti")}</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {villa.prices.map((price, index) => (
+                                    <tr key={index}>
+                                      <td>{new Date(price.startDate).toLocaleDateString()}</td>
+                                      <td>{new Date(price.endDate).toLocaleDateString()}</td>
+                                      <td>{price.price} {villa.currency.toUpperCase()}</td>
+                                      <td>{price.minNight} {t("gece")}</td>
+                                      <td>{price.cleaningNight} {t("gece")}</td>
+                                      <td>{price.cleaningPrice} {villa.currency.toUpperCase()}</td>
+                                      <td>{price.heating} {villa.currency.toUpperCase()}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          ) : (
+                            <p>{t("Bu_villa_için_fiyat_bilgisi_bulunmamaktadır")}</p>
+                          )}
+                         
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group-collapse-expand">
+                      <button
+                        className={
+                          isAccordion == 6
                             ? "btn btn-collapse collapsed"
                             : "btn btn-collapse"
                         }
@@ -547,11 +672,10 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         data-bs-target="#collapseDuration"
                         aria-expanded="false"
                         aria-controls="collapseDuration"
-                        onClick={() => handleAccordion(4)}
+                        onClick={() => handleAccordion(6)}
                       >
                         <h6>
-                          🏠{villa?.title}
-                          {t("neler")}
+                          🏠{villa?.title} {t("neler")}
                         </h6>
                         <svg
                           width={12}
@@ -571,7 +695,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                       </button>
                       <div
                         className={
-                          isAccordion == 4 ? "collapse" : "collapse show"
+                          isAccordion == 6 ? "collapse" : "collapse show"
                         }
                         id="collapseDuration"
                       >
@@ -609,6 +733,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+
                     <div className="group-collapse-expand">
                       <h6 className="mt-[-10px] mb-2">🙋🏼‍♀️ {t("sss")}</h6>
                       <div className="list-questions">
@@ -675,7 +800,59 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                     <div className="group-collapse-expand">
                       <button
                         className={
-                          isAccordion == 6
+                          isAccordion == 6 ? "btn btn-collapse collapsed" : "btn btn-collapse"
+                        }
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseDeposit"
+                        aria-expanded="false"
+                        aria-controls="collapseDeposit"
+                        onClick={() => handleAccordion(6)}
+                      >
+                        <h6>📅 {t("Giriş/Çıkış Bilgileri")}</h6>
+                        <svg width={12} height={7} viewBox="0 0 12 7" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M1 1L6 6L11 1"
+                            stroke=""
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            fill="none"
+                          />
+                        </svg>
+                      </button>
+                      <div className={isAccordion == 6 ? "collapse" : "collapse show"} id="collapseDeposit">
+                        <div className="card card-body">
+                          <div className="mt-30">
+                            <h6 className="color-brand-1 mb-15">{t("Depozito Bilgileri")}</h6>
+                            <div className="row">
+                              <div className="col-md-6">
+                                <p><strong>{t("Depozito Oranı")}:</strong> %{villa?.deposit}</p>
+                              </div>
+                              <div className="col-md-6">
+                                <p><strong>{t("Hasar Depozitosu")}:</strong> {villa?.damageDeposit} {villa?.currency.toUpperCase()}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-30">
+                            <h6 className="color-brand-1 mb-15">{t("Giriş/Çıkış Bilgileri")}</h6>
+                            <div className="row">
+                              <div className="col-md-6">
+                                <p><strong>{t("Giriş Saati")}:</strong> {villa?.checkInTime}</p>
+                              </div>
+                              <div className="col-md-6">
+                                <p><strong>{t("Çıkış Saati")}:</strong> {villa?.checkOutTime}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/*
+                    <div className="group-collapse-expand">
+                      <button
+                        className={
+                          isAccordion == 7
                             ? "btn btn-collapse collapsed"
                             : "btn btn-collapse"
                         }
@@ -684,7 +861,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         data-bs-target="#collapseReviews"
                         aria-expanded="false"
                         aria-controls="collapseReviews"
-                        onClick={() => handleAccordion(6)}
+                        onClick={() => handleAccordion(7)}
                       >
                         <h6>
                           💬{t("customer")} {villa?.title} {t("ne")}?{" "}
@@ -707,7 +884,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                       </button>
                       <div
                         className={
-                          isAccordion == 6 ? "collapse" : "collapse show"
+                          isAccordion == 7 ? "collapse" : "collapse show"
                         }
                         id="collapseReviews"
                       >
@@ -854,10 +1031,11 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+              
                     <div className="group-collapse-expand">
                       <button
                         className={
-                          isAccordion == 7
+                          isAccordion == 8
                             ? "btn btn-collapse collapsed"
                             : "btn btn-collapse"
                         }
@@ -866,7 +1044,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         data-bs-target="#collapseAddReview"
                         aria-expanded="false"
                         aria-controls="collapseAddReview"
-                        onClick={() => handleAccordion(7)}
+                        onClick={() => handleAccordion(8)}
                       >
                         <h6>
                           {villa?.title} {t("yorum1")}😊{" "}
@@ -889,7 +1067,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                       </button>
                       <div
                         className={
-                          isAccordion == 7 ? "collapse" : "collapse show"
+                          isAccordion == 8 ? "collapse" : "collapse show"
                         }
                         id="collapseAddReview"
                       >
@@ -948,6 +1126,54 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+                    */}
+
+                    <div className="group-collapse-expand">
+                      <button
+                        className={
+                          isAccordion == 9
+                            ? "btn btn-collapse collapsed"
+                            : "btn btn-collapse"
+                        }
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseMap"
+                        aria-expanded="false"
+                        aria-controls="collapseMap"
+                        onClick={() => handleAccordion(9)}
+                      >
+                        <h6 id="map-section">📍 {t("Konum")}</h6>
+                        <svg
+                          width={12}
+                          height={7}
+                          viewBox="0 0 12 7"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M1 1L6 6L11 1"
+                            stroke=""
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            fill="none"
+                          />
+                        </svg>
+                      </button>
+                      <div
+                        className={
+                          isAccordion == 9 ? "collapse" : "collapse show"
+                        }
+                        id="collapseMap"
+                      >
+                        <div className="card card-body">
+                          {villa?.latitude && villa?.longitude ? (
+                            <MapWithLoading />
+                          ) : (
+                            <p>{t("Bu_villa_için_konum_bilgisi_bulunmamaktadır")}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="col-lg-4">
@@ -969,7 +1195,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                               {" "}
                               <Link href="#">
                                 {" "}
-                                <img src={villa?.pictures[0]} alt="Travila" />
+                                <img src={villa?.images[0]} alt="Travila" />
                               </Link>
                             </div>
                             <div className="card-info">
@@ -992,7 +1218,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                               {" "}
                               <Link href="#">
                                 {" "}
-                                <img src={villa?.pictures[5]} alt="Travila" />
+                                <img src={villa?.images[5]} alt="Travila" />
                               </Link>
                             </div>
                             <div className="card-info">

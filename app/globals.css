@@ -1,0 +1,18 @@
+/* Add this at the end of the file */
+
+/* Leaflet Map Styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.villa-map {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fix for Leaflet marker icons */
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  max-width: none !important;
+} 
