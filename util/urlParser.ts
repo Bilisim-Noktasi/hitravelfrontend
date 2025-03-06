@@ -1,3 +1,4 @@
-export default function urlParser (url: string) {
-    return url.split('/').pop()
+export default function urlParser(url: string | undefined | null) {
+  if (!url) return '';
+  return url.split('/').pop() || '';
 }

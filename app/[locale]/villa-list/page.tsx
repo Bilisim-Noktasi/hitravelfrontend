@@ -16,15 +16,20 @@ import rawHotelsData from "@/util/hotels.json"
 import useHotelFilter from '@/util/useHotelFilter'
 import { useTranslations } from 'next-intl'
 import Link from "next/link"
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import Preloader from "@/components/elements/Preloader"
+
 const hotelsData = rawHotelsData.map(hotel => ({
 	...hotel,
 	rating: parseFloat(hotel.rating as string)
 }))
+
 export default function VillaGrid() {
 	const dispatch = useDispatch<AppDispatch>()
 	const { villas } = useSelector((state:RootState) => state.villa)
+	const [isLoading, setIsLoading] = useState(true)
+	
 	const {
 		filter,
 		sortCriteria,
@@ -49,14 +54,22 @@ export default function VillaGrid() {
 		startItemIndex,
 		endItemIndex,
 	} = useHotelFilter(hotelsData)
-	const t= useTranslations("Villa")
-	  useEffect(()=> {
+	
+	const t = useTranslations("Villa")
+	
+	useEffect(() => {
 		dispatch(getVillasDispatch())
-	  },[dispatch])
+		setTimeout(() => {
+			setIsLoading(false)
+		}, 500)
+	}, [dispatch])
+	
+	if (isLoading) {
+		return <Preloader />
+	}
 	
 	return (
 		<>
-
 			<Layout headerStyle={1} footerStyle={1}>
 				<main className="main">
 					<section className="box-section block-banner-tourlist">
@@ -87,13 +100,25 @@ export default function VillaGrid() {
 										/>
 									</div>
 									<div className="box-grid-tours wow fadeIn">
-										<div className="row">
-											{villas?.map((villa) => (
-												<div className="col-xl-4 col-lg-6 col-md-6" key={villa.title}>
-													<HotelCard1 villa={villa} />
-												</div>
-											))}
-										</div>
+										{isLoading ? (
+											<div className="text-center">
+												<p>Villalar yükleniyor...</p>
+											</div>
+										) : (
+											<div className="row">
+												{villas && villas.length > 0 ? (
+													villas.map((villa) => (
+														<div className="col-xl-4 col-lg-6 col-md-6" key={villa.homeId}>
+															<HotelCard1 villa={villa} />
+														</div>
+													))
+												) : (
+													<div className="text-center w-100">
+														<p>Hiç villa bulunamadı.</p>
+													</div>
+												)}
+											</div>
+										)}
 									</div>
 									<ByPagination
 										handlePreviousPage={handlePreviousPage}
@@ -159,7 +184,6 @@ export default function VillaGrid() {
 						<div className="container-media wow fadeInUp"> <img src="/assets/imgs/page/homepage5/media.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media2.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media3.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media4.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media5.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media6.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media7.png" alt="Travila" /></div>
 					</section>
 				</main>
-
 			</Layout>
 		</>
 	)

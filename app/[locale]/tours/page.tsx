@@ -16,8 +16,9 @@ import rawToursData from "@/util/tours.json";
 import useTourFilter from "@/util/useTourFilter";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Preloader from "@/components/elements/Preloader";
 
 const toursData = rawToursData.map((tour) => ({
   ...tour,
@@ -25,14 +26,20 @@ const toursData = rawToursData.map((tour) => ({
   groupSize: parseInt(tour.groupSize as unknown as string),
   rating: parseFloat(tour.rating as string),
 }));
+
 export default function TourGrid() {
-  const dispatch =useDispatch<AppDispatch>()
-  const  {tours} =useSelector((state:RootState)=>state.tour)
+  const dispatch = useDispatch<AppDispatch>()
+  const { tours } = useSelector((state:RootState) => state.tour)
+  const [isLoading, setIsLoading] = useState(true)
   const t = useTranslations("tourGrid");
- useEffect(()=> {
+  
+  useEffect(() => {
     dispatch(getToursDispatch(0,12))
-    },[dispatch])
-    console.log(tours)
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
+  }, [dispatch])
+  
   const {
     filter,
     sortCriteria,
@@ -57,10 +64,12 @@ export default function TourGrid() {
     startItemIndex,
     endItemIndex,
   } = useTourFilter(toursData);
-  useEffect
-  console.log(tours)
+  
+  if (isLoading) {
+    return <Preloader />
+  }
+  
   return (
-
     <>
      
       <Layout headerStyle={1} footerStyle={1}>

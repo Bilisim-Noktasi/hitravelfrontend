@@ -67,8 +67,8 @@ export default function TopRated1() {
                   <div className="card-journey-small background-card">
                     <div className="card-image">
                       <img
-                        src={item.resim}
-                        alt="Travila"
+                        src={item.imageUrl || '/assets/imgs/placeholder.jpg'}
+                        alt={item.title || "Villa"}
                       />
                     </div>
                     <div className="card-info">
@@ -88,7 +88,7 @@ export default function TopRated1() {
                         {" "}
                         <Link
                           className="heading-6 neutral-1000"
-                          href={`/villa-detail/${urlParser(item.url)}`}
+                          href={`/villa-detail/${urlParser(item.detailUrl)}`}
                         > 🏡 {capitalizeText(item.title)}{" "}
                         </Link>
                       </div>
@@ -105,7 +105,7 @@ export default function TopRated1() {
                           </div>
                           <div className="card-button">
                             {" "}
-                            <Link className="btn btn-gray" href={`/villa-detail/${urlParser(item.url)}`}>
+                            <Link className="btn btn-gray" href={`/villa-detail/${urlParser(item.detailUrl)}`}>
                             {t("reserve")}
                             </Link>
                           </div>

@@ -186,67 +186,95 @@ export interface Tour {
     updatedCount: number;
   }
 
-// export interface VillaState {
-//     villas: Items[],
-//     villa?: VillaDetail
-// }
-// export type Villa = {
-//     name: string;
-//     createdDate: string;
-//     items: VillaItem[];
-//     counts: Counts;
-//     live: boolean
-// }
-// export type VillaItem = {
-//     items: Items[]
-// }
-// export type Items = {
-//     title: string;
-//     resim: string;
-//     url: string;
-// }
-// export type Counts = {
-//     home: number;
-//     type: number;
-//     feature: number;
-//     highlight: number;
-//     room: number;
-//     distance: number;
-//     price: number;
-//     image: number;
-// }
+export interface VillaState {
+    villas: Villa[],
+    villa?: VillaDetail
+}
 
-// export type VillaDetail = {
-//     language: string;
-//     updateUrl: string;
-//     title: string;
-//     url: string;
-//     latitude: number;
-//     longitude: number;
-//     icerik: string;
-//     type: string;
-//     destination: string;
-//     room: number;
-//     people: number;
-//     bathroom: number;
-//     floor: number;
-//     currency: string;
-//     rate: number;
-//     deposit: number;
-//     damageDeposit: number;
-//     cleaning: number;
-//     electricity: number;
-//     pools: {name:string; value:string; depth:string; width:string; length:string }[];
-//     types: string[],
-//     features: string[],
-//     highlights: string[],
-//     included: string[],
-//     notincluded: string[],
-//     rooms: {title:string; values: { title:string; count:number; value:string }}[];
-//     distances: { type:string; title:string; value:string }[];
-//     prices: { startDate:string, endDate: string; price:number; minNight:number; cleaningNight:number; cleaningPrice: number }[];
-//     pictures: string[]
-// }
+export interface Villa {
+    title: string;
+    imageUrl: string;
+    detailUrl: string;
+    liveUrl: string;
+    homeId: string;
+}
+
+export interface VillaDetail {
+    id: string;
+    title: string;
+    url: string;
+    description: string;
+    metaTitle: string;
+    metaDescription: string;
+    type: string;
+    destination: string;
+    room: number;
+    bedroom: number;
+    bathroom: number;
+    floor: number;
+    capacity: number;
+    currency: string;
+    deposit: number;
+    damageDeposit: number;
+    checkInTime: string;
+    checkOutTime: string;
+    heating: string;
+    klima: number;
+    ribbon1: string;
+    ribbon2: string;
+    features: string[];
+    types: string[];
+    highlights: string[];
+    included: string[];
+    notIncluded: string[];
+    pools: VillaPool[];
+    rooms: VillaRoom[];
+    distances: VillaDistance[];
+    prices: VillaPrice[];
+    images: string[];
+    pictures: string[];
+    icerik: string;
+    people: number;
+    latitude: number;
+    longitude: number;
+    lastContentUpdate: string;
+    lastPricesUpdate: string;
+}
+
+export interface VillaPool {
+    name: string;
+    value: string;
+    depth: string;
+    width: string;
+    length: string;
+}
+
+export interface VillaRoom {
+    title: string;
+    items: VillaRoomItem[];
+}
+
+export interface VillaRoomItem {
+    title: string;
+    count: number;
+    value: string;
+}
+
+export interface VillaDistance {
+    type: string;
+    title: string;
+    value: string;
+}
+
+export interface VillaPrice {
+    startDate: string;
+    endDate: string;
+    price: number;
+    minNight: number;
+    cleaningNight: number;
+    cleaningPrice: number;
+    heating: number;
+}
 
 export interface TourState {
     tour: Tour | null;
