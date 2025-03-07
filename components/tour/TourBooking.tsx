@@ -49,12 +49,16 @@ export default function TourBooking({ tour }: { tour: Tour | null }) {
           {" "}
           <strong className="text-md-bold neutral-1000">{t("Hours")}:</strong>
           <div className="line-booking-right flex-wrap">
-            {tour?.startTimes?.map((item, index) => (
-              <label key={index}>
-                <input key={index} type="radio" name="time" />
-                {item.startTime}
-              </label>
-            ))}
+            {tour?.startTimes?.map((item, index) => {
+              // Saat ve dakikayı almak için, startTime'ı 'HH:MM' formatına dönüştürme
+              const formattedTime = item.startTime.substring(0, 5);
+              return (
+                <label key={index}>
+                  <input key={index} type="radio" name="time" />
+                  {formattedTime}
+                </label>
+              );
+            })}
           </div>
         </div>
         <div className="item-line-booking">

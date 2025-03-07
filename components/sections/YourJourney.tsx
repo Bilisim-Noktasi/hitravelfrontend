@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { getToursDispatch } from "@/redux/tourSlice";
+import { getTourCategoriesDispatch } from "@/redux/tourCategorySlice";
 
 export default function YourJourney() {
   const currentTime = new Date();

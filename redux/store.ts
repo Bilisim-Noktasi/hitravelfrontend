@@ -3,7 +3,9 @@ import villaSlice from './villaSlice';
 import tourSlice from './tourSlice';
 import adminSlice from './adminSlice';
 import currencyRate from './currencyRate';
-import searchSlice from './searchSlice'
+import searchSlice from './searchSlice';
+import tourCategorySlice from './tourCategorySlice';
+import tourSubCategorySlice from './tourSubCategorySlice';
 
 export const store = configureStore({
     reducer: {
@@ -11,7 +13,9 @@ export const store = configureStore({
         tour: tourSlice,
         admin: adminSlice,
         currencyRate: currencyRate,
-        search: searchSlice
+        search: searchSlice,
+        tourCategory: tourCategorySlice,
+        tourSubCategory: tourSubCategorySlice,
     }
 })
 

@@ -111,15 +111,20 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                     </div>
                     <div className="tour-metas">
                       <div className="tour-meta-left">
+                        <div className="tour-rate">
                         <p className="text-md-medium neutral-500 mr-20 tour-location">
                           📍 {tour?.cityName}, {tour?.countryName}
                         </p>
+                        </div>
+                        <div className="tour-rate">
                         <Link
                           className="text-md-medium neutral-1000 mr-30"
                           href="#"
                         >
                           {t("maps")}
                         </Link>
+                        </div>
+                        
                         <div className="tour-rate">
                           <div className="rate-element">
                             <span className="rating">
@@ -133,6 +138,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                       </div>
                       <div className="tour-meta-right">
                         {" "}
+                        <div className="tour-rate">
                         <Link className="btn btn-share" href="#">
                           <svg
                             width={16}
@@ -144,6 +150,8 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           </svg>
                           {t("share")}
                         </Link>
+                        </div>
+                        <div className="tour-rate">
                         <Link className="btn btn-wishlish" href="#">
                           <svg
                             width={20}
@@ -159,6 +167,8 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           </svg>
                           {t("wishlish")}
                         </Link>
+                        </div>
+                        
                       </div>
                     </div>
                   </div>
@@ -167,7 +177,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                       <div className="swiper-container swiper-group-2">
                         <Swiper {...swiperGroupTestimonials1} loop={false}>
                           {tour?.tourImages?.map((item, index) => (
-                            <SwiperSlide key={index}>
+                            <SwiperSlide key={tour.id}>
                               <img
                                 src={tour.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila"
                               />
@@ -461,7 +471,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                               <p className="text-md-bold">{t("inc")}:</p>
                               <ul>
                                 {tour?.includedItems.map((item, index) => (
-                                  <li key={index}>{item.name}</li>
+                                  <li key={item.id}>{item.name}</li>
                                 ))}
                               </ul>
                             </div>
@@ -469,7 +479,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                               <p className="text-md-bold">{t("exc")}:</p>
                               <ul>
                                 {tour?.excludedItems.map((item, index) => (
-                                  <li key={index}>{item.name}</li>
+                                  <li key={item.id}>{item.name}</li>
                                 ))}
                               </ul>
                             </div>
@@ -530,7 +540,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                         </div>
                       </div>
                     </div>
-                    <div className="group-collapse-expand">
+                    {/* <div className="group-collapse-expand">
                       <button
                         className={
                           isAccordion == 6
@@ -825,7 +835,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div className="col-lg-4">
@@ -840,7 +850,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                     <div className="box-popular-posts box-popular-posts-md">
                       <ul>
                         {popularTours.map((tourItem, index) => (
-                          <li>
+                          <li key={tourItem.id}>
                             <div className="card-post">
                               <div className="card-image">
                                 {" "}

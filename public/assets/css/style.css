@@ -8898,10 +8898,8 @@ a.icon-socials:hover svg {
   padding-top: 20px;
 }
 .swiper-group-journey .swiper-slide {
-  width: auto;
+  width: 326px;
 }
-
-
 .popular-categories {
   display: flex;
   align-items: center;
@@ -12720,6 +12718,9 @@ a.link-black:hover svg {
   font-weight: 700;
 }
 .tour-metas .tour-meta-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   min-width: 230px;
   margin-bottom: 15px;
 }
