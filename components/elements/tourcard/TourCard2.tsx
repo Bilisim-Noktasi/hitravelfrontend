@@ -10,7 +10,7 @@ export default function TourCard2({ tour }: any) {
 					</svg></Link><img src={`/assets/imgs/page/tour/${tour?.image}`} alt="Travila" />
 				</div>
 				<div className="card-info">
-					<div className="card-title"> <Link className="text-lg-bold neutral-1000" href="/tour-detail">{tour.name}</Link></div>
+					<div className="card-title"> <Link className="text-lg-bold neutral-1000" href={`/tr/tours/${tour.id}`}>{tour.name}</Link></div>
 					<div className="card-program">
 						<div className="card-duration-tour">
 							<p className="icon-duration text-sm-medium neutral-500">2 days, 3 nights</p>
@@ -25,7 +25,7 @@ export default function TourCard2({ tour }: any) {
 								<div className="card-price">
 									<h6 className="heading-6 neutral-1000">$48.25</h6>
 								</div>
-								<div className="card-button"> <Link className="btn btn-gray" href="/tour-detail">Book Now</Link></div>
+								<div className="card-button"> <Link className="btn btn-gray" href={`/tr/tours/${tour.id}`}>Book Now</Link></div>
 							</div>
 						</div>
 					</div>

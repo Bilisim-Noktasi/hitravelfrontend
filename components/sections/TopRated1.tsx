@@ -60,7 +60,7 @@ export default function TopRated1() {
         <div className="container-slider box-swiper-padding">
           <div className="box-swiper mt-30">
             <div className="swiper-container swiper-group-animate swiper-group-journey">
-              <Swiper {...swiperGroupAnimate}>
+              <Swiper {...swiperGroupAnimate} loop={false}>
                 {
                   villas?.map((item,index)=> (
                     <SwiperSlide key={index}>

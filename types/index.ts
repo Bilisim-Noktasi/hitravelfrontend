@@ -36,6 +36,18 @@ export interface Tour {
     childPrices: ChildPrice[];
     transfers: Transfer[];
   }
+
+  export interface Category {
+    id: string;
+    name: string;
+    subCategories: string[];
+  }
+
+  export interface SubCategory {
+    id: string;
+    name: string;
+    categoryId: string;
+  }
   
   export interface TourLanguage {
     id: string;
@@ -281,6 +293,15 @@ export interface TourState {
     tours: Tour[]
 }
 
+export interface TourCategory {
+  categories: Category[];
+  category: Category | null;
+}
+
+export interface TourSubCategory {
+  subCategories: SubCategory[];
+  subCategory: SubCategory | null;
+}
 // export type Tour = {
 //     name: string,
 //     groupSize: number;
@@ -384,8 +405,3 @@ export interface TourState {
 //     stateName: string
 // }
 
-// export type TourCategory = {
-//     id: string;
-//     mainCategoryName: string;
-//     subCategories: string[];
-// }
