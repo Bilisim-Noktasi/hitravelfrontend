@@ -9,7 +9,7 @@ import SwiperGroup3Slider from "@/components/slider/SwiperGroup3Slider";
 import { useEffect, useRef, useState } from "react";
 import Slider from "react-slick";
 import Preloader from "@/components/elements/Preloader";
-import VillaSlider from "@/components/slider/VillaSlider";
+// import VillaSlider from "@/components/slider/VillaSlider";
 import { PiBathtubThin } from "react-icons/pi";
 import { CiUser } from "react-icons/ci";
 import { PiBedThin } from "react-icons/pi";
@@ -317,7 +317,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                   <div className="container" />
                 </div>
                 <div className="container-banner container">
-                  <VillaSlider urlList={villa?.images || []} />
+                  {/* <VillaSlider urlList={villa?.images || []} /> */}
                 </div>
               </div>
             </section>
