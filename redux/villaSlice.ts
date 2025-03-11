@@ -24,7 +24,7 @@ const villaSlice = createSlice({
 // ✅ Tüm villaları getir
 export const getVillasDispatch = () => async (dispatch: Dispatch) => {
     try {
-        const response = await axios.get('http://localhost:60805/api/Villa');
+        const response = await axios.get('https://api.hitravel.com.tr/api/Villa');
         
         if (response?.data) {
             dispatch(getVillas(response.data));
@@ -39,7 +39,7 @@ export const getVillasDispatch = () => async (dispatch: Dispatch) => {
 // ✅ Belirli bir villayı getir
 export const getVillaDispatch = (homeId: string, setLoading: (value: boolean) => void) => async (dispatch: Dispatch) => {
     try {
-        const response = await axios.get(`http://localhost:60805/api/Villa/detail/${homeId}`);
+        const response = await axios.get(`https://api.hitravel.com.tr/api/Villa/detail/${homeId}`);
         
         if (response?.data) {
             // API'den gelen veriyi VillaDetail tipine uygun şekilde dönüştür
