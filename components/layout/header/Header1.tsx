@@ -4,13 +4,14 @@ import LanguageDropdown from "@/components/elements/LanguageDropdown";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { Link } from "@/i18n/routing";
-import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect, useState } from "react";
 import { getTourCategoriesDispatch } from "@/redux/tourCategorySlice";
 import { getTourSubCategoriesDispatch } from "@/redux/tourSubCategorySlice";
 import { FaChevronRight } from "react-icons/fa";
+import { useAuth } from "@/hooks/useAuth";
+import { FaUser } from "react-icons/fa";
 
 const ThemeSwitch = dynamic(() => import("@/components/elements/ThemeSwitch"), {
   ssr: false,
@@ -19,11 +20,13 @@ const ThemeSwitch = dynamic(() => import("@/components/elements/ThemeSwitch"), {
 export default function Header1({
   scroll,
   handleLogin,
+  handleLogout,
   handleMobileMenu,
   handleRegister,
   handleSidebar,
 }: any) {
   const t = useTranslations("HeaderLink");
+  const { user, isAuthenticated, logout } = useAuth();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -126,7 +129,6 @@ export default function Header1({
                         </div>
                       </div>
                     </li>
-
                     <li className="has-children">
                       <Link href="/villa-list">{t("villa")}</Link>
                       <ul className="sub-menu">
@@ -138,15 +140,12 @@ export default function Header1({
                         </li>
                       </ul>
                     </li>
-
                     <li className="">
                       <Link href="/coming">{t("hotel")}</Link>
                     </li>
-
                     <li className="mega-li-small">
                       <Link href="/coming">{t("destinations")}</Link>
                     </li>
-
                     <li>
                       <Link href="/blog">{t("blog")}</Link>
                       <ul className="sub-menu">
@@ -169,11 +168,43 @@ export default function Header1({
             <div className="header-right">
               <LanguageDropdown />
               <CurrencyDropdown />
-              <div className="d-none d-xxl-inline-block align-middle mr-15">
-                <a className="btn btn-default btn-signin" onClick={handleLogin}>
-                  {t("signIn")}
-                </a>
-              </div>
+              {isAuthenticated && user ? (
+                <div className="d-none d-xxl-inline-block align-middle mr-15">
+                  <div className="dropdown">
+                    <button 
+                      className="btn btn-default dropdown-toggle" 
+                      type="button" 
+                      id="userDropdown" 
+                      data-bs-toggle="dropdown" 
+                      aria-expanded="false"
+                    >
+                      <FaUser className="me-2" />
+                      {user.email}
+                    </button>
+                    <ul className="dropdown-menu" aria-labelledby="userDropdown"> 
+                      <li>
+                        <Link href="/profile" className="dropdown-item">
+                          {t("profile") || "Profile"}
+                        </Link>
+                      </li>
+                      <li>
+                        <button 
+                          className="dropdown-item text-danger" 
+                          onClick={handleLogout}
+                        >
+                          {t("logout") || "Logout"}
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="d-none d-xxl-inline-block align-middle mr-15">
+                  <a className="btn btn-default btn-signin" onClick={handleLogin}>
+                    {t("signIn")}
+                  </a>
+                </div>
+              )}
               <div
                 className="burger-icon-2 burger-icon-white"
                 onClick={handleSidebar}

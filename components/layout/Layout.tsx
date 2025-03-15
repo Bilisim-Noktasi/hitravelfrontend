@@ -18,6 +18,7 @@ import Footer5 from './footer/Footer5'
 import Footer6 from './footer/Footer6'
 import Header1 from "./header/Header1"
 import Header2 from './header/Header2'
+import { handleLogout } from "@/redux/authSlice"
 
 interface LayoutProps {
 	headerStyle?: Number
@@ -122,6 +123,12 @@ export default function Layout({ headerStyle, footerStyle, breadcrumbTitle, chil
 				handleRegister={handleRegister}
 				isLogin={isLogin}
 				handleLogin={handleLogin}
+			/>
+			<Sidebar
+				isSidebar={isSidebar} 
+                handleSidebar={handleSidebar} 
+                handleLogin={handleLogin}
+				handleLogout={handleLogout}
 			/>
 
 			<BackToTop target="top" />

@@ -6,6 +6,7 @@ import currencyRate from './currencyRate';
 // import searchSlice from './searchSlice';
 import tourCategorySlice from './tourCategorySlice';
 import tourSubCategorySlice from './tourSubCategorySlice';
+import authReducer from './authSlice';
 
 export const store = configureStore({
     reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
         // search: searchSlice,
         tourCategory: tourCategorySlice,
         tourSubCategory: tourSubCategorySlice,
+        auth: authReducer,
     }
 })
 

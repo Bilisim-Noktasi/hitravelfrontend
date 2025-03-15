@@ -1,0 +1,64 @@
+// User Profile Component Styles
+.user-profile-container {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  
+  .user-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    
+    h3 {
+      margin: 0;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+  
+  .user-profile-details {
+    .profile-item {
+      display: flex;
+      margin-bottom: 0.75rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .profile-label {
+        font-weight: 500;
+        min-width: 100px;
+        color: #666;
+      }
+      
+      .profile-value {
+        color: #333;
+      }
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 576px) {
+    .user-profile-header {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      button {
+        margin-top: 1rem;
+      }
+    }
+    
+    .profile-item {
+      flex-direction: column;
+      
+      .profile-label {
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
+} 

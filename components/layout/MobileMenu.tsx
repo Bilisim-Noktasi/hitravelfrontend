@@ -3,20 +3,24 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useState } from "react";
 import PerfectScrollbar from "react-perfect-scrollbar";
+import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 
-export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
+export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin, handleLogout }: any) {
   const [isAccordion, setIsAccordion] = useState(0);
+
+  const { user, isAuthenticated } = useAuth();
 
   const handleAccordion = (key: any) => {
     setIsAccordion((prevState) => (prevState === key ? null : key));
   };
+
   const t = useTranslations("HeaderLink");
   return (
     <>
       <div
-        className={`mobile-header-active mobile-header-wrapper-style perfect-scrollbar button-bg-2 ${
-          isMobileMenu ? "sidebar-visible" : ""
-        }`}
+        className={`mobile-header-active mobile-header-wrapper-style perfect-scrollbar button-bg-2 ${isMobileMenu ? "sidebar-visible" : ""
+          }`}
       >
         <PerfectScrollbar className="mobile-header-wrapper-inner">
           <div className="mobile-header-logo">
@@ -34,24 +38,33 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
             />
           </div>
           <div className="mobile-header-top">
-            <div className="box-author-profile">
-              <div className="card-author">
-                <div className="card-image">
-                  {" "}
-                  <img
-                    src="/assets/imgs/page/homepage1/author2.png"
-                    alt="Travila"
-                  />
+            {isAuthenticated && user ? (
+              <div className="box-author-profile">
+                <div className="card-author">
+                  <div className="card-image">
+                    <img
+                      src="/assets/imgs/page/homepage1/author2.png"
+                    />
+                  </div>
+                  <div className="card-info">
+                    <p className="text-md-bold neutral-1000">{user.email}</p>
+                    <p className="text-xs neutral-1000">{user.status}</p>
+                  </div>
                 </div>
-                <div className="card-info">
-                  <p className="text-md-bold neutral-1000">Birgül İsaf Kömür</p>
-                  <p className="text-xs neutral-1000">Antalya</p>
-                </div>
+                <button 
+                          className="dropdown-item text-danger" 
+                          onClick={handleLogout}
+                        >
+                          {t("logout") || "Logout"}
+                        </button>
               </div>
-              <Link className="btn btn-black" href="#">
-                Çıkış Yap
-              </Link>
-            </div>
+            ) : (
+              <div className="d-none d-xxl-inline-block align-middle mr-15">
+                  <a className="btn btn-default btn-signin" onClick={handleLogin}>
+                    {t("signIn")}
+                  </a>
+                </div>
+            )}
           </div>
           <div className="mobile-header-content-area">
             <div className="perfect-scroll">
@@ -59,9 +72,8 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                 <nav>
                   <ul className="mobile-menu font-heading">
                     <li
-                      className={`has-children ${
-                        isAccordion === 2 ? "active" : ""
-                      }`}
+                      className={`has-children ${isAccordion === 2 ? "active" : ""
+                        }`}
                     >
                       <span
                         className="menu-expand"
@@ -120,9 +132,8 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                       </ul>
                     </li>
                     <li
-                      className={`has-children ${
-                        isAccordion === 3 ? "active" : ""
-                      }`}
+                      className={`has-children ${isAccordion === 3 ? "active" : ""
+                        }`}
                     >
                       <span
                         className="menu-expand"
@@ -138,11 +149,9 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                         }}
                       ></ul>
                     </li>
-
                     <li
-                      className={`has-children ${
-                        isAccordion === 5 ? "active" : ""
-                      }`}
+                      className={`has-children ${isAccordion === 5 ? "active" : ""
+                        }`}
                     >
                       <span
                         className="menu-expand"
@@ -151,108 +160,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                         <i className="arrow-small-down"></i>
                       </span>
                       <Link href="/coming">{t("hotel")}</Link>
-                      {/* <ul
-                        className="sub-menu"
-                        style={{
-                          display: `${isAccordion == 5 ? "block" : "none"}`,
-                        }}
-                      >
-                        <li>
-                          <Link href="/hotel-grid">Hotel List 01</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-grid-2">Hotel List 02</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-grid-3">Hotel List 03</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-grid-4">Hotel List 04</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-grid-5">Hotel List 05</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-grid-6">Hotel List 06</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-detail">Hotel Details 01</Link>
-                        </li>
-                        <li>
-                          <Link href="/hotel-detail-2">Hotel Details 02</Link>
-                        </li>
-                      </ul> */}
                     </li>
-                    {/* <li
-                      className={`has-children ${
-                        isAccordion === 6 ? "active" : ""
-                      }`}
-                    >
-                      <span
-                        className="menu-expand"
-                        onClick={() => handleAccordion(6)}
-                      >
-                        <i className="arrow-small-down"></i>
-                      </span>
-                      <Link href="/rental-car">Rental</Link>
-                      <ul
-                        className="sub-menu"
-                        style={{
-                          display: `${isAccordion == 6 ? "block" : "none"}`,
-                        }}
-                      >
-                        <li>
-                          <Link href="/rental-car">Car Grid</Link>
-                        </li>
-                        <li>
-                          <Link href="/rental-car-2">Car list</Link>
-                        </li>
-                        <li>
-                          <Link href="/rental-car-3">Car Details</Link>
-                        </li>
-                        <li>
-                          <Link href="/rental-proprty">Property Grid</Link>
-                        </li>
-                        <li>
-                          <Link href="/rental-proprty-2">Property Grid</Link>
-                        </li>
-                        <li>
-                          <Link href="/rental-proprty-3">Property List</Link>
-                        </li>
-                        <li>
-                          <Link href="/rental-detail">Property Details</Link>
-                        </li>
-                      </ul>
-                    </li> */}
-                    {/* <li
-                      className={`has-children ${
-                        isAccordion === 7 ? "active" : ""
-                      }`}
-                    >
-                      <span
-                        className="menu-expand"
-                        onClick={() => handleAccordion(7)}
-                      >
-                        <i className="arrow-small-down"></i>
-                      </span>
-                      <Link href="/tickets">Tickets</Link>
-                      <ul
-                        className="sub-menu"
-                        style={{
-                          display: `${isAccordion == 7 ? "block" : "none"}`,
-                        }}
-                      >
-                        <li>
-                          <Link href="/tickets">Flight tickets</Link>
-                        </li>
-                        <li>
-                          <Link href="/tickets-2">Train tickets</Link>
-                        </li>
-                        <li>
-                          <Link href="/book-ticket">Ticket details</Link>
-                        </li>
-                      </ul>
-                    </li> */}
                     <li className={` ${isAccordion === 9 ? "active" : ""}`}>
                       <span
                         className="menu-expand"
@@ -263,9 +171,8 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                       <Link href="/villa-list"> {t("villa")}</Link>
                     </li>
                     <li
-                      className={` ${
-                        isAccordion === 9 ? "active" : ""
-                      }`}
+                      className={` ${isAccordion === 9 ? "active" : ""
+                        }`}
                     >
                       <span
                         className="menu-expand"
@@ -274,7 +181,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                         <i className="arrow-small-down"></i>
                       </span>
                       <Link href="/blog"> Hi Blog</Link>
-                      
+
                     </li>
                     <li>
                       <Link href="/contact">{t("contact")}</Link>

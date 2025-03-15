@@ -41,7 +41,7 @@
     "react-perfect-scrollbar": "^1.5.8",
     "react-quill": "^2.0.0",
     "react-redux": "^9.1.2",
-    "react-slick": "^0.30.2",
+    "react-slick": "^0.30.3",
     "react-slider": "^2.0.6",
     "sass": "^1.77.0",
     "slick-carousel": "^1.8.1",

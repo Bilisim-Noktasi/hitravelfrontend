@@ -8,7 +8,9 @@
     "about": "Hakkımızda",
     "blog": "Hi Blog",
     "contact": "İletişim",
-    "signIn": "Giriş Yap"
+    "signIn": "Giriş Yap",
+    "logout":"Çıkış Yap",
+    "profile": "Profil"
   },
   "SignIn": {
     "title": "Hoşgeldin☺️",
@@ -239,6 +241,7 @@
   },
   "SideBarMenu": {
     "logout": "Çıkış Yap",
+    "signIn": "Giriş Yap",
     "quickLinks": "Hızlı Bağlantılar",
     "settings": "Ayarlar",
     "bookMarks": "Not Defterim",
