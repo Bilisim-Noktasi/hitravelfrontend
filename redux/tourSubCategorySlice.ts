@@ -28,7 +28,6 @@ export const getTourSubCategoriesDispatch = (page: number, size: number) => asyn
         .then(res=>{
             if (res?.items) {
                 dispatch(getSubCategories(res.items));
-                console.log("subCategories", res.items)
             } else {
                 console.error("❌ Hata: Redux'a gönderilecek alt kategori verisi bulunamadı!");
             }

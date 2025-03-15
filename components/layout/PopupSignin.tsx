@@ -1,5 +1,10 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../redux/authSlice";
+import { AppDispatch, RootState } from "../../redux/store";
+
 export default function PopupSignin({
   isLogin,
   handleLogin,
@@ -7,6 +12,31 @@ export default function PopupSignin({
   handleRegister,
 }: any) {
   const t = useTranslations("SignIn");
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  
+  const [credentials, setCredentials] = useState({
+    email: "",
+    password: "",
+  });
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await dispatch(login(credentials));
+    // Close the popup if login is successful
+    if (!error) {
+      handleLogin();
+    }
+  };
+  
   return (
     <>
       <div
@@ -44,18 +74,34 @@ export default function PopupSignin({
               </Link>
             </div>
             <div className="form-login">
-              <form action="#">
+              <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    {error}
+                  </div>
+                )}
                 <div className="form-group">
                   <label className="text-sm-medium">{t("mail")}</label>
                   <input
                     className="form-control username"
                     type="text"
                     placeholder="Email"
+                    name="email"
+                    value={credentials.email}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label className="text-sm-medium">{t("password")}</label>
-                  <input className="form-control password" type="password" />
+                  <input 
+                    className="form-control password" 
+                    type="password"
+                    name="password"
+                    value={credentials.password}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <div className="box-remember-forgot">
@@ -74,22 +120,28 @@ export default function PopupSignin({
                   </div>
                 </div>
                 <div className="form-group mt-45 mb-30">
-                  <Link className="btn btn-black-lg" href="#">
-                    {t("button")}
-                    <svg
-                      width={16}
-                      height={16}
-                      viewBox="0 0 16 16"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M8 15L15 8L8 1M15 8L1 8"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </Link>
+                  <button 
+                    type="submit" 
+                    className="btn btn-black-lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Loading..." : t("button")}
+                    {!isLoading && (
+                      <svg
+                        width={16}
+                        height={16}
+                        viewBox="0 0 16 16"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 15L15 8L8 1M15 8L1 8"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </button>
                 </div>
                 <p className="text-sm-medium neutral-500 px-6">
                   {" "}

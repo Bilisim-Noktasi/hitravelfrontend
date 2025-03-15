@@ -7,9 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import BookingForm from "@/components/elements/BookingForm";
 import SwiperGroup3Slider from "@/components/slider/SwiperGroup3Slider";
 import { useEffect, useRef, useState } from "react";
-import Slider from "react-slick";
 import Preloader from "@/components/elements/Preloader";
-// import VillaSlider from "@/components/slider/VillaSlider";
+import VillaSlider from "@/components/slider/VillaSlider";
 import { PiBathtubThin } from "react-icons/pi";
 import { CiUser } from "react-icons/ci";
 import { PiBedThin } from "react-icons/pi";
@@ -100,7 +99,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   const [loading, setLoading] = useState(true);
   const { villa } = useSelector((state: RootState) => state.villa);
   const t = useTranslations("villaDetail");
-  
+
   // Move the dynamic import here where t is available
   const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
     ssr: false,
@@ -124,7 +123,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   const handleAccordion = (key: any) => {
     setIsAccordion((prevState) => (prevState === key ? null : key));
   };
-  
+
   if (loading) {
     return <Preloader />;
   }
@@ -134,12 +133,12 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
     if (!villa?.latitude || !villa?.longitude) {
       return <p>{t("Bu_villa_için_konum_bilgisi_bulunmamaktadır")}</p>;
     }
-    
+
     return (
       <div className="villa-map" style={{ height: "400px", width: "100%" }}>
-        <MapComponent 
-          latitude={villa.latitude} 
-          longitude={villa.longitude} 
+        <MapComponent
+          latitude={villa.latitude}
+          longitude={villa.longitude}
           title={villa.title}
         />
       </div>
@@ -317,7 +316,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                   <div className="container" />
                 </div>
                 <div className="container-banner container">
-                  {/* <VillaSlider urlList={villa?.images || []} /> */}
+                  <VillaSlider urlList={villa?.images || []} />
                 </div>
               </div>
             </section>
@@ -505,7 +504,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                           <ul className="list-highlights">
                             {villa?.highlights.map((highlight, index) => (
                               <li key={index}>
-                                
+
                                 <span className="text-md-regular">{highlight}</span>
                               </li>
                             ))}
@@ -574,7 +573,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
-       
+
                     <div className="group-collapse-expand">
                       <button
                         className={
@@ -655,7 +654,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                           ) : (
                             <p>{t("Bu_villa_için_fiyat_bilgisi_bulunmamaktadır")}</p>
                           )}
-                         
+
                         </div>
                       </div>
                     </div>
@@ -784,9 +783,8 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                             </button>
 
                             <div
-                              className={`content-question ${
-                                isAccordion === index ? "block" : "hidden"
-                              }`}
+                              className={`content-question ${isAccordion === index ? "block" : "hidden"
+                                }`}
                             >
                               <p className="text-sm-medium neutral-800">
                                 {t(item.answer)}

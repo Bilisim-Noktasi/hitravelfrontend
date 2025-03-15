@@ -8,7 +8,9 @@
     "about": "About Us",
     "blog": "Hi Blog",
     "contact": "Contact",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "logout": "Log Out",
+    "profile": "Profile"
   },
   "SignIn": {
     "title": "Hi☺️",
@@ -239,6 +241,7 @@
 
   "SideBarMenu": {
     "logout": "Log Out",
+    "signIn": "Sign In",
     "quickLinks": "Quick Links",
     "settings": "Settings",
     "bookMarks": "My Notebook",
