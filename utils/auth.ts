@@ -1,5 +1,5 @@
 import { deleteCookie } from 'cookies-next';
-import { logout as logoutAction } from '../redux/authSlice';
+import { handleLogout as logoutAction } from '../redux/authSlice';
 import { AppDispatch } from '../redux/store';
 
 /**
