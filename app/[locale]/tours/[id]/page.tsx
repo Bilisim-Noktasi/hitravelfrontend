@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Preloader from "@/components/elements/Preloader";
-import TourBooking from "@/components/tour/TourBooking";
 import News1 from "@/components/sections/News1";
 import { useTranslations } from "next-intl";
 
@@ -179,7 +178,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           {tour?.tourImages?.map((item, index) => (
                             <SwiperSlide key={tour.id}>
                               <img
-                                src={tour.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila"
+                                src={item.imageUrl || "https://placehold.co/500x500"} alt="Travila"
                               />
                             </SwiperSlide>
                           ))}
@@ -843,7 +842,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                     <div className="head-booking-form">
                       <p className="text-xl-bold neutral-1000">{t("form")}</p>
                     </div>
-                    <TourBooking tour={tour} />
+                    <BookingForm tour={tour} />
                   </div>
                   <div className="sidebar-left border-1 background-body">
                     <h6 className="text-lg-bold neutral-1000">Popular Tours</h6>

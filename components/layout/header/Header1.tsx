@@ -129,16 +129,8 @@ export default function Header1({
                         </div>
                       </div>
                     </li>
-                    <li className="has-children">
+                    <li className="">
                       <Link href="/villa-list">{t("villa")}</Link>
-                      <ul className="sub-menu">
-                        <li>
-                          <Link href="/antalya-villa">Antalya Villaları</Link>
-                        </li>
-                        <li>
-                          <Link href="/fethiye-villa">Fethiye Villaları</Link>
-                        </li>
-                      </ul>
                     </li>
                     <li className="">
                       <Link href="/coming">{t("hotel")}</Link>
