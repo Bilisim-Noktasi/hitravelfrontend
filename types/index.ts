@@ -111,6 +111,8 @@ export interface Tour {
     id: string;
     cityId: string;
     stateId: string;
+    cityName: string;
+    stateName: string;
     priceUSD: number;
     priceTRY: number;
     priceEUR: number;

@@ -7,6 +7,7 @@ import currencyRate from './currencyRate';
 import tourCategorySlice from './tourCategorySlice';
 import tourSubCategorySlice from './tourSubCategorySlice';
 import authReducer from './authSlice';
+import bookingSlice from './bookingSlice';
 
 export const store = configureStore({
     reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
         tourCategory: tourCategorySlice,
         tourSubCategory: tourSubCategorySlice,
         auth: authReducer,
+        booking: bookingSlice,
     }
 })
 
