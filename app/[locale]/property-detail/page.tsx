@@ -443,7 +443,7 @@ export default function PropertyDetail() {
 										<div className="head-booking-form">
 											<p className="text-xl-bold neutral-1000">Booking Form</p>
 										</div>
-										<BookingForm />
+										{/* <BookingForm /> */}
 									</div>
 									<div className="sidebar-left border-1 background-3">
 										<h6 className="text-xl-bold neutral-1000">Agent Information</h6>

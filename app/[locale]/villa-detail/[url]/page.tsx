@@ -1179,7 +1179,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                     <div className="head-booking-form">
                       <p className="text-xl-bold ">{t("rez")}</p>
                     </div>
-                    <BookingForm />
+                    {/* <BookingForm /> */}
                   </div>
                   <div className="sidebar-left border-1 background-body">
                     <h6 className="text-lg-bold neutral-1000">

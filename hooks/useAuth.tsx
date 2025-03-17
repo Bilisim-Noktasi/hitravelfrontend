@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-import { login, logout } from '../redux/authSlice';
+import { login, handleLogout } from '../redux/authSlice';
 import { useCallback } from 'react';
 import { deleteCookie } from 'cookies-next';
 
@@ -30,12 +30,12 @@ export const useAuth = () => {
   /**
    * Logout function
    */
-  const handleLogout = useCallback(() => {
+  const logout = useCallback(() => {
     // Remove the auth token from cookies
     deleteCookie('next-auth.session-token');
     
     // Dispatch the logout action to update the Redux store
-    dispatch(logout());
+    dispatch(handleLogout());
   }, [dispatch]);
 
   return {

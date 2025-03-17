@@ -22,7 +22,7 @@ const UserProfile = () => {
         <h3>User Profile</h3>
         <button 
           className="btn btn-outline-danger btn-sm" 
-          onClick={logout}
+          // onClick={logout}
         >
           Logout
         </button>
