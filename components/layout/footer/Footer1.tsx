@@ -50,7 +50,7 @@ export default function Footer1() {
                 <div className="box-socials-footer">
                   <Link
                     className="icon-socials icon-instagram"
-                    href="https://www.instagram.com/hianatolia/"
+                    href="https://www.instagram.com/hitravelcom/"
                   >
                     <svg
                       width={20}

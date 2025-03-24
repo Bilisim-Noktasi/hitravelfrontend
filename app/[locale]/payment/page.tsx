@@ -2,14 +2,23 @@
 import Layout from "@/components/layout/Layout";
 import News1 from "@/components/sections/News1";
 import { Link } from "@/i18n/routing";
-import React, { useState, FormEvent } from "react";
-
+import React, { useState, FormEvent, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import axios from "axios";
+import useAuth from "@/hooks/useAuth";
 
-export default function Booking() {
+export default function Payment() {
+  const locale = useLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const bookingId = searchParams.get('bookingId');
+  const { token } = useAuth();
+  
+  // State tanımlamaları
   const [vkn, setVkn] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
-
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [showBillingInfo, setShowBillingInfo] = useState(false);
   const [surname, setSurname] = useState<string | undefined>(undefined);
@@ -18,27 +27,84 @@ export default function Booking() {
   const [showCreditCardForm, setShowCreditCardForm] = useState(true);
   const [note, setNote] = useState<string>("");
   const [cardNumber, setCardNumber] = useState<string | undefined>(undefined);
-  const [expirationDate, setExpirationDate] = useState<string | undefined>(
-    undefined
-  );
+  const [expirationDate, setExpirationDate] = useState<string | undefined>(undefined);
   const [cvv, setCvv] = useState<string | undefined>(undefined);
   const [privacy, setPrivacy] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState("creditCard");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("creditCard");
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [phone, setPhone] = useState<string | undefined>(undefined);
   const [showPrepaymentForm, setShowPrepaymentForm] = useState(false);
   const [tc, setTc] = useState<string | undefined>(undefined);
-  const [cardHolderName, setCardHolderName] = useState<string | undefined>(
-    undefined
-  );
+  const [cardHolderName, setCardHolderName] = useState<string | undefined>(undefined);
+  
+  // Rezervasyon bilgileri
+  const [bookingData, setBookingData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  
+  // Ödeme işlemi durumu
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  // Çeviriler
+  const t = useTranslations("pay");
+  const t2 = useTranslations("book");
+
+  const fetchBookingDetails = async () => {
+    if (!bookingId) {
+      console.error("Booking ID not found");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // API'den rezervasyon detaylarını al
+      const response = await axios.get(
+        `https://api.hitravel.com.tr/api/Bookings/${bookingId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log("API response:", response.data);
+      setBookingData(response.data);
+    } catch (error) {
+      console.error("Error fetching booking details:", error);
+      
+      // Rezervasyon bilgileri bulunamazsa veya erişim reddedilirse
+      // Session storage'dan veri almayı dene (yedek plan)
+      try {
+        const storedData = sessionStorage.getItem('bookingData');
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          setBookingData(parsedData);
+        }
+      } catch (storageError) {
+        console.error("Error loading booking data from storage:", storageError);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sayfa yüklendiğinde API'den rezervasyon verilerini al
+  useEffect(() => {
+    fetchBookingDetails();
+  }, [bookingId, token]);
+  
   const handleCheckboxChange = () => {
     setShowBillingInfo(!showBillingInfo);
   };
+  
   const handleVknChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "");
     setVkn(value);
   };
+  
   const toggleForm = () => {
     setIsFormVisible(!isFormVisible);
     setShowCreditCardForm(false);
@@ -46,6 +112,7 @@ export default function Booking() {
     setShowPrepaymentForm(false);
     setShowTourPayForm(false);
   };
+  
   const toggleBankTransferForm = () => {
     setShowBankTransferForm(true);
     setShowCreditCardForm(false);
@@ -53,6 +120,7 @@ export default function Booking() {
     setShowPrepaymentForm(false);
     setIsFormVisible(false);
   };
+  
   const toggleCreditCardForm = () => {
     setShowCreditCardForm(true);
     setShowBankTransferForm(false);
@@ -60,6 +128,7 @@ export default function Booking() {
     setShowTourPayForm(false);
     setIsFormVisible(false);
   };
+  
   const togglePrepaymentForm = () => {
     setShowPrepaymentForm(true);
     setShowCreditCardForm(false);
@@ -67,6 +136,7 @@ export default function Booking() {
     setShowTourPayForm(false);
     setIsFormVisible(false);
   };
+  
   const toggleTourPayForm = () => {
     setShowTourPayForm(true);
     setShowCreditCardForm(false);
@@ -74,9 +144,8 @@ export default function Booking() {
     setShowPrepaymentForm(false);
     setIsFormVisible(false);
   };
-  const handlePaymentMethodChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  
+  const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = e.target.value;
 
     if (selectedPaymentMethod === selectedValue) return;
@@ -95,29 +164,105 @@ export default function Booking() {
       setIsFormVisible(false);
     }
   };
-  const t = useTranslations("pay");
-  const handleSubmit = (e: FormEvent) => {
+  
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault(); // Prevent default form submission
+    setIsSubmitting(true);
+    setPaymentError(null);
 
-    // Validate form data
-    if (!cardHolderName || !cardNumber || !expirationDate || !cvv) {
-      alert("Please fill in all required fields");
+    // Token kontrolü
+    if (!token) {
+      setPaymentError(t("Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın."));
+      setIsSubmitting(false);
       return;
     }
 
-    // Process the form data
-    console.log("Form submitted with values:", {
-      name,
-      surname,
-      cardNumber,
-      expirationDate,
-      cvv,
-      email,
+    // Form verilerini doğrula
+    if (!cardHolderName || !cardNumber || !expirationDate || !cvv) {
+      setPaymentError(t("Lütfen tüm alanları doldurun"));
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Ödeme verileri hazırla
+      const paymentData = {
+        bookingId: bookingId,
+        paymentMethod: selectedPaymentMethod,
+        amount: bookingData.totalPrice,
+        currency: bookingData.currency || "USD",
+        cardDetails: {
       cardHolderName,
-      phone,
-      note,
-      tc,
-    });
+          cardNumber: cardNumber?.replace(/\s/g, ''),
+          expirationMonth: expirationDate?.split('/')[0],
+          expirationYear: "20" + (expirationDate?.split('/')[1] || ""),
+          cvv
+        },
+        billingInfo: showBillingInfo ? {
+          companyName: (document.getElementById('billingName') as HTMLInputElement)?.value || "",
+          taxId: vkn,
+          taxOffice: (document.getElementById('vergiDairesi') as HTMLInputElement)?.value || "",
+          billingAddress: (document.getElementById('billingAddress') as HTMLInputElement)?.value || ""
+        } : null
+      };
+
+      console.log("Payment data:", paymentData);
+
+      // API'ye ödeme işlemini gönder
+      const response = await axios.post(
+        'https://api.hitravel.com.tr/api/Payments',
+        paymentData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log("Payment response:", response.data);
+
+      // Başarılı yanıt
+      if (response.status === 200 || response.status === 201) {
+        setPaymentSuccess(true);
+        
+        // Ödeme başarılı olduktan sonra rezervasyon verisini temizle
+        sessionStorage.removeItem('bookingData');
+        
+        // Teşekkür sayfasına yönlendir
+        setTimeout(() => {
+          router.push(`/${locale}/thank-you?paymentId=${response.data.id || ''}`);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      
+      if (axios.isAxiosError(error) && error.response) {
+        // Token ile ilgili hatalar için özel kontrol
+        if (error.response.status === 401) {
+          setPaymentError(t("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın."));
+        } else if (error.response.status === 403) {
+          setPaymentError(t("Bu işlem için yetkiniz bulunmuyor."));
+        } else {
+          setPaymentError(`${t("Ödeme işlemi sırasında hata")}: ${error.response.data.message || 'Bilinmeyen hata'}`);
+        }
+      } else {
+        setPaymentError(t("Ödeme işlemi sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin."));
+      }
+      
+      // Test amaçlı başarılı ödeme simülasyonu (Geliştirme aşamasında)
+      // setTimeout(() => {
+      //   setPaymentSuccess(true);
+      //   setIsSubmitting(false);
+      //   setTimeout(() => {
+      //     router.push(`/${locale}/thank-you`);
+      //   }, 2000);
+      // }, 1500);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
     return (
       <>
@@ -161,6 +306,16 @@ export default function Booking() {
               </div>
             </div>
           </section>
+        
+        {paymentSuccess ? (
+          <div className="container my-5">
+            <div className="alert alert-success p-4 text-center">
+              <h3>{t("Ödeme başarılı!")}</h3>
+              <p>{t("Teşekkür sayfasına yönlendiriliyorsunuz")}</p>
+            </div>
+          </div>
+        ) : (
+          <>
           <div
             className="row g-0 justify-content-center"
             style={{ maxWidth: "800px", margin: "0 auto" }}
@@ -315,7 +470,7 @@ export default function Booking() {
                               }
                               setExpirationDate(value);
                             }}
-                            placeholder={t("T")}
+                              placeholder="MM/YY"
                             maxLength={5}
                           />
                         </div>
@@ -373,7 +528,7 @@ export default function Booking() {
                                 type="text"
                                 className="form-control bg-white border"
                                 id="billingName"
-                                placeholder="Şirket Ünvanı"
+                                  placeholder={t("Şirket Ünvanı")}
                               />
                             </div>
 
@@ -412,22 +567,30 @@ export default function Booking() {
                                 htmlFor="billingAddress"
                                 className="form-label"
                               >
-                                {t("vd")}
+                                  {t("add")}
                               </label>
                               <input
                                 type="text"
                                 className="form-control bg-white border"
                                 id="billingAddress"
-                                placeholder="Fatura Adresi"
+                                  placeholder={t("Fatura Adresi")}
                               />
                             </div>
                           </div>
                         )}
                       </div>
+                        
+                        {/* Hata Mesajı */}
+                        {paymentError && (
+                          <div className="alert alert-danger mb-4">
+                            {paymentError}
+                          </div>
+                        )}
 
                       <button
                         type="button"
                         onClick={handleSubmit}
+                          disabled={isSubmitting}
                         className="btn btn-dark w-100 h-30 items-center btn-custom mx-auto d-block"
                         style={{
                           backgroundColor: "#000000",
@@ -437,54 +600,106 @@ export default function Booking() {
                           marginTop: "20px",
                         }}
                       >
-                        {t("payment")} 💳
+                          {isSubmitting ? t("islemYapiliyor") : t("payment") + " 💳"}
                       </button>
                     </div>
                   </div>
 
                   <div className="col-12 col-md-4 mt-4 mt-md-0">
-                    <div className="card p-4 ">
+                      <div className="card p-4">
                       <h5 className="mb-4">{t("sepetOzeti")}</h5>
-                      <div
-                        className="mb-4 background-3 neutral-500"
-                        style={{
-                          borderRadius: "3px",
-                          padding: "20px",
-                        }}
-                      >
+                        {loading ? (
+                          <div className="text-center py-4">
+                            <p>{t("Yükleniyor...")}</p>
+                          </div>
+                        ) : bookingData ? (
+                          <>
+                            <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding: "20px" }}>
                         <div className="text-black text-md font-extrabold">
-                          📍Adrasan Boat Tour
+                                📍{bookingData.tourName}
                         </div>
                         <div className="neutral-500">
-                          📆 3 {t("d")} , 2 {t("g")}
+                                📆 {bookingData.tourDate || bookingData.date} - {bookingData.time}
                         </div>
                         <div className="neutral-500">
-                          🎫 {t("code")} :2025-0001
+                                🎫 {t2("code")}: {bookingId || (bookingData.id && bookingData.id.substring(0, 8)) || (bookingData.tourId && bookingData.tourId.substring(0, 8))}
                         </div>
                       </div>
-                      <div
-                        className="mb-4 background-8 neutral-500"
-                        style={{ borderRadius: "3px", padding: "20px" }}
-                      >
-                        <div className="text-black text-md font-extrabold">
-                          ✋🏻 {t("t5")}{" "}
-                        </div>
-                      </div>
+                            
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between">
-                        2 {t("a")}
-                        <span>$200</span>
-                      </p>
+                              {bookingData.adultCount || (bookingData.adults && bookingData.adults.count) || 0} {t2("a")}
+                              <span>
+                                ${
+                                  bookingData.adultTotalPrice || 
+                                  (bookingData.adults && bookingData.adults.count * bookingData.adults.price) || 
+                                  0
+                                }
+                              </span>
+                            </p>
+                            
+                            {((bookingData.childCount && bookingData.childCount > 0) || 
+                              (bookingData.children && bookingData.children.length > 0)) && (
+                              <>
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between">
-                        2 {t("ç")}
-                        <span>$200</span>
-                      </p>
+                                  {bookingData.childCount || (bookingData.children && bookingData.children.length) || 0} {t2("ç")}
+                                  <span>
+                                    ${
+                                      bookingData.childTotalPrice || 
+                                      (bookingData.children && bookingData.children.reduce((sum: number, child: any) => sum + child.price, 0)) || 
+                                      0
+                                    }
+                                  </span>
+                                </p>
+                              </>
+                            )}
+                            
+                            {((bookingData.bookingExtras && bookingData.bookingExtras.length > 0) || 
+                              (bookingData.extras && bookingData.extras.length > 0)) && (
+                              <>
+                                <hr className="w-100 border-secondary" />
+                                <p className="d-flex justify-content-between">
+                                  {t2("Ekstralar")}
+                                  <span>
+                                    ${
+                                      bookingData.extrasTotalPrice || 
+                                      (bookingData.bookingExtras && bookingData.bookingExtras.reduce(
+                                        (sum: number, extra: any) => sum + (extra.price * (extra.quantity || 1)), 0
+                                      )) ||
+                                      (bookingData.extras && bookingData.extras.reduce(
+                                        (sum: number, extra: any) => sum + (extra.price * (extra.quantity || 1)), 0
+                                      )) || 
+                                      0
+                                    }
+                                  </span>
+                                </p>
+                              </>
+                            )}
+                            
+                            {(bookingData.transfer || bookingData.transferId) && (
+                              <>
+                                <hr className="w-100 border-secondary" />
+                                <p className="d-flex justify-content-between">
+                                  {t2("Transfer")} {bookingData.transfer && bookingData.transfer.cityName ? `- ${bookingData.transfer.cityName}` : ''}
+                                  <span>
+                                    ${bookingData.transferPrice || (bookingData.transfer && bookingData.transfer.price) || 0}
+                                  </span>
+                                </p>
+                              </>
+                            )}
+                            
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between text-dark fw-bold">
-                        {t("total")}
-                        <span>$400</span>
-                      </p>
+                              {t2("total")}
+                              <span>${bookingData.totalPrice}</span>
+                            </p>
+                          </>
+                        ) : (
+                          <div className="text-center py-4">
+                            <p>{t("Sepet bilgileri bulunamadı")}</p>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -492,551 +707,95 @@ export default function Booking() {
             </section>
           )}
 
+            {/* Diğer ödeme formları da benzer şekilde düzenlenebilir */}
           {showBankTransferForm && (
             <section className="background-body py-8 mt-20">
               <div className="container max-w-6xl mx-auto px-4">
                 <div className="row">
-                  {/* Sol taraf: Banka Transferi Formu */}
                   <div className="col-12 col-md-8">
-                    {/* İş Bankası Bölümü */}
-                    <div className="container px-2 background-3 mb-4">
-                      <div
-                        className="row align-items-center"
-                        style={{ paddingTop: "20px" }}
-                      >
-                        <div className="col-md-4 d-flex justify-content-center align-items-center">
-                          <img
-                            src="/assets/imgs/page/pay/isbank.png"
-                            alt="Travila"
-                            style={{ width: "150px" }}
-                          />
-                        </div>
-                        <div className="col-md-8">
-                          <div style={{ fontSize: "18px", lineHeight: "1.6" }}>
-                            <p style={{ marginBottom: "10px" }}>
-                              TR38 0006 4000 0016 2170 2119 93 (₺)
-                            </p>
-                            <p style={{ marginBottom: "10px" }}>
-                              TR22 0006 4000 0026 2170 1258 49 ($)
-                            </p>
-                            <p>TR55 0006 4000 0026 2170 1261 28 (€)</p>
-                          </div>
+                      <div className="card p-4">
+                        <h5 className="mb-4">{t("Banka Havalesi ile Ödeme")}</h5>
+                        <p>{t("Lütfen aşağıdaki banka hesabına ödeme yapın ve işlem açıklamasına rezervasyon numaranızı yazın.")}</p>
+                        <div className="mt-4">
+                          <p><strong>{t("Banka")}: </strong>Ziraat Bankası</p>
+                          <p><strong>{t("Şube")}: </strong>Merkez</p>
+                          <p><strong>IBAN: </strong>TR00 0000 0000 0000 0000 0000 00</p>
+                          <p><strong>{t("Hesap Sahibi")}: </strong>Hi Travel Tourism</p>
+                          <p className="mt-3">{t("Rezervasyon Numarası")}: <strong>{bookingId || "########"}</strong></p>
                         </div>
                       </div>
                     </div>
 
-                    {/* 8 Bankası Bölümü */}
-                    <div className="container px-2 background-7 mb-4">
-                      <div
-                        className="row align-items-center"
-                        style={{ paddingTop: "15px" }}
-                      >
-                        <div className="col-md-4 d-flex justify-content-center align-items-center">
-                          <img
-                            src="/assets/imgs/page/pay/8.png"
-                            alt="Travila"
-                            style={{ width: "150px" }}
-                          />
-                        </div>
-                        <div className="col-md-8">
-                          <div style={{ fontSize: "18px", lineHeight: "1.6" }}>
-                            <p style={{ marginBottom: "10px" }}>
-                              TR54 0011 1000 0000 0143 1894 81 (₺)
-                            </p>
-                            <p style={{ marginBottom: "10px" }}>
-                              TR54 0011 1000 0000 0143 1936 52($)
-                            </p>
-                            <p>TR62 0011 1000 0000 0143 1936 05(€)</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Enpara Bölümü */}
-                    <div className="container px-2 background-2 mb-4">
-                      <div
-                        className="row align-items-center"
-                        style={{ paddingTop: "15px" }}
-                      >
-                        <div className="col-md-4 d-flex justify-content-center align-items-center">
-                          <img
-                            src="/assets/imgs/page/pay/enpara.png"
-                            alt="Travila"
-                            style={{ width: "150px" }}
-                          />
-                        </div>
-                        <div className="col-md-8">
-                          <div style={{ fontSize: "18px", lineHeight: "1.6" }}>
-                            <p style={{ marginBottom: "10px" }}>
-                              TR28 0011 1000 0000 0149 4053 21 (₺)
-                            </p>
-                            <p style={{ marginBottom: "10px" }}>
-                              TR90 0011 1000 0000 0151 0197 40 ($)
-                            </p>
-                            <p>TR13 0011 1000 0000 0151 0197 68 (€)</p>
-                            <span style={{ display: "block" }}>
-                              {t("codes")}: FNNBTRISXXX
-                            </span>
-                            <span style={{ display: "block" }}>{t("sw")}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sağ taraf: Sepet Özeti */}
                   <div className="col-12 col-md-4 mt-4 mt-md-0">
                     <div className="card p-4">
                       <h5 className="mb-4">{t("sepetOzeti")}</h5>
-                      <div
-                        className="mb-4 background-3 neutral-500"
-                        style={{ borderRadius: "3px", padding: "20px" }}
-                      >
+                        {loading ? (
+                          <div className="text-center py-4">
+                            <p>{t("Yükleniyor...")}</p>
+                          </div>
+                        ) : bookingData ? (
+                          <>
+                            <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding: "20px" }}>
                         <div className="text-black text-md font-extrabold">
-                          📍Adrasan Boat Tour
+                                📍{bookingData.tourName}
                         </div>
                         <div className="neutral-500">
-                          📆 3 {t("d")} , 2 {t("g")}
+                                📆 {bookingData.tourDate || bookingData.date} - {bookingData.time}
                         </div>
                         <div className="neutral-500">
-                          🎫 {t("code")} :2025-0001
+                                🎫 {t2("code")}: {bookingId || (bookingData.id && bookingData.id.substring(0, 8)) || (bookingData.tourId && bookingData.tourId.substring(0, 8))}
                         </div>
                       </div>
-                      <div
-                        className="mb-4 background-8 neutral-500"
-                        style={{ borderRadius: "3px", padding: "20px" }}
-                      >
-                        <div className="text-black text-md  font-extrabold">
-                          ✋🏻 {t("t1")}{" "}
-                        </div>
-                      </div>
-                      <div
-                        className="mb-4 bg-1 neutral-500"
-                        style={{ borderRadius: "3px", padding: "20px" }}
-                      >
-                        <div className="text-black text-md font-extrabold">
-                          ❗{t("t2")}{" "}
-                          <a
-                            href="https://wa.me/905326691107"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              color: "red",
-                              textDecoration: "underline",
-                            }}
-                          >
-                            {t("wp")}
-                          </a>{" "}
-                          {t("t3")}
-                        </div>
-                      </div>
+                            
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between">
-                        2 {t("a")}
-                        <span>$200</span>
-                      </p>
+                              {bookingData.adultCount || (bookingData.adults && bookingData.adults.count) || 0} {t2("a")}
+                              <span>
+                                ${
+                                  bookingData.adultTotalPrice || 
+                                  (bookingData.adults && bookingData.adults.count * bookingData.adults.price) || 
+                                  0
+                                }
+                              </span>
+                            </p>
+                            
+                            {((bookingData.childCount && bookingData.childCount > 0) || 
+                              (bookingData.children && bookingData.children.length > 0)) && (
+                              <>
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between">
-                        2 {t("ç")}
-                        <span>$200</span>
-                      </p>
-                      <hr className="w-100 border-secondary" />
-                      <p className="d-flex justify-content-between fw-bold">
-                        {t("indirimmm")}
-                        <span className="bg-5">-20</span>
-                      </p>
-                      <hr className="w-100 border-secondary" />
-                      <p className="d-flex justify-content-between text-dark fw-bold">
-                        {t("total")}
-                        <span>$400</span>
-                      </p>
-                    </div>
-                    <div className="d-flex justify-content-center mt-4">
-                      <button
-                        className="btn btn-dark w-100 mt-12 bg-black-2"
-                        style={{ borderRadius: "6px" }}
-                      >
-                        {t("ok")}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {showPrepaymentForm && (
-            <div
-              className="container"
-              style={{ marginTop: "30px", paddingLeft: "33px" }}
-            >
-              <div className="row">
-                <div className="col-md-4">
-                  <div className="card p-3">
-                    <h5 className="mb-4">{t("sepetOzeti")}</h5>
-                    <div
-                      className="mb-4 background-3 neutral-500"
-                      style={{ borderRadius: "3px", padding: "20px" }}
-                    >
-                      <div className="text-black text-md font-extrabold">
-                        📍Adrasan Boat Tour
-                      </div>
-                      <div className="neutral-500">
-                        📆 3 {t("d")} , 2 {t("g")}{" "}
-                      </div>
-                      <div className="neutral-500">
-                        🎫 {t("code")} :2025-0001
-                      </div>
-                    </div>
-                    <div
-                      className="mb-4 background-8 neutral-500"
-                      style={{ borderRadius: "3px", padding: "20px" }}
-                    >
-                      <div className="text-black text-md font-extrabold">
-                        ✋🏻{t("t5")}{" "}
-                      </div>
-                    </div>
-                    <hr className="w-100 border-secondary" />
-                    <p className="d-flex justify-content-between">
-                      2 {t("a")}
-                      <span>$200</span>
-                    </p>
-                    <hr className="w-100 border-secondary" />
-                    <p className="d-flex justify-content-between">
-                      2 {t("ç")}
-                      <span>$200</span>
-                    </p>
+                                  {bookingData.childCount || (bookingData.children && bookingData.children.length) || 0} {t2("ç")}
+                                  <span>
+                                    ${
+                                      bookingData.childTotalPrice || 
+                                      (bookingData.children && bookingData.children.reduce((sum: number, child: any) => sum + child.price, 0)) || 
+                                      0
+                                    }
+                                  </span>
+                                </p>
+                              </>
+                            )}
+                            
                     <hr className="w-100 border-secondary" />
                     <p className="d-flex justify-content-between text-dark fw-bold">
-                      {t("total")}
-                      <span>$400</span>
-                    </p>
-
-                    <div className="mt-3">
-                      <div className="form-check">
-                        <input
-                          type="radio"
-                          className="form-check-input"
-                          id="paymentOption1"
-                          name="paymentOption"
-                          value="creditCard"
-                          checked={selectedPaymentMethod === "creditCard"}
-                          onChange={handlePaymentMethodChange}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="paymentOption1"
-                        >
-                          {t("credi")}
-                        </label>
-                      </div>
-
-                      <div className="form-check">
-                        <input
-                          type="radio"
-                          className="form-check-input"
-                          id="paymentOption2"
-                          name="paymentOption"
-                          value="bankTransfer"
-                          checked={selectedPaymentMethod === "bankTransfer"}
-                          onChange={handlePaymentMethodChange}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="paymentOption2"
-                        >
-                          {t("he")}
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {selectedPaymentMethod === "creditCard" && (
-                  <div className="col-12 col-md-8">
-                    <div className="card p-4">
-                      <div className="mb-5 d-flex flex-column">
-                        {/* Kart Sahibi Adı */}
-                        <div className="mb-4 col-12 ps-3">
-                          <label
-                            htmlFor="cardHolderName"
-                            className="form-label"
-                          >
-                            {t("card")}
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="cardHolderName"
-                            value={cardHolderName}
-                            onChange={(e) =>
-                              setCardHolderName(
-                                e.target.value.replace(
-                                  /[^a-zA-ZıİçÇşŞğĞöÖüÜ ]/g,
-                                  ""
-                                )
-                              )
-                            }
-                            placeholder={t("card")}
-                          />
-                        </div>
-
-                        {/* Kart Numarası */}
-                        <div className="mb-4 col-12 ps-3">
-                          <label htmlFor="cardNumber" className="form-label">
-                            {t("no")}
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="cardNumber"
-                            value={cardNumber}
-                            onChange={(e) => {
-                              let value = e.target.value.replace(/\D/g, "");
-                              if (value.length > 4) {
-                                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-                              }
-                              setCardNumber(value);
-                            }}
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mb-5 d-flex flex-column">
-                        <div className="mb-4 col-12 ps-3">
-                          <label
-                            htmlFor="expirationDate"
-                            className="form-label"
-                          >
-                            {t("skt")}
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="expirationDate"
-                            value={expirationDate}
-                            onChange={(e) => {
-                              let value = e.target.value.replace(/\D/g, "");
-                              if (value.length > 2) {
-                                value =
-                                  value.slice(0, 2) + "/" + value.slice(2, 4);
-                              }
-                              setExpirationDate(value);
-                            }}
-                            placeholder="MM/YY"
-                            maxLength={5}
-                          />
-                        </div>
-
-                        {/* CVV */}
-                        <div className="mb-4 col-12 ps-3">
-                          <label htmlFor="cvv" className="form-label">
-                            CVV
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="cvv"
-                            value={cvv}
-                            onChange={(e) =>
-                              setCvv(
-                                e.target.value.slice(0, 4).replace(/\D/g, "")
-                              )
-                            }
-                            placeholder="123"
-                            maxLength={4}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="container">
-                        {/* Fatura Bilgileri Checkbox */}
-                        <div className="mb-4 form-check">
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="billingInfo"
-                            checked={showBillingInfo}
-                            onChange={handleCheckboxChange}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="billingInfo"
-                          >
-                            {t("fatura")}
-                          </label>
-                        </div>
-
-                        {showBillingInfo && (
-                          <div>
-                            <div className="mb-4 col-12">
-                              <label
-                                htmlFor="billingName"
-                                className="form-label"
-                              >
-                                Şirket Ünvanı
-                              </label>
-                              <input
-                                type="text"
-                                className="form-control bg-white border"
-                                id="billingName"
-                                placeholder="Şirket Ünvanı"
-                              />
-                            </div>
-
-                            <div className="mb-4 col-12">
-                              <label htmlFor="vkn" className="form-label">
-                                {t("vkn")}
-                              </label>
-                              <input
-                                type="text"
-                                className="form-control bg-white border"
-                                id="vkn"
-                                value={vkn}
-                                onChange={handleVknChange}
-                                placeholder="VKN/TC"
-                                maxLength={11}
-                              />
-                            </div>
-
-                            <div className="mb-4 col-12">
-                              <label
-                                htmlFor="vergiDairesi"
-                                className="form-label"
-                              >
-                                {t("vd")}
-                              </label>
-                              <input
-                                type="text"
-                                className="form-control bg-white border"
-                                id="vergiDairesi"
-                                placeholder="Vergi Dairesi"
-                              />
-                            </div>
-
-                            <div className="mb-4 col-12">
-                              <label
-                                htmlFor="billingAddress"
-                                className="form-label"
-                              >
-                                {t("add")}
-                              </label>
-                              <input
-                                type="text"
-                                className="form-control bg-white border"
-                                id="billingAddress"
-                                placeholder={t("add")}
-                              />
-                            </div>
+                              {t2("total")}
+                              <span>${bookingData.totalPrice}</span>
+                            </p>
+                          </>
+                        ) : (
+                          <div className="text-center py-4">
+                            <p>{t("Sepet bilgileri bulunamadı")}</p>
                           </div>
                         )}
                       </div>
-
-                      <button
-                        type="submit"
-                        onClick={handleSubmit}
-                        className="btn btn-dark w-100 h-30 items-center btn-custom mx-auto d-block"
-                        style={{
-                          backgroundColor: "#000000",
-                          border: "2px solid #343a40",
-                          borderRadius: "8px",
-                          transition: "none",
-                          marginTop: "20px",
-                        }}
-                      >
-                        {t("odeme")} 💳
-                      </button>
                     </div>
                   </div>
-                )}
-
-                {selectedPaymentMethod === "bankTransfer" && (
-                  <div className="col-12 col-md-8"></div>
-                )}
               </div>
-            </div>
-          )}
-          {showTourPayForm && (
-            <div
-              className="col-12 col-md-4 mt-4 mt-md-0"
-              style={{
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-            >
-              <div className="card p-4" style={{ marginTop: "20px" }}>
-                <h5 className="mb-4">{t("sepetOzeti")}</h5>
-                <div
-                  className="mb-4 background-3 neutral-500"
-                  style={{
-                    borderRadius: "3px",
-                    padding: "20px",
-                  }}
-                >
-                  <div className="text-black text-md font-extrabold">
-                    📍Adrasan Boat Tour
-                  </div>
-                  <div className="neutral-500">
-                    📆 3 {t("d")} , 2 {t("g")}
-                  </div>
-                  <div className="neutral-500"> 🎫 {t("code")} :2025-0001</div>
-                </div>
-                <div
-                  className="mb-4 background-2 neutral-500"
-                  style={{
-                    borderRadius: "3px",
-                    padding: "20px",
-                  }}
-                >
-                  <div className="text-black text-sm font-small">
-                    📮 {t("mail")}
-                  </div>
-                </div>
-                <hr className="w-100 border-secondary" />
-                <p className="d-flex justify-content-between">
-                  2 {t("a")}
-                  <span>$200</span>
-                </p>
-                <hr className="w-100 border-secondary" />
-                <p className="d-flex justify-content-between">
-                  2 {t("ç")}
-                  <span>$200</span>
-                </p>
-                <hr className="w-100 border-secondary" />
-                <p className="d-flex justify-content-between text-dark fw-bold">
-                  {t("total")}
-                  <span>$400</span>
-                </p>
-                <div className="d-flex justify-content-center mt-4">
-                  <button
-                    className="btn btn-dark w-100 mt-12 bg-black-2"
-                    style={{ borderRadius: "6px" }}
-                  >
-                    {t("ok")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <section
-            className="section-box box-media background-body"
-            style={{ marginTop: "40px" }}
-          >
-            <div className="container-media wow fadeInUp">
-              <img src="/assets/imgs/page/homepage5/media.png" alt="Travila" />
-              <img src="/assets/imgs/page/homepage5/media2.png" alt="Travila" />
-              <img src="/assets/imgs/page/homepage5/media3.png" alt="Travila" />
-              <img src="/assets/imgs/page/homepage5/media4.png" alt="Travila" />
-              <img src="/assets/imgs/page/homepage5/media5.png" alt="Travila" />
-              <img src="/assets/imgs/page/homepage5/media6.png" alt="Travila" />
-              <img src="/assets/imgs/page/homepage5/media7.png" alt="Travila" />
-            </div>
-          </section>
+              </section>
+            )}
+          </>
+        )}
         </Layout>
       </>
     );
-  };
 }

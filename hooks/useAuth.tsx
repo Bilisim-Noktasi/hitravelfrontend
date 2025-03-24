@@ -1,23 +1,15 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-import { login, handleLogout } from '../redux/authSlice';
-import { useCallback } from 'react';
-import { deleteCookie } from 'cookies-next';
+import { login, logout, setCredentials, clearAuth, initAuth } from '../redux/authSlice';
+import { useEffect } from 'react';
+import { getCookie } from 'cookies-next';
 
-/**
- * Custom hook for authentication functionality
- * Provides access to auth state and authentication methods
- */
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user, token, isAuthenticated, isLoading, error } = useSelector(
     (state: RootState) => state.auth
   );
 
-  /**
-   * Login function
-   * @param credentials - User credentials (email and password)
-   */
   const handleLogin = async (credentials: { email: string; password: string }) => {
     try {
       return await dispatch(login(credentials)).unwrap();
@@ -27,16 +19,26 @@ export const useAuth = () => {
     }
   };
 
-  /**
-   * Logout function
-   */
-  const logout = useCallback(() => {
-    // Remove the auth token from cookies
-    deleteCookie('next-auth.session-token');
-    
-    // Dispatch the logout action to update the Redux store
-    dispatch(handleLogout());
-  }, [dispatch]);
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  const setAuth = (userData: { user: any; token: string }) => {
+    dispatch(setCredentials(userData));
+  };
+
+  const clearAuthState = () => {
+    dispatch(clearAuth());
+  };
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const hasToken = getCookie('next-auth.session-token');
+    if (!isAuthenticated && hasToken) {
+      dispatch(initAuth());
+    }
+  }, [dispatch, isAuthenticated, isLoading]);
 
   return {
     user,
@@ -46,7 +48,9 @@ export const useAuth = () => {
     error,
     login: handleLogin,
     logout: handleLogout,
+    setAuth,
+    clearAuth: clearAuthState,
   };
 };
 
-export default useAuth; 
+export default useAuth;

@@ -824,9 +824,9 @@ h6,
   right: 0;
   bottom: 0;
   z-index: 999999;
-  -webkit-transition: 0.6s;
-  -o-transition: 0.6s;
-  transition: 0.6s;
+  -webkit-transition: 0.1s;
+  -o-transition: 0.1s;
+  transition: 0.1s;
   margin: 0 auto;
 }
 .preloader img {
@@ -1834,9 +1834,9 @@ h4 {
   width: 35px;
   height: 35px;
   display: inline-block;
-  -webkit-animation: spinner 1.2s infinite ease-in-out;
-  -o-animation: spinner 1.2s infinite ease-in-out;
-  animation: spinner 1.2s infinite ease-in-out;
+  -webkit-animation: spinner 0.1s infinite ease-in-out;
+  -o-animation: spinner 0.1s infinite ease-in-out;
+  animation: spinner 0.1s infinite ease-in-out;
   box-shadow: 0 0 10px #fff;
 }
 

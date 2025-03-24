@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/authSlice";
 import { AppDispatch, RootState } from "../../redux/store";
@@ -13,7 +13,7 @@ export default function PopupSignin({
 }: any) {
   const t = useTranslations("SignIn");
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const { isLoading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
   
   const [credentials, setCredentials] = useState({
     email: "",
@@ -30,12 +30,20 @@ export default function PopupSignin({
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await dispatch(login(credentials));
-    // Close the popup if login is successful
-    if (!error) {
-      handleLogin();
+    try {
+      await dispatch(login(credentials)).unwrap();
+      if (handleLogin) handleLogin(); // Başarılı girişten sonra popup'ı kapat
+    } catch (err) {
+      console.error("Login error:", err);
     }
   };
+
+  // Giriş başarılı olduğunda popup'ı kapat
+  useEffect(() => {
+    if (isAuthenticated && isLogin) {
+      handleLogin(); // Popup'ı kapat
+    }
+  }, [isAuthenticated, isLogin, handleLogin]);
   
   return (
     <>

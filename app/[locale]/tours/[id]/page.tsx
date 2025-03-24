@@ -1,14 +1,9 @@
 "use client";
 import BookingForm from "@/components/elements/BookingForm";
 import Layout from "@/components/layout/Layout";
-import SwiperGroup3Slider from "@/components/slider/SwiperGroup3Slider";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getTourDispatch, getToursDispatch } from "@/redux/tourSlice";
-import {
-  swiperGroup1,
-  swiperGroup2,
-  swiperGroupTestimonials1,
-} from "@/util/swiperOption";
+import { swiperGroupTestimonials1 } from "@/util/swiperOption";
 import { Link } from "@/i18n/routing";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,12 +11,54 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import Preloader from "@/components/elements/Preloader";
 import News1 from "@/components/sections/News1";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 
 export default function TourDetail3({ params }: { params: { id: string } }) {
   const [isAccordion, setIsAccordion] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = params;
   const t = useTranslations("tour");
+
+  // Move the dynamic import here where t is available
+  const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
+    ssr: false,
+    loading: () => <div style={{ height: '400px', width: '100%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t("Harita_yükleniyor")}</div>
+  });
+
+  // Harita bileşeni için yükleme durumu
+  const MapWithLoading = () => {
+    if (!tour?.latitude || !tour?.longitude) {
+      return <p>{t("Bu_tour_için_konum_bilgisi_bulunmamaktadır")}</p>;
+    }
+
+    return (
+      <div className="tour-map" style={{ height: "400px", width: "100%" }}>
+        <MapComponent
+          latitude={tour.longitude}
+          longitude={tour.latitude}
+          title={tour.name}
+        />
+      </div>
+    );
+  };
+
+  const handleShare = () => {
+    const shareUrl = window.location.href;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Sayfayı Paylaş",
+          url: shareUrl,
+        })
+        .then(() => console.log("Paylaşım başarılı"))
+        .catch((error) => console.log("Paylaşım başarısız:", error));
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => alert("Bağlantı panoya kopyalandı!"))
+        .catch((error) => console.log("Panoya kopyalama başarısız:", error));
+    }
+  };
 
   const handleAccordion = (key: any) => {
     setIsAccordion((prevState) => (prevState === key ? null : key));
@@ -31,19 +68,23 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
   const { tour, tours } = useSelector((state: RootState) => state.tour);
 
   useEffect(() => {
-    dispatch(getTourDispatch(id, setLoading));
-  }, [dispatch, id]);
+    if (!tour) {
+      dispatch(getTourDispatch(id, setLoading));
+    }
+  }, [dispatch, id, tour]);
+  
 
   useEffect(() => {
-    dispatch(getToursDispatch(0, 10));
-  }, [dispatch]);
+    if (!tours.length) {
+      dispatch(getToursDispatch(0, 10));
+    }
+  }, [dispatch, tours]);
+  
 
   if (loading) {
     return <Preloader />;
   }
   const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
-  console.log(tour);
-  console.log("Turlar: ", tours);
   return (
     <>
       <Layout headerStyle={1} footerStyle={1}>
@@ -111,19 +152,28 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                     <div className="tour-metas">
                       <div className="tour-meta-left">
                         <div className="tour-rate">
-                        <p className="text-md-medium neutral-500 mr-20 tour-location">
-                          📍 {tour?.cityName}, {tour?.countryName}
-                        </p>
+                          <p className="text-md-medium neutral-500 mr-20 tour-location">
+                            📍 {tour?.cityName}, {tour?.countryName}
+                          </p>
                         </div>
                         <div className="tour-rate">
-                        <Link
-                          className="text-md-medium neutral-1000 mr-30"
-                          href="#"
-                        >
-                          {t("maps")}
-                        </Link>
+                          <Link
+                            className="text-md-medium neutral-1000 mr-30"
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault(); // Varsayılan link davranışını engelle
+                              handleAccordion(9); // Accordion'u aç
+
+                              // Sayfayı ilgili bölüme kaydır
+                              const section = document.getElementById("map-section");
+                              if (section) {
+                                section.scrollIntoView({ behavior: "smooth", block: "center" });
+                              }
+                            }}
+                          >
+                            {t("maps")}
+                          </Link>
                         </div>
-                        
                         <div className="tour-rate">
                           <div className="rate-element">
                             <span className="rating">
@@ -138,36 +188,43 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                       <div className="tour-meta-right">
                         {" "}
                         <div className="tour-rate">
-                        <Link className="btn btn-share" href="#">
-                          <svg
-                            width={16}
-                            height={18}
-                            viewBox="0 0 16 18"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <Link
+                            className="btn btn-share"
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault(); // Sayfanın yenilenmesini engeller
+                              handleShare();
+                            }}
                           >
-                            <path d="M13 11.5332C12.012 11.5332 11.1413 12.0193 10.5944 12.7584L5.86633 10.3374C5.94483 10.0698 6 9.79249 6 9.49989C6 9.10302 5.91863 8.72572 5.77807 8.37869L10.7262 5.40109C11.2769 6.04735 12.0863 6.46655 13 6.46655C14.6543 6.46655 16 5.12085 16 3.46655C16 1.81225 14.6543 0.466553 13 0.466553C11.3457 0.466553 10 1.81225 10 3.46655C10 3.84779 10.0785 4.20942 10.2087 4.54515L5.24583 7.53149C4.69563 6.90442 3.8979 6.49989 3 6.49989C1.3457 6.49989 0 7.84559 0 9.49989C0 11.1542 1.3457 12.4999 3 12.4999C4.00433 12.4999 4.8897 11.9996 5.4345 11.2397L10.147 13.6529C10.0602 13.9331 10 14.2249 10 14.5332C10 16.1875 11.3457 17.5332 13 17.5332C14.6543 17.5332 16 16.1875 16 14.5332C16 12.8789 14.6543 11.5332 13 11.5332Z" />
-                          </svg>
-                          {t("share")}
-                        </Link>
+                            <svg
+                              width={16}
+                              height={18}
+                              viewBox="0 0 16 18"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M13 11.5332C12.012 11.5332 11.1413 12.0193 10.5944 12.7584L5.86633 10.3374C5.94483 10.0698 6 9.79249 6 9.49989C6 9.10302 5.91863 8.72572 5.77807 8.37869L10.7262 5.40109C11.2769 6.04735 12.0863 6.46655 13 6.46655C14.6543 6.46655 16 5.12085 16 3.46655C16 1.81225 14.6543 0.466553 13 0.466553C11.3457 0.466553 10 1.81225 10 3.46655C10 3.84779 10.0785 4.20942 10.2087 4.54515L5.24583 7.53149C4.69563 6.90442 3.8979 6.49989 3 6.49989C1.3457 6.49989 0 7.84559 0 9.49989C0 11.1542 1.3457 12.4999 3 12.4999C4.00433 12.4999 4.8897 11.9996 5.4345 11.2397L10.147 13.6529C10.0602 13.9331 10 14.2249 10 14.5332C10 16.1875 11.3457 17.5332 13 17.5332C14.6543 17.5332 16 16.1875 16 14.5332C16 12.8789 14.6543 11.5332 13 11.5332Z" />
+                            </svg>
+                            {t("share")}
+                          </Link>
                         </div>
                         <div className="tour-rate">
-                        <Link className="btn btn-wishlish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M2.2222 2.3638C4.34203 0.243977 7.65342 0.0419426 10.0004 1.7577C12.3473 0.0419426 15.6587 0.243977 17.7786 2.3638C20.1217 4.70695 20.1217 8.50594 17.7786 10.8491L12.1217 16.5059C10.9501 17.6775 9.05063 17.6775 7.87906 16.5059L2.2222 10.8491C-0.120943 8.50594 -0.120943 4.70695 2.2222 2.3638Z"
-                            />
-                          </svg>
-                          {t("wishlish")}
-                        </Link>
+                          <Link className="btn btn-wishlish" href="#">
+                            <svg
+                              width={20}
+                              height={18}
+                              viewBox="0 0 20 18"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M2.2222 2.3638C4.34203 0.243977 7.65342 0.0419426 10.0004 1.7577C12.3473 0.0419426 15.6587 0.243977 17.7786 2.3638C20.1217 4.70695 20.1217 8.50594 17.7786 10.8491L12.1217 16.5059C10.9501 17.6775 9.05063 17.6775 7.87906 16.5059L2.2222 10.8491C-0.120943 8.50594 -0.120943 4.70695 2.2222 2.3638Z"
+                              />
+                            </svg>
+                            {t("wishlish")}
+                          </Link>
                         </div>
-                        
+
                       </div>
                     </div>
                   </div>
@@ -176,7 +233,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                       <div className="swiper-container swiper-group-2">
                         <Swiper {...swiperGroupTestimonials1} loop={false}>
                           {tour?.tourImages?.map((item, index) => (
-                            <SwiperSlide key={tour.id}>
+                            <SwiperSlide key={item.id || index}>
                               <img
                                 src={item.imageUrl || "https://placehold.co/500x500"} alt="Travila"
                               />
@@ -231,7 +288,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           {t("tourDetail")}
                         </p>
                         <p className="text-lg-bold neutral-1000">
-                          {tour?.tourHours} {t("hours")}
+                          {tour?.tourHours} {t("Hours")}
                         </p>
                       </div>
                     </div>
@@ -324,109 +381,12 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           
                         </div> */}
                         <p className="text-lg-bold neutral-1000">
-                          {tour?.cityName}
+                          {tour?.stateName}
                         </p>
                       </div>
                     </div>
                   </div>
-
                   <div className="box-collapse-expand">
-                    <div className="group-collapse-expand">
-                      <button
-                        className={
-                          isAccordion == 1
-                            ? "btn btn-collapse collapsed"
-                            : "btn btn-collapse"
-                        }
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapseOverview"
-                        aria-expanded="false"
-                        aria-controls="collapseOverview"
-                        onClick={() => handleAccordion(1)}
-                      >
-                        <h6>
-                          👀{tour?.name} {t("genel")}
-                        </h6>
-                        <svg
-                          width={12}
-                          height={7}
-                          viewBox="0 0 12 7"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M1 1L6 6L11 1"
-                            stroke=""
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            fill="none"
-                          />
-                        </svg>
-                      </button>
-                      <div
-                        className={
-                          isAccordion == 1 ? "collapse" : "collapse show"
-                        }
-                        id="collapseOverview"
-                      >
-                        <div className="card card-body">
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: tour?.overview || [],
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="group-collapse-expand">
-                      <button
-                        className={
-                          isAccordion == 2
-                            ? "btn btn-collapse collapsed"
-                            : "btn btn-collapse"
-                        }
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapseHighlight"
-                        aria-expanded="false"
-                        aria-controls="collapseHighlight"
-                        onClick={() => handleAccordion(2)}
-                      >
-                        <h6>
-                          🌟{tour?.name} {t("highlight")}
-                        </h6>
-                        <svg
-                          width={12}
-                          height={7}
-                          viewBox="0 0 12 7"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M1 1L6 6L11 1"
-                            stroke=""
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            fill="none"
-                          />
-                        </svg>
-                      </button>
-                      <div
-                        className={
-                          isAccordion == 2 ? "collapse" : "collapse show"
-                        }
-                        id="collapseHighlight"
-                      >
-                        <div className="card card-body">
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: tour?.note || [],
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
                     <div className="group-collapse-expand">
                       <button
                         className={
@@ -470,7 +430,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                               <p className="text-md-bold">{t("inc")}:</p>
                               <ul>
                                 {tour?.includedItems.map((item, index) => (
-                                  <li key={item.id}>{item.name}</li>
+                                  <li key={item.id || index}>{item.name}</li>
                                 ))}
                               </ul>
                             </div>
@@ -478,11 +438,107 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                               <p className="text-md-bold">{t("exc")}:</p>
                               <ul>
                                 {tour?.excludedItems.map((item, index) => (
-                                  <li key={item.id}>{item.name}</li>
+                                  <li key={item.id || index}>{item.name}</li>
                                 ))}
                               </ul>
                             </div>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="group-collapse-expand">
+                      <button
+                        className={
+                          isAccordion == 2
+                            ? "btn btn-collapse collapsed"
+                            : "btn btn-collapse"
+                        }
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseHighlight"
+                        aria-expanded="false"
+                        aria-controls="collapseHighlight"
+                        onClick={() => handleAccordion(2)}
+                      >
+                        <h6>
+                          🌟 {t("highlight")}
+                        </h6>
+                        <svg
+                          width={12}
+                          height={7}
+                          viewBox="0 0 12 7"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M1 1L6 6L11 1"
+                            stroke=""
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            fill="none"
+                          />
+                        </svg>
+                      </button>
+                      <div
+                        className={
+                          isAccordion == 2 ? "collapse" : "collapse show"
+                        }
+                        id="collapseHighlight"
+                      >
+                        <div className="card card-body">
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: tour?.note || [],
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="group-collapse-expand">
+                      <button
+                        className={
+                          isAccordion == 1
+                            ? "btn btn-collapse collapsed"
+                            : "btn btn-collapse"
+                        }
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseOverview"
+                        aria-expanded="false"
+                        aria-controls="collapseOverview"
+                        onClick={() => handleAccordion(1)}
+                      >
+                        <h6>
+                          👀{t("genel")}
+                        </h6>
+                        <svg
+                          width={12}
+                          height={7}
+                          viewBox="0 0 12 7"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M1 1L6 6L11 1"
+                            stroke=""
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            fill="none"
+                          />
+                        </svg>
+                      </button>
+                      <div
+                        className={
+                          isAccordion == 1 ? "collapse" : "collapse show"
+                        }
+                        id="collapseOverview"
+                      >
+                        <div className="card card-body">
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: tour?.overview || [],
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -525,8 +581,8 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                       >
                         <div className="card card-body">
                           <div className="list-questions">
-                            {tour?.questionAnswers.map((item) => (
-                              <div key={item.id} className="item-question">
+                            {tour?.questionAnswers.map((item, index) => (
+                              <div key={item.id || index} className="item-question">
                                 <div className="head-question">
                                   <p className="text-md-bold neutral-1000">{item.question}</p>
                                 </div>
@@ -537,227 +593,20 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                             ))}
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    {/* <div className="group-collapse-expand">
-                      <button
-                        className={
-                          isAccordion == 6
-                            ? "btn btn-collapse collapsed"
-                            : "btn btn-collapse"
-                        }
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapseReviews"
-                        aria-expanded="false"
-                        aria-controls="collapseReviews"
-                        onClick={() => handleAccordion(6)}
-                      >
-                        <h6>
-                          {tour?.name} {t("rate")} 🤔
-                        </h6>
-                        <svg
-                          width={12}
-                          height={7}
-                          viewBox="0 0 12 7"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M1 1L6 6L11 1"
-                            stroke=""
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            fill="none"
-                          />
-                        </svg>
-                      </button>
-                      <div
-                        className={
-                          isAccordion == 6 ? "collapse" : "collapse show"
-                        }
-                        id="collapseReviews"
-                      >
-                        <div className="card card-body">
-                          <div className="head-reviews"></div>
-                          <div className="list-reviews">
-                            <div className="item-review">
-                              <div className="head-review">
-                                <div className="author-review">
-                                  {" "}
-                                  <img
-                                    src="/assets/imgs/page/tour-detail/avatar.png"
-                                    alt="Travila"
-                                  />
-                                  <div className="author-info">
-                                    <p className="text-lg-bold">
-                                      Sarah Johnson
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="content-review">
-                                <p className="text-sm-medium neutral-800">
-                                  The views from The High Roller were absolutely
-                                  stunning! It's a fantastic way to see the
-                                  Strip and the surrounding area. The cabins are
-                                  spacious and comfortable, and the audio
-                                  commentary adds an extra layer of enjoyment.
-                                  Highly recommend!
-                                </p>
-                              </div>
-                            </div>
-                            <div className="item-review">
-                              <div className="head-review">
-                                <div className="author-review">
-                                  {" "}
-                                  <img
-                                    src="/assets/imgs/page/tour-detail/avatar.png"
-                                    alt="Travila"
-                                  />
-                                  <div className="author-info">
-                                    <p className="text-lg-bold">
-                                      Sarah Johnson
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="content-review">
-                                <p className="text-sm-medium neutral-800">
-                                  The views from The High Roller were absolutely
-                                  stunning! It's a fantastic way to see the
-                                  Strip and the surrounding area. The cabins are
-                                  spacious and comfortable, and the audio
-                                  commentary adds an extra layer of enjoyment.
-                                  Highly recommend!
-                                </p>
-                              </div>
-                            </div>
-                            <div className="item-review">
-                              <div className="head-review">
-                                <div className="author-review">
-                                  {" "}
-                                  <img
-                                    src="/assets/imgs/page/tour-detail/avatar.png"
-                                    alt="Travila"
-                                  />
-                                  <div className="author-info">
-                                    <p className="text-lg-bold">
-                                      Sarah Johnson
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="content-review">
-                                <p className="text-sm-medium neutral-800">
-                                  The views from The High Roller were absolutely
-                                  stunning! It's a fantastic way to see the
-                                  Strip and the surrounding area. The cabins are
-                                  spacious and comfortable, and the audio
-                                  commentary adds an extra layer of enjoyment.
-                                  Highly recommend!
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <nav aria-label="Page navigation example">
-                            <ul className="pagination">
-                              <li className="page-item">
-                                <Link
-                                  className="page-link"
-                                  href="#"
-                                  aria-label="Previous"
-                                >
-                                  <span aria-hidden="true">
-                                    <svg
-                                      width={12}
-                                      height={12}
-                                      viewBox="0 0 12 12"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <path
-                                        d="M6.00016 1.33325L1.3335 5.99992M1.3335 5.99992L6.00016 10.6666M1.3335 5.99992H10.6668"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </svg>
-                                  </span>
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link className="page-link" href="#">
-                                  1
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link className="page-link active" href="#">
-                                  2
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link className="page-link" href="#">
-                                  3
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link className="page-link" href="#">
-                                  4
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link className="page-link" href="#">
-                                  5
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link className="page-link" href="#">
-                                  ...
-                                </Link>
-                              </li>
-                              <li className="page-item">
-                                <Link
-                                  className="page-link"
-                                  href="#"
-                                  aria-label="Next"
-                                >
-                                  <span aria-hidden="true">
-                                    <svg
-                                      width={12}
-                                      height={12}
-                                      viewBox="0 0 12 12"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <path
-                                        d="M5.99967 10.6666L10.6663 5.99992L5.99968 1.33325M10.6663 5.99992L1.33301 5.99992"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </svg>
-                                  </span>
-                                </Link>
-                              </li>
-                            </ul>
-                          </nav>
-                        </div>
+
                       </div>
                     </div>
                     <div className="group-collapse-expand">
                       <button
-                        className={
-                          isAccordion == 7
-                            ? "btn btn-collapse collapsed"
-                            : "btn btn-collapse"
-                        }
+                        className={"btn btn-collapse"}
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#collapseAddReview"
-                        aria-expanded="false"
-                        aria-controls="collapseAddReview"
-                        onClick={() => handleAccordion(7)}
+                        data-bs-target="#collapseMap"
+                        aria-expanded="true"
+                        aria-controls="collapseMap"
+                        onClick={() => handleAccordion(9)}
                       >
-                        <h6>
-                          {tour?.name} {t("comment")}😊{" "}
-                        </h6>
+                        <h6 id="map-section">📍 {t("Konum")}</h6>
                         <svg
                           width={12}
                           height={7}
@@ -774,67 +623,17 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                           />
                         </svg>
                       </button>
-                      <div
-                        className={
-                          isAccordion == 7 ? "collapse" : "collapse show"
-                        }
-                        id="collapseAddReview"
-                      >
+                      <div className="collapse show" id="collapseMap">
                         <div className="card card-body">
-                          <div className="box-form-reviews">
-                            <div className="row">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder={t("ad")}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder={t("mail")}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-12">
-                                <div className="form-group">
-                                  <textarea
-                                    className="form-control"
-                                    placeholder={t("yorum")}
-                                    defaultValue={""}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-12">
-                                <button className="btn btn-black-lg-square">
-                                  {t("submit")}
-                                  <svg
-                                    width={16}
-                                    height={16}
-                                    viewBox="0 0 16 16"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path
-                                      d="M8 15L15 8L8 1M15 8L1 8"
-                                      stroke=""
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      fill="none"
-                                    />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
+                          {tour?.latitude && tour?.longitude ? (
+                            <MapWithLoading />
+                          ) : (
+                            <p>{t("Bu_tur_için_konum_bilgisi_bulunmamaktadır")}</p>
+                          )}
                         </div>
                       </div>
-                    </div> */}
+                    </div>
+
                   </div>
                 </div>
                 <div className="col-lg-4">
@@ -854,7 +653,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                               <div className="card-image">
                                 {" "}
                                 <Link href={`/tour/${tourItem.id}`}>
-                                <img src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
+                                  <img src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
                                 </Link>
 
                               </div>
@@ -877,24 +676,7 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
                       </ul>
                     </div>
                   </div>
-                  <div className="sidebar-banner">
-                    {" "}
-                    <Link href="#">
-                      <img
-                        src="/assets/imgs/page/tour-detail/banner-ads.png"
-                        alt="Travila"
-                      />
-                    </Link>
-                  </div>
-                  <div className="sidebar-banner">
-                    {" "}
-                    <Link href="#">
-                      <img
-                        src="/assets/imgs/page/tour-detail/banner-ads2.png"
-                        alt="Travila"
-                      />
-                    </Link>
-                  </div>
+
                 </div>
               </div>
             </div>

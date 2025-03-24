@@ -3,15 +3,14 @@ import "primereact/resources/primereact.min.css";
 import { Tour } from "@/types";
 import { Calendar } from "primereact/calendar";
 import { useLocale, useTranslations } from "next-intl";
-import { CiCalendar } from "react-icons/ci";
 import { useEffect, useState } from "react";
-import { Link } from "@/i18n/routing";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { createBooking } from "@/redux/bookingSlice";
 
 export default function BookingForm({ tour }: { tour: Tour | null }) {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("tour");
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state: RootState) => state.booking);
@@ -24,7 +23,8 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
   const [isTransferSelected, setIsTransferSelected] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<any | null>(null);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedExtras, setSelectedExtras] = useState<{id: number, selected: boolean, price: number}[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<{ name: string, selected: boolean, price: number, quantity: number, isExpandable: boolean }[]>([]);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Fiyat hesaplama fonksiyonu
   useEffect(() => {
@@ -34,19 +34,19 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
     // Yetişkin sayısı + 3 yaşından büyük çocuklar için ücret
     const childrenOver3 = childAges.filter(age => age > 3).length;
     const baseTourPrice = tour.tourPriceUSD * (adultCount + childrenOver3);
-    
+
     // Ekstra ücretleri hesaplama
     const totalPersonCount = adultCount + childCount;
     const extrasPrice = selectedExtras
       .filter(extra => extra.selected)
       .reduce((total, extra) => total + (extra.price * totalPersonCount), 0);
-    
+
     // Transfer ücreti hesaplama
     let transferPrice = 0;
     if (isTransferSelected && selectedTransfer) {
       transferPrice = selectedTransfer.priceUSD * totalPersonCount;
     }
-    
+
     // Toplam fiyat
     const calculatedTotal = baseTourPrice + extrasPrice + transferPrice;
     setTotalPrice(calculatedTotal);
@@ -56,9 +56,11 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
   useEffect(() => {
     if (tour?.tourExtras) {
       const initialExtras = tour.tourExtras.map(extra => ({
-        id: Number(extra.id),
+        name: extra.name,
+        quantity: extra.quantity || 1,
         selected: false,
-        price: extra.priceUSD
+        price: extra.priceUSD,
+        isExpandable: extra.IsExpandable || false,
       }));
       setSelectedExtras(initialExtras);
     }
@@ -82,14 +84,30 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
   };
 
   // Ekstra seçenekleri değiştirme handler'ı
-  const handleExtraChange = (extraId: number, checked: boolean) => {
-    setSelectedExtras(prevExtras => 
-      prevExtras.map(extra => 
-        extra.id === extraId ? { ...extra, selected: checked } : extra
-      )
+  const handleExtraChange = (extraName: string, checked: boolean, quantity?: number) => {
+    setSelectedExtras(prevExtras =>
+      prevExtras.map(extra => {
+        if (extra.name === extraName) {
+          // Eğer ekstra seçildiyse, selected durumu güncelleniyor
+          const updatedExtra = { ...extra, selected: checked };
+  
+          // Eğer miktar (quantity) sağlanmışsa, bu değeri de ekleyelim
+          if (checked && quantity !== undefined) {
+            updatedExtra.quantity = quantity;
+          }
+  
+          // Eğer ekstra seçilmemişse, quantity'i sıfırlıyoruz
+          if (!checked) {
+            updatedExtra.quantity = 1;
+          }
+  
+          return updatedExtra;
+        }
+        return extra;
+      })
     );
   };
-
+  
   // Çocuk sayısı değiştiğinde childAges dizisini güncelle
   const handleChildCountChange = (newCount: number) => {
     if (newCount < 0) return; // Negatif sayıya düşmesin
@@ -117,14 +135,76 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
     }
   };
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
+    // Form doğrulama
     if (!date || !time) {
-      alert("Please select a date and time.");
+      setBookingError(t("Please select a date and time"));
       return;
     }
 
-    // Rezervasyon işlemi yapılabilir.
-    // dispatch(createBooking({ date, time, adultCount, childCount, childAges }));
+    if (!tour) {
+      setBookingError(t("Tour information is missing"));
+      return;
+    }
+
+    try {
+      // Seçilen ekstraları hazırla
+      const selectedExtrasData = selectedExtras
+        .filter(extra => extra.selected)
+        .map(extra => ({
+          name: extra.name,
+          price: extra.price,
+          quantity: adultCount + childCount
+        }));
+
+      // Transfer bilgisini hazırla
+      const transferData = isTransferSelected && selectedTransfer ? {
+        id: selectedTransfer.id,
+        cityId: selectedTransfer.cityId,
+        cityName: selectedTransfer.cityName,
+        stateId: selectedTransfer.stateId,
+        stateName: selectedTransfer.stateName,
+        price: selectedTransfer.priceUSD
+      } : null;
+
+      // Çocuk bilgilerini hazırla
+      const childrenData = childAges.map((age, index) => ({
+        age: age,
+        price: tour.childPrices.find(cp => age >= cp.minAge && age <= cp.maxAge)?.priceUSD || 0
+      }));
+
+      // Formatlı tarih YYYY-MM-DD şeklinde
+      const formattedDate = date.toISOString().split('T')[0];
+
+      // Rezervasyon verilerini oluştur
+      const bookingData = {
+        tourId: tour.id,
+        tourName: tour.name,
+        date: formattedDate,
+        time: time,
+        totalPrice: totalPrice,
+        adults: {
+          count: adultCount,
+          price: tour.tourPriceUSD
+        },
+        children: childrenData.length > 0 ? childrenData : [],
+        extras: selectedExtrasData.length > 0 ? selectedExtrasData : [],
+        transfer: transferData,
+        currency: "USD",
+        status: "Pending"
+      };
+
+      console.log("Booking data:", bookingData);
+
+      // İlk etapta Redux state'e kaydet ve sessionStorage'a sakla
+      sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+      
+      // Rezervasyon sayfasına yönlendir
+      router.push(`/${locale}/reservation`);
+    } catch (error) {
+      console.error("Booking error:", error);
+      setBookingError(t("An error occurred while processing your booking"));
+    }
   };
 
   return (
@@ -179,7 +259,7 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
           <div className="line-booking-tickets">
             {/* Yetişkinler */}
             <div className="item-ticket">
-              <p className="text-md-medium neutral-500 mr-60">Adults:</p>
+              <p className="text-md-medium neutral-500 mr-35">{t("adults")}</p>
               <p className="text-md-medium neutral-500">{adultCount}</p>
             </div>
             <div className="flex space-x-2">
@@ -201,12 +281,12 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
           {/* Çocuklar */}
           <div className="line-booking-tickets">
             <div className="item-ticket">
-              <p className="text-md-medium neutral-500 mr-45">Children:</p>
+              <p className="text-md-medium neutral-500 mr-45">{t("children")}</p>
               <p className="text-md-medium neutral-500">{childCount}</p>
             </div>
             <div>
               <button
-                className="px-3 py-1 mt-2 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
+                className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
                 onClick={() => handleChildCountChange(Math.max(0, childCount - 1))}
               >
                 -
@@ -257,17 +337,29 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
                     <label className="cb-container">
                       <input 
                         type="checkbox" 
-                        onChange={(e) => handleExtraChange(Number(extra.id), e.target.checked)}
-                        checked={selectedExtras.find(item => item.id === Number(extra.id))?.selected || false}
+                        onChange={(e) => handleExtraChange(extra.name, e.target.checked)}
+                        checked={selectedExtras.find(item => item.name === extra.name)?.selected || false}
                       />
                       <span className="text-sm-medium">{extra.name}</span>
                       <span className="checkmark" />
                     </label>
+                    {/* Eğer extra IsExpandable true ise, input alanı gösterilir */}
+                    {extra.IsExpandable && (
+                      <div className="extra-quantity-input">
+                        <label htmlFor={`extra-input-${index}`} className="text-sm-medium">{t("Quantity")}</label>
+                        <input
+                          id={`extra-input-${index}`}
+                          type="number"
+                          min="1"
+                          onChange={(e) => handleExtraChange(extra.name, true, Number(e.target.value))}
+                          placeholder="Enter quantity"
+                        />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
             </div>
-
             <div className="include-price">
               <ul>
                 {tour?.tourExtras.map((extra, index) => (
@@ -322,8 +414,12 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
 
       {/* Rezervasyon butonu */}
       <div className="box-button-book">
-        <a className="btn btn-book" href="/tr/reservation">
-          {t("book")}
+        <button 
+          className="btn btn-book" 
+          onClick={handleBooking}
+          disabled={isLoading}
+        >
+          {isLoading ? t("WhyChooseUs.Processing") : t("book")}
           <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
             <path
               d="M8 15L15 8L8 1M15 8L1 8"
@@ -333,12 +429,19 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
               strokeLinejoin="round"
             />
           </svg>
-        </a>
+        </button>
       </div>
+
+      {/* Hata mesajı */}
+      {(bookingError || error) && (
+        <div className="error-message text-red-500 mt-2">
+          {bookingError || error}
+        </div>
+      )}
 
       {/* Yardım Linki */}
       <div className="box-need-help">
-        <a href="/tr/faq">
+        <a href={`/${locale}/faq`}>
           <svg width={12} height={14} viewBox="0 0 12 14" fill="none">
             <path
               d="M2.83366 3.66667C2.83366 1.92067 4.25433 0.5 6.00033 0.5C7.74633 0.5 9.16699 1.92067 9.16699 3.66667C9.16699 5.41267 7.74633 6.83333 6.00033 6.83333C4.25433 6.83333 2.83366 5.41267 2.83366 3.66667ZM8.00033 7.83333H4.00033C1.88699 7.83333 0.166992 9.55333 0.166992 11.6667C0.166992 12.678 0.988992 13.5 2.00033 13.5H10.0003C11.0117 13.5 11.8337 12.678 11.8337 11.6667C11.8337 9.55333 10.1137 7.83333 8.00033 7.83333Z"

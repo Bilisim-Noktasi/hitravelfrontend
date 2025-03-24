@@ -1,6 +1,40 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { deleteCookie, getCookie } from "cookies-next";
-import { signIn } from "next-auth/react";
+import { getCookie } from "cookies-next";
+import { store } from "../redux/store";
+import { clearAuth } from "../redux/authSlice";
+
+// API için axios instance oluştur
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_API,
+});
+
+// Request interceptor
+api.interceptors.request.use(
+  (config) => {
+    const token = getCookie('next-auth.session-token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      // Token expired veya geçersiz
+      store.dispatch(clearAuth());
+    }
+    return Promise.reject(error);
+  }
+);
 
 // RequestParameter tipini doğru şekilde tanımlıyoruz
 interface RequestParameter {
@@ -11,16 +45,21 @@ interface RequestParameter {
   url?: string;
 }
 
+// URL oluşturma yardımcı fonksiyonu
+const buildUrl = (requestParameter: RequestParameter): string => {
+  return `/${requestParameter.controller ?? ''}${
+    requestParameter.action ? `/${requestParameter.action}` : ''
+  }${requestParameter.id ? `/${requestParameter.id}` : ''}`;
+};
+
 export const getRequest = async (
   requestParameter: RequestParameter
 ): Promise<any> => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
-    requestParameter.action ? `/${requestParameter.action}` : ''
-  }${requestParameter.id ? `/${requestParameter.id}` : ''}`;
+  const url = buildUrl(requestParameter);
 
   try {
-    const response: AxiosResponse = await axios.get(url, {
-      params: requestParameter.params, // Sayfa bilgilerini eklemiyoruz
+    const response: AxiosResponse = await api.get(url, {
+      params: requestParameter.params,
     });
     return response.data;
   } catch (err) {
@@ -32,46 +71,32 @@ export const getRequest = async (
 export const getGuardRequest = async (
   requestParameter: RequestParameter
 ): Promise<any> => {
-  const accessToken = getCookie("next-auth.session-token");
-  if (!accessToken) return signIn();
+  const token = getCookie("next-auth.session-token");
+  if (!token) {
+    throw new Error("Oturum açmanız gerekiyor");
+  }
 
-  // URL formatını oluşturuyoruz
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
-    requestParameter.action ? `/${requestParameter.action}` : ""
-  }${requestParameter.id ? `/${requestParameter.id}` : ""}`;
+  const url = buildUrl(requestParameter);
 
   try {
-    const response: AxiosResponse = await axios.get(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const response: AxiosResponse = await api.get(url, {
       params: requestParameter.params,
     });
-
     return response.data;
   } catch (err) {
-    const error = err as AxiosError;
-    console.error("Guard API request error", error);
-
-    // 401 hatasında çerezi silip oturum açmaya yönlendir
-    if (error.response?.status === 401) {
-      deleteCookie("next-auth.session-token");
-      signIn();
-    }
-
+    console.error("Guard API request error", err);
     throw err;
   }
 };
 
-
 export const postRequest = async (
   requestParameter: RequestParameter,
   body: object
-) => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
-    requestParameter.action ? `/${requestParameter.action}` : ""
-  }${requestParameter.id ? `/${requestParameter.id}` : ""}`;
+): Promise<any> => {
+  const url = buildUrl(requestParameter);
 
   try {
-    const response = await axios.post(url, body);
+    const response = await api.post(url, body);
     return response.data;
   } catch (err) {
     console.error("POST request error", err);
@@ -79,23 +104,39 @@ export const postRequest = async (
   }
 };
 
+export const postGuardRequest = async (
+  requestParameter: RequestParameter,
+  body: object
+): Promise<any> => {
+  const token = getCookie("next-auth.session-token");
+  if (!token) {
+    throw new Error("Oturum açmanız gerekiyor");
+  }
+
+  const url = buildUrl(requestParameter);
+
+  try {
+    const response = await api.post(url, body);
+    return response.data;
+  } catch (err) {
+    console.error("Guard POST request error", err);
+    throw err;
+  }
+};
+
 export const putGuardRequest = async (
   requestParameter: RequestParameter,
   body: object
-) => {
-  const accessToken = getCookie('next-auth.session-token');
-  if (!accessToken) {
-    return signIn();
+): Promise<any> => {
+  const token = getCookie('next-auth.session-token');
+  if (!token) {
+    throw new Error("Oturum açmanız gerekiyor");
   }
 
-  let url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
-    requestParameter.action ? `/${requestParameter.action}` : ""
-  }`;
+  const url = buildUrl(requestParameter);
   
   try {
-    const response = await axios.put(url, body, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const response = await api.put(url, body);
     return response.data;
   } catch (err) {
     console.error("PUT request error", err);
@@ -105,20 +146,16 @@ export const putGuardRequest = async (
 
 export const deleteGuardRequest = async (
   requestParameter: RequestParameter
-) => {
-  const accessToken = getCookie('next-auth.session-token');
-  if (!accessToken) {
-    return signIn();
+): Promise<any> => {
+  const token = getCookie('next-auth.session-token');
+  if (!token) {
+    throw new Error("Oturum açmanız gerekiyor");
   }
 
-  let url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
-    requestParameter.action ? `/${requestParameter.action}` : ""
-  }${requestParameter.id ? `/${requestParameter.id}` : ""}`;
+  const url = buildUrl(requestParameter);
 
   try {
-    const response = await axios.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const response = await api.delete(url);
     return response.data;
   } catch (err) {
     console.error("DELETE request error", err);
@@ -126,22 +163,43 @@ export const deleteGuardRequest = async (
   }
 };
 
-// Eksik olan postMultipartRequest fonksiyonunu ekledim
+// Multipart request for file uploads
 export const postMultipartRequest = async (
   requestParameter: RequestParameter,
   formData: FormData
-) => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_API}/${requestParameter.controller}${
-    requestParameter.action ? `/${requestParameter.action}` : ""
-  }`;
+): Promise<any> => {
+  const url = buildUrl(requestParameter);
 
   try {
-    const response = await axios.post(url, formData, {
+    const response = await api.post(url, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   } catch (err) {
     console.error("Multipart POST request error", err);
+    throw err;
+  }
+};
+
+// Guard multipart request
+export const postMultipartGuardRequest = async (
+  requestParameter: RequestParameter,
+  formData: FormData
+): Promise<any> => {
+  const token = getCookie('next-auth.session-token');
+  if (!token) {
+    throw new Error("Oturum açmanız gerekiyor");
+  }
+
+  const url = buildUrl(requestParameter);
+
+  try {
+    const response = await api.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  } catch (err) {
+    console.error("Guard Multipart POST request error", err);
     throw err;
   }
 };

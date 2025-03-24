@@ -89,7 +89,7 @@ export default function TopRated1() {
                         <Link
                           className="heading-6 neutral-1000"
                           href={`/villa-detail/${urlParser(item.detailUrl)}`}
-                        > 🏡 {capitalizeText(item.title)}{" "}
+                        > 🏡 {item.title.length > 13 ? item.title.slice(0, 13) + "..." : item.title}
                         </Link>
                       </div>
                       <div className="card-program flex justify-between items-center">

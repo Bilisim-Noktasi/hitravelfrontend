@@ -100,14 +100,12 @@ export default function YourJourney() {
                           </div>
                         </div>
                         <div className="card-title">
-                          <Link className="heading-6 neutral-1000" href={`/tours/${item.id}`}>
-                            {item.name}
-                          </Link>
+                          <Link className="heading-6 neutral-1000" href={`/tours/${item.id}`}>{item.name.length > 19 ? item.name.slice(0, 19) + "..." : item.name}</Link>
                         </div>
                         <div className="card-program">
                           <div className="duration">
                             <p className="text-md-medium neutral-500">
-                              {item.stateName}, {item.cityName}
+                            📍{item.stateName}, {item.cityName}
                             </p>
                           </div>
                           <div className="endtime">

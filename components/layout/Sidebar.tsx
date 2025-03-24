@@ -5,13 +5,25 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import { useTranslations } from "next-intl";
 import { IoSettingsOutline } from "react-icons/io5";
 import useAuth from "@/hooks/useAuth";
-import { login } from "@/redux/authSlice";
+import { useRouter } from "next/navigation";
 
-export default function Sidebar({ isSidebar, handleSidebar, handleLogin, handleLogout }: any) {
-
+export default function Sidebar({ isSidebar, handleSidebar, handleLogin }: any) {
   const t = useTranslations("SideBarMenu");
+  const { user, isAuthenticated, logout } = useAuth();
+  const router = useRouter();
 
-  const { user, isAuthenticated } = useAuth();
+  const handleLogout = () => {
+    try {
+      // Önce çıkış yap
+      logout();
+      // Sayfayı ana sayfaya yönlendir
+      setTimeout(() => {
+        router.push('/');
+      }, 100);
+    } catch (error) {
+      console.error("Çıkış yapılırken hata oluştu:", error);
+    }
+  };
 
   return (
     <>
@@ -48,153 +60,138 @@ export default function Sidebar({ isSidebar, handleSidebar, handleLogin, handleL
               </a>
             </div>
           </div>
-          <div className="sidebar-canvas-content">
-            <div className="box-author-profile">
-              {isAuthenticated ? (
-                <div className="card-author">
-                  <div className="card-image">
-                    <img
-                      src="/assets/imgs/page/homepage1/author2.png"
-                    />
-                  </div>
-                  <div className="card-info">
-                    <Link href="/profile">
-                      <p className="text-md-bold neutral-1000">{user?.email || "Kullanıcı"}</p>
-                    </Link>
-                    {/* <p className="text-xs neutral-1000">{user?.status || "Bilinmeyen Konum"}</p> */}
-                  </div>
-                </div>
-              ) : (
-                <div className="d-none d-xxl-inline-block align-middle mr-15">
-                  <a className="btn btn-default btn-signin" onClick={handleLogin}>
-                    {t("signIn")}
-                  </a>
-                </div>
-              )}
-              {isAuthenticated && (
-                <button className="btn btn-black" onClick={() => {
-                  console.log("Logout butonuna basıldı!");
-                  console.log("handleLogout fonksiyonu:", handleLogout);
-                  handleLogout();
-              }}>
-                {t("logout")}
-              </button>
-              
-              )}
-            </div>
-            {isAuthenticated && (
-              <div className="box-quicklinks">
-                <h6 className="neutral-1000">🔗 {t("quickLinks")}</h6>
-                <div className="box-list-quicklinks">
-                  <div className="item-quicklinks">
-                    <div className="item-icon">
-                      {" "}
+          <div className="sidebar-canvas-content" style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 100px)" }}>
+            {isAuthenticated ? (
+              <>
+                <div className="box-author-profile">
+                  <div className="card-author">
+                    <div className="card-image">
                       <img
-                        src="/assets/imgs/template/icons/notify.svg"
-                        alt="Travila"
+                        src="/assets/imgs/page/homepage1/author2.png"
                       />
                     </div>
-                    <div className="item-info">
-                      {" "}
-                      <Link href="#">
-                        <h6 className="text-md-bold neutral-1000">
-                          {t("notifications")}
-                        </h6>
+                    <div className="card-info">
+                      <Link href="/profile">
+                        <p className="text-md-bold neutral-1000">{user?.email || "Kullanıcı"}</p>
                       </Link>
-                      <p className="text-xs neutral-500 online">2 yeni mesaj</p>
+                      {/* <p className="text-xs neutral-1000">{user?.status || "Bilinmeyen Konum"}</p> */}
                     </div>
                   </div>
-                  <div className="item-quicklinks">
-                    <div className="item-icon">
-                      {" "}
-                      <img
-                        src="/assets/imgs/template/icons/bookmark.svg"
-                        alt="Travila"
-                      />
-                    </div>
-                    <div className="item-info">
-                      {" "}
-                      <Link href="#">
-                        <h6 className="text-md-bold neutral-1000">
-                          {t("bookMarks")}
-                        </h6>
-                      </Link>
-                      <p className="text-xs neutral-500">7 tours, 2 rooms</p>
-                    </div>
-                  </div>
-                  <div className="item-quicklinks">
-                    <div className="item-icon">
-                      <IoSettingsOutline size={24} />
-                    </div>
+                  <button className="btn btn-black" onClick={handleLogout}>
+                    {t("logout")}
+                  </button>
+                </div>
 
-                    <div className="item-info">
-                      {" "}
-                      <Link href="#">
-                        <h6 className="text-md-bold neutral-1000">
-                          {t("settings")}
-                        </h6>
-                      </Link>
-                      <p className="text-xs neutral-500">Hesap Ayarları</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="box-eventsdate">
-              <h6 className="neutral-1000">🗓️ {t("eventDates")}</h6>
-            </div>
-            <div className="box-savedplaces">
-              <h6 className=" neutral-1000">❤️ {t("savedPlaces")}</h6>
-              <div className="box-list-places">
-                <div className="card-place">
-                  <div className="card-image">
-                    {" "}
-                    <img
-                      src="/assets/imgs/page/homepage1/place.png"
-                      alt="Travila"
-                    />
-                  </div>
-                  <div className="card-info background-card">
-                    <div className="card-info-top">
-                      <h6 className="text-xl-bold">
-                        {" "}
-                        <Link className="neutral-1000" href="#">
-                          Machu Picchu
-                        </Link>
-                      </h6>
-                      <p className="text-xs card-rate">
-                        {" "}
+                <div className="box-quicklinks">
+                  <h6 className="neutral-1000">🔗 {t("quickLinks")}</h6>
+                  <div className="box-list-quicklinks">
+                    <div className="item-quicklinks">
+                      <div className="item-icon">
                         <img
-                          src="/assets/imgs/template/icons/star.svg"
+                          src="/assets/imgs/template/icons/notify.svg"
                           alt="Travila"
                         />
-                        4/5
-                      </p>
+                      </div>
+                      <div className="item-info">
+                        <Link href="#">
+                          <h6 className="text-md-bold neutral-1000">
+                            {t("notifications")}
+                          </h6>
+                        </Link>
+                        <p className="text-xs neutral-500 online">2 yeni mesaj</p>
+                      </div>
                     </div>
-                    <div className="card-info-bottom">
-                      <p className="text-xs-medium neutral-500">
-                        Carved by the Colorado River in Arizona, United States
-                      </p>
-                      <Link href="#">
-                        <svg
-                          width={10}
-                          height={10}
-                          viewBox="0 0 10 10"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M5.00011 9.08347L9.08347 5.00011L5.00011 0.916748M9.08347 5.00011L0.916748 5.00011"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </Link>
+                    <div className="item-quicklinks">
+                      <div className="item-icon">
+                        <img
+                          src="/assets/imgs/template/icons/bookmark.svg"
+                          alt="Travila"
+                        />
+                      </div>
+                      <div className="item-info">
+                        <Link href="#">
+                          <h6 className="text-md-bold neutral-1000">
+                            {t("bookMarks")}
+                          </h6>
+                        </Link>
+                        <p className="text-xs neutral-500">7 tours, 2 rooms</p>
+                      </div>
+                    </div>
+                    <div className="item-quicklinks">
+                      <div className="item-icon">
+                        <IoSettingsOutline size={24} />
+                      </div>
+
+                      <div className="item-info">
+                        <Link href="#">
+                          <h6 className="text-md-bold neutral-1000">
+                            {t("settings")}
+                          </h6>
+                        </Link>
+                        <p className="text-xs neutral-500">Hesap Ayarları</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="box-contactus">
+              
+                <div className="box-eventsdate">
+                  <h6 className="neutral-1000">🗓️ {t("eventDates")}</h6>
+                </div>
+                <div className="box-savedplaces">
+                  <h6 className=" neutral-1000">❤️ {t("savedPlaces")}</h6>
+                  <div className="box-list-places">
+                    <div className="card-place">
+                      <div className="card-image">
+                        <img
+                          src="/assets/imgs/page/homepage1/place.png"
+                          alt="Travila"
+                        />
+                      </div>
+                      <div className="card-info background-card">
+                        <div className="card-info-top">
+                          <h6 className="text-xl-bold">
+                            <Link className="neutral-1000" href="#">
+                              Machu Picchu
+                            </Link>
+                          </h6>
+                          <p className="text-xs card-rate">
+                            <img
+                              src="/assets/imgs/template/icons/star.svg"
+                              alt="Travila"
+                            />
+                            4/5
+                          </p>
+                        </div>
+                        <div className="card-info-bottom">
+                          <p className="text-xs-medium neutral-500">
+                            Carved by the Colorado River in Arizona, United States
+                          </p>
+                          <Link href="#">
+                            <svg
+                              width={10}
+                              height={10}
+                              viewBox="0 0 10 10"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M5.00011 9.08347L9.08347 5.00011L5.00011 0.916748M9.08347 5.00011L0.916748 5.00011"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Giriş yapmamış kullanıcı için boş alan
+              null
+            )}
+
+            <div className="box-contactus" style={{ marginTop: "auto", paddingTop: "2rem" }}>
               <h6 className="neutral-1000" style={{ marginBottom: "1rem" }}>
                 ☎️ {t("contactUs")}
               </h6>

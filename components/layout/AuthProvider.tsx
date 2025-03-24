@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/redux/store';
-import initializeAuth from '@/middleware/authMiddleware';
+import { initAuth } from '@/redux/authSlice';
 
 /**
  * AuthProvider component that initializes authentication state
@@ -17,7 +17,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Initialize authentication when the app loads
     const init = async () => {
       try {
-        await initializeAuth(dispatch);
+        await dispatch(initAuth());
       } catch (error) {
         console.error('Failed to initialize auth:', error);
       } finally {

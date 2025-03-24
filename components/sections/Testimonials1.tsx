@@ -6,6 +6,13 @@ import { useTranslations } from "next-intl";
 
 export default function Testimonials1() {
   const t=useTranslations("comment")
+  
+  // swiperGroupAnimate değerlerini kopyalayıp loop'u false yaparak özelleştirilmiş bir yapılandırma oluşturalım
+  const customSwiperConfig = {
+    ...swiperGroupAnimate,
+    loop: false // Loop'u devre dışı bırak
+  };
+  
   return (
     <>
       <section className="section-box box-testimonials background-3 sm:w-24 h-24">
@@ -27,7 +34,7 @@ export default function Testimonials1() {
               <div className="container-slider">
                 <div className="box-swiper mt-30">
                   <div className="swiper-container swiper-group-animate swiper-group-journey">
-                    <Swiper {...swiperGroupAnimate}>
+                    <Swiper {...customSwiperConfig}>
                       <SwiperSlide>
                         <div
                           className="card-testimonial background-card"

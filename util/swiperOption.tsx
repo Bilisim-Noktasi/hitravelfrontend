@@ -444,7 +444,7 @@ export const swiperGroupAnimate: SwiperConfig = {
 	spaceBetween: 24,
 	slidesPerView: "auto",
 	slidesPerGroup: 1,
-	loop: true,
+	loop: false,
 	speed: 1000,
 	navigation: {
 		nextEl: ".swiper-button-next-animate",

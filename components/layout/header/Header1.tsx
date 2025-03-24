@@ -30,19 +30,23 @@ export default function Header1({
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const { tours } = useSelector((state: RootState) => state.tour);
   const { categories } = useSelector((state: RootState) => state.tourCategory);
   const { subCategories } = useSelector((state: RootState) => state.tourSubCategory);
   
   const [selectedCategory, setSelectedCategory] = useState<any>(null); // State to store selected category
 
   useEffect(() => {
-    dispatch(getTourCategoriesDispatch(0, 10));
-  }, [dispatch]);
-
+    if (!categories.length) {
+      dispatch(getTourCategoriesDispatch(0, 10));
+    }
+  }, [dispatch, categories]);
+  
   useEffect(() => {
-    dispatch(getTourSubCategoriesDispatch(0, 10));
-  }, [dispatch]);
+    if (!subCategories.length) {
+      dispatch(getTourSubCategoriesDispatch(0, 10));
+    }
+  }, [dispatch, subCategories]);
+  
 
   // Handle hover to set the selected category
   const handleHoverCategoryChange = (categoryId: string) => {
@@ -140,14 +144,7 @@ export default function Header1({
                     </li>
                     <li>
                       <Link href="/blog">{t("blog")}</Link>
-                      <ul className="sub-menu">
-                        <li>
-                          <Link href="/blog-grid-2">Grid Sidebar</Link>
-                        </li>
-                        <li>
-                          <Link href="/blog-detail">Blog Details</Link>
-                        </li>
-                      </ul>
+                     
                     </li>
                     <li>
                       <Link href="/contact">{t("contact")}</Link>
