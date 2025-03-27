@@ -119,7 +119,7 @@
     "title": "Haberler, İpuçları & Kılavuzlar",
     "subTitle": "Müşteri yorumlarına göre favori destinasyonlar",
     "button": "Daha Fazlasını Gör",
-    "buttonText": "Kültürel",
+    "blogCategory": "Kültürel",
     "jn": "Ocak",
     "feb": "Şubat",
     "mch": "Mart",
@@ -457,7 +457,9 @@
     "children": "Çocuk",
     "yardım": "Yardıma ihtiyacın mı var?",
     "wishlish": "Favorilere Ekle",
-    "Please select a date and time": "Lütfen bir tarih ve saat seçiniz"
+    "Please select a date": "Lütfen bir tarih seçiniz",
+    "Please select a time": "Lütfen bir saat seçiniz",
+    "Harita_yükleniyor": "Harita yükleniyor"
   },
   "about": {
     "home": "Anasayfa",

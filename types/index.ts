@@ -1,5 +1,8 @@
+import exp from "constants";
+
 export interface Tour {
     id: string;
+    slug: string;
     name: string;
     size: number;
     categoryId: string;
@@ -224,4 +227,18 @@ export interface TourCategory {
 export interface TourSubCategory {
   subCategories: SubCategory[];
   subCategory: SubCategory | null;
+}
+
+export interface BlogState {
+  blog: Blog | null;
+  blogs: Blog[]
+}
+
+export interface Blog {
+  id: string;
+  title: string;
+  content: string;
+  slug: string;
+  imageUrl: string;
+  publishedDate: string;
 }

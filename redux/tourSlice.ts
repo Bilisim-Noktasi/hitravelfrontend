@@ -26,7 +26,6 @@ export const getToursDispatch = (page: number, size: number) => async (dispatch:
         params: { PageIndex: page, PageSize: size }
     })
         .then(res => {
-            
             if (res?.items) {
                 dispatch(getTours(res.items));
             } else {
@@ -36,22 +35,16 @@ export const getToursDispatch = (page: number, size: number) => async (dispatch:
         .catch(error => console.error("❌ API Error:", error));
 };
 
-export const getTourDispatch = (tourId: string, setLoading: (value: boolean) => void) => async (dispatch: Dispatch) => {
+export const getTourDispatch = (tourSlug: string, setLoading: (value: boolean) => void) => async (dispatch: Dispatch) => {
     setLoading(true); // Yükleme başladığında true yap
 
     getRequest({
         controller: "Tours",
-        action: tourId,
+        action: `by-slug/${tourSlug}`,
         params: {}
     })
         .then(res => {
             dispatch(getTour(res)); // Redux state'ine gönderiyoruz
-
-            // if (res?.data) {
-            //     dispatch(getTour(res.data)); // Redux state'ine gönderiyoruz
-            // } else {
-            //     console.error("❌ Hata: Redux'a gönderilecek tur verisi bulunamadı!");
-            // }
         })
         .catch(error => console.error("❌ API Error:", error))
         .finally(() => {

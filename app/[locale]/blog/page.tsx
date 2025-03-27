@@ -1,10 +1,36 @@
+'use client'
 import Layout from "@/components/layout/Layout";
-import News1 from "@/components/sections/News1";
 import Subscriber1 from "@/components/sections/Subscriber1";
 import { Link } from "@/i18n/routing";
+import { getBlogsDispatch } from "@/redux/blogSlice";
+import { AppDispatch, RootState } from "@/redux/store";
+import { formatDate } from "@/utils/dateUtils";
 import { useTranslations } from "next-intl";
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 export default function BlogGrid2() {
   const t = useTranslations("blog");
+  const dispatch = useDispatch<AppDispatch>();
+  const { blogs } = useSelector((state: RootState) => state.blog);
+
+  useEffect(() => {
+    dispatch(getBlogsDispatch(0, 10));
+  }, [dispatch]);
+
+  // En yeni blogu ve sonraki 4 blogu almak için useMemo kullanıyoruz
+  const { latestBlog, otherBlogs } = useMemo(() => {
+    if (!blogs || blogs.length === 0) return { latestBlog: null, otherBlogs: [] };
+
+    const sortedBlogs = [...blogs]
+      .filter(blog => blog.publishedDate) // Geçerli tarihi olmayanları filtrele
+      .sort((a, b) => new Date(b.publishedDate!).getTime() - new Date(a.publishedDate!).getTime());
+
+    return {
+      latestBlog: sortedBlogs[0] || null,  // En yeni blog
+      otherBlogs: sortedBlogs.slice(1, 5), // 2., 3., 4. ve 5. blog
+    };
+  }, [blogs]);
 
   return (
     <>
@@ -56,154 +82,75 @@ export default function BlogGrid2() {
           <section className="section-box box-posts-grid-2 background-body">
             <div className="container">
               <div className="row">
-                <div className="col-lg-7">
-                  <div className="card-blog">
-                    <div className="card-image">
-                      <img
-                        src="/assets/imgs/page/blog/blog5.png"
-                        alt="Travila"
-                      />
-                    </div>
-                    <div className="card-info">
-                      <div className="card-info-blog">
-                        <Link className="btn btn-label-tag" href="#">
-                          Cultural
-                        </Link>
-                        <Link
-                          className="card-title heading-5"
-                          href="/blog-detail"
-                        >
-                          Savoring Life’s Palette: Art, Food, and Beyond
-                        </Link>
-                        <div className="card-meta-user">
-                          <div className="box-author-small">
-                            {" "}
-                            <img
-                              src="/assets/imgs/page/homepage1/avatar.png"
-                              alt="Travilla"
-                            />
-                            <p className="text-sm-bold">By Jimmy Dave</p>
-                          </div>
-                          <div className="date-post">
-                            <p className="text-sm-medium">12 January 2024</p>
+                {latestBlog &&
+                  <div className="col-lg-7">
+                    <div className="card-blog">
+                      <div className="card-image">
+                        <img
+                          src={latestBlog.imageUrl}
+                        />
+                      </div>
+                      <div className="card-info">
+                        <div className="card-info-blog">
+                          <Link className="btn btn-label-tag" href="#">
+                            Cultural
+                          </Link>
+                          <Link
+                            className="card-title heading-5"
+                            href="/blog-detail"
+                          >
+                            {latestBlog.title}
+                          </Link>
+                          <div className="card-meta-user">
+                            <div className="box-author-small">
+                              {" "}
+                              <img
+                                src={latestBlog.imageUrl}
+                                alt="Hi Travel"
+                              />
+                              <p className="text-sm-bold">Hi Travel</p>
+                            </div>
+                            <div className="date-post">
+                              <p className="text-sm-medium">{formatDate(latestBlog.publishedDate ?? "")}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                }
+                {/* En yeni 2-5. bloglar */}
                 <div className="col-lg-5">
                   <ul className="list-posts list-posts-md">
-                    <li>
-                      <div className="card-post">
-                        <div className="card-image">
-                          {" "}
-                          <Link href="/blog-detail">
-                            <img
-                              src="/assets/imgs/page/blog/trending.png"
-                              alt="Travila"
-                            />
-                          </Link>
-                        </div>
-                        <div className="card-info">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            How to get better agents in New York, USA
-                          </Link>
-                          <div className="d-flex align-items-center">
-                            <p className="text-md-bold  neutral-500 mr-20">
-                              📅 18 Sep 2024
-                            </p>
+                    {otherBlogs.map((item, index) => (
+                      <li key={index}>
+                        <div className="card-post">
+                          <div className="card-image">
+                            {" "}
+                            <Link href="/blog-detail">
+                              <img src={item.imageUrl ?? "/assets/imgs/default-image.png"} alt="Blog" />
+                            </Link>
+                          </div>
+                          <div className="card-info">
+                            {" "}
+                            <Link
+                              className="text-xl-bold neutral-1000"
+                              href="/blog-detail"
+                            >
+                              {item.title}
+                            </Link>
+                            <div className="d-flex align-items-center">
+                              <p className="text-md-bold  neutral-500 mr-20">
+                                📅 {formatDate(item.publishedDate ?? "")}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="card-post">
-                        <div className="card-image">
-                          {" "}
-                          <Link href="/blog-detail">
-                            <img
-                              src="/assets/imgs/page/blog/trending2.png"
-                              alt="Travila"
-                            />
-                          </Link>
-                        </div>
-                        <div className="card-info">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            How to get better agents in New York, USA
-                          </Link>
-                          <div className="d-flex align-items-center">
-                            <p className="text-md-bold  neutral-500 mr-20">
-                              📅 18 Sep 2024
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="card-post">
-                        <div className="card-image">
-                          {" "}
-                          <Link href="/blog-detail">
-                            <img
-                              src="/assets/imgs/page/blog/trending3.png"
-                              alt="Travila"
-                            />
-                          </Link>
-                        </div>
-                        <div className="card-info">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Beyond the Pixels: My Art-Tech Lifestyle Journey
-                          </Link>
-                          <div className="d-flex align-items-center">
-                            <p className="text-md-bold  neutral-500 mr-20">
-                              📅 18 Sep 2024
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="card-post">
-                        <div className="card-image">
-                          {" "}
-                          <Link href="/blog-detail">
-                            <img
-                              src="/assets/imgs/page/blog/trending4.png"
-                              alt="Travila"
-                            />
-                          </Link>
-                        </div>
-                        <div className="card-info">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            How to get better agents in New York, USA
-                          </Link>
-                          <div className="d-flex align-items-center">
-                            <p className="text-md-bold  neutral-500 mr-20">
-                              📅 18 Sep 2024
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
+                      </li>
+                    ))}
                   </ul>
                 </div>
+
               </div>
             </div>
           </section>
@@ -635,6 +582,7 @@ export default function BlogGrid2() {
                       </div>
                     </div>
                   </div>
+                  {blogs.map((item, index)=>(
                   <div className="col-lg-4 col-md-6 mb-30">
                     <div className="card-news background-card hover-up">
                       <div className="card-image">
@@ -657,14 +605,14 @@ export default function BlogGrid2() {
                           </svg>
                         </Link>
                         <img
-                          src="/assets/imgs/page/blog/recent2.png"
+                          src={item.imageUrl}
                           alt="Travila"
                         />
                       </div>
                       <div className="card-info">
                         <div className="card-meta">
                           {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
+                          <span className=" neutral-1000">📅 {formatDate(item.publishedDate ?? "")}</span>
                         </div>
                         <div className="card-title">
                           {" "}
@@ -672,7 +620,7 @@ export default function BlogGrid2() {
                             className="text-xl-bold neutral-1000"
                             href="/blog-detail"
                           >
-                            Top 10 Travel Hacks for Budget-Conscious Adventurers
+                            {item.title}
                           </Link>
                         </div>
                         <div className="card-program">
@@ -680,11 +628,11 @@ export default function BlogGrid2() {
                             <div className="card-author">
                               {" "}
                               <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
+                                src={"/assets/imgs/page/homepage1/avatar.png"}
                                 alt="Travila"
                               />
                               <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
+                                Hi Travel
                               </p>
                             </div>
                             <div className="card-button">
@@ -701,6 +649,8 @@ export default function BlogGrid2() {
                       </div>
                     </div>
                   </div>
+                  ))}
+
                   <div className="col-lg-4 col-md-6 mb-30">
                     <div className="card-news background-card hover-up">
                       <div className="card-image">
@@ -731,606 +681,6 @@ export default function BlogGrid2() {
                         <div className="card-meta">
                           {" "}
                           <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Discovering Hidden Gems: 10 Off-the-Beaten-Path
-                            Travel Tips
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Cultural</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent4.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Ultimate Travel Planning Guide: 10 Tips for a
-                            Seamless Journey
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Travel</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent5.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Top 10 Travel Hacks for Budget-Conscious Adventurers
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Discovery</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent6.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Discovering Hidden Gems: 10 Off-the-Beaten-Path
-                            Travel Tips
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Cultural</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent7.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Ultimate Travel Planning Guide: 10 Tips for a
-                            Seamless Journey
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Travel</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent8.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className="neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Top 10 Travel Hacks for Budget-Conscious Adventurers
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Discovery</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent9.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Discovering Hidden Gems: 10 Off-the-Beaten-Path
-                            Travel Tips
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Cultural</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent10.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Ultimate Travel Planning Guide: 10 Tips for a
-                            Seamless Journey
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Travel</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent11.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Top 10 Travel Hacks for Budget-Conscious Adventurers
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Discovery</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent12.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className="neutral-1000">📅 18 Sep 2024</span>
                         </div>
                         <div className="card-title">
                           {" "}

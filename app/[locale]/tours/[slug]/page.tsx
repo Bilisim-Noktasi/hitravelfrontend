@@ -13,10 +13,10 @@ import News1 from "@/components/sections/News1";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 
-export default function TourDetail3({ params }: { params: { id: string } }) {
+export default function TourDetail3({ params }: { params: { slug: string } }) {
   const [isAccordion, setIsAccordion] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { id } = params;
+  const { slug } = params;
   const t = useTranslations("tour");
 
   // Move the dynamic import here where t is available
@@ -69,9 +69,9 @@ export default function TourDetail3({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (!tour) {
-      dispatch(getTourDispatch(id, setLoading));
+      dispatch(getTourDispatch(slug, setLoading));
     }
-  }, [dispatch, id, tour]);
+  }, [dispatch, slug, tour]);
   
 
   useEffect(() => {

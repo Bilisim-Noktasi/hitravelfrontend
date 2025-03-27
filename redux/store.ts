@@ -8,6 +8,8 @@ import tourCategorySlice from './tourCategorySlice';
 import tourSubCategorySlice from './tourSubCategorySlice';
 import authReducer from './authSlice';
 import bookingSlice from './bookingSlice';
+import paymentSlice from './paymentSlice';
+import blogSlice from './blogSlice';
 
 export const store = configureStore({
     reducer: {
@@ -20,6 +22,8 @@ export const store = configureStore({
         tourSubCategory: tourSubCategorySlice,
         auth: authReducer,
         booking: bookingSlice,
+        payment: paymentSlice,
+        blog: blogSlice,
     }
 })
 

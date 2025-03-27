@@ -67,13 +67,6 @@ export default function Reservation() {
     setError("");
 
     try {
-      // Token kontrolü
-      if (!token) {
-        setError(t("Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın."));
-        setIsSubmitting(false);
-        return;
-      }
-      
       // Gerekli alanların kontrolü
       if (!name || !surname || !email || !phone) {
         setError(t("ad, soyad, email ve telefon alanları zorunludur"));
@@ -108,7 +101,7 @@ export default function Reservation() {
       // API için uygun veri formatı
       const completeBookingData = {
         // Temel tur bilgileri
-        userId: user?.id,
+        userId: user?.id || undefined,
         tourId: bookingData.tourId,
         tourName: bookingData.tourName,
         tourDate: bookingData.date,
@@ -169,6 +162,9 @@ export default function Reservation() {
       // Başarılı yanıt
       if (response.status === 200 || response.status === 201) {
         setSuccess(true);
+
+        // Rezervasyon API yanıtını session storage'a kaydet (ödeme sayfası için)
+        sessionStorage.setItem('bookingResponse', JSON.stringify(response.data));
 
         // Rezervasyon verilerini session storage'dan kaldır
         sessionStorage.removeItem('bookingData');

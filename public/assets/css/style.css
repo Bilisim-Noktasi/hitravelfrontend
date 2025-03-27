@@ -4091,6 +4091,7 @@ label {
 }
 .card-news .card-image img {
   display: block;
+  height: 330px; /*Anasayfada ki blog card resim yüksekliği*/
   width: 100%;
 }
 .card-news .card-info {
@@ -5010,6 +5011,7 @@ label {
 }
 .card-post .card-image img {
   display: block;
+  height: 131px; /*blog sayfası blog listesi resim*/
   border-radius: 8px;
 }
 .card-post .card-info a {
@@ -5119,6 +5121,7 @@ label {
 }
 .card-blog .card-image img {
   display: block;
+  height: 600px; /*Blog sayfasındaki büyük resim ayarı*/
   width: 100%;
 }
 .card-blog .card-info {

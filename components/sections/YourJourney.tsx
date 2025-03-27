@@ -7,10 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { getToursDispatch } from "@/redux/tourSlice";
-import { getTourCategoriesDispatch } from "@/redux/tourCategorySlice";
 
 export default function YourJourney() {
-  const currentTime = new Date();
   const dispatch = useDispatch<AppDispatch>();
   const { tours } = useSelector((state: RootState) => state.tour);
   const t = useTranslations("HomePage");
@@ -71,7 +69,7 @@ export default function YourJourney() {
                   <SwiperSlide key={index}>
                     <div className="card-journey-small background-card">
                       <div className="card-image">
-                        <Link className="wish" href={`/tours/${item.id}`}>
+                        <Link className="wish" href={`/tours/${item.slug}`}>
                           <svg
                             width={20}
                             height={18}
@@ -88,7 +86,13 @@ export default function YourJourney() {
                             />
                           </svg>
                         </Link>
-                        <img src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
+                        <Link href={`/tours/${item.slug}`}>
+                          <img
+                            src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"}
+                            alt="Travila"
+                            className="cursor-pointer"
+                          />
+                        </Link>
                       </div>
                       <div className="card-info background-card">
                         <div className="card-rating">
@@ -100,12 +104,12 @@ export default function YourJourney() {
                           </div>
                         </div>
                         <div className="card-title">
-                          <Link className="heading-6 neutral-1000" href={`/tours/${item.id}`}>{item.name.length > 19 ? item.name.slice(0, 19) + "..." : item.name}</Link>
+                          <Link className="heading-6 neutral-1000" href={`/tours/${item.slug}`}>{item.name.length > 19 ? item.name.slice(0, 19) + "..." : item.name}</Link>
                         </div>
                         <div className="card-program">
                           <div className="duration">
                             <p className="text-md-medium neutral-500">
-                            📍{item.stateName}, {item.cityName}
+                              📍{item.stateName}, {item.cityName}
                             </p>
                           </div>
                           <div className="endtime">
@@ -114,7 +118,7 @@ export default function YourJourney() {
                               <p className="text-md-medium neutral-500">/ {t_card('person')}</p>
                             </div>
                             <div className="card-button">
-                              <Link className="btn btn-gray" href={`/tours/${item.id}`}>
+                              <Link className="btn btn-gray" href={`/tours/${item.slug}`}>
                                 {t("book")}
                               </Link>
                             </div>
@@ -133,64 +137,3 @@ export default function YourJourney() {
     </>
   );
 }
-
-{/* <SwiperSlide>
-  <div className="card-journey-small background-card">
-    <div className="card-image">
-      {" "}
-      <Link className="wish" href="/tour-detail">
-        <svg
-          width={20}
-          height={18}
-          viewBox="0 0 20 18"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-            stroke="black"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </svg>
-      </Link>
-      <img src="/assets/imgs/page/homepage1/journey2.png" alt="Travila" />
-    </div>
-    <div className="card-info background-card">
-      <div className="card-rating">
-        <div className="card-left"> </div>
-        <div className="card-right">
-          {" "}
-          <span className="rating">
-            4.96{" "}
-            <span className="text-sm-medium neutral-500">(672 reviews)</span>
-          </span>
-        </div>
-      </div>
-      <div className="card-title">
-        {" "}
-        <Link className="heading-6 neutral-1000" href="/tour-detail">
-          California Sunset/Twilight Boat Cruise{" "}
-        </Link>
-      </div>
-      <div className="card-program">
-        <div className="duration">
-          <p className="text-md-medium neutral-500">2 days 3 nights - Family</p>
-        </div>
-        <div className="endtime">
-          <div className="card-price">
-            <h6 className="heading-6 neutral-1000">$48.25</h6>
-            <p className="text-md-medium neutral-500">/ person</p>
-          </div>
-          <div className="card-button">
-            {" "}
-            <Link className="btn btn-gray" href="/tour-detail">
-              Book Now
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</SwiperSlide>; */}

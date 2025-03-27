@@ -1,10 +1,23 @@
 'use client'
-import VideoPopup from '@/components/elements/VideoPopup'
 import Layout from "@/components/layout/Layout"
 import { swiperGroupAnimate } from "@/util/swiperOption"
 import Link from "next/link"
 import { Swiper, SwiperSlide } from "swiper/react"
-export default function BlogDetail() {
+import { getBlogDispatch } from '@/redux/blogSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/redux/store'
+import { useEffect, useState } from 'react'
+import { formatDate, timeAgo } from '@/utils/dateUtils'
+
+export default function BlogDetail({ params }: { params: { slug: string } }) {
+	const [loading, setLoading] = useState(true);
+	const { slug } = params;
+	const dispatch = useDispatch<AppDispatch>();
+	const { blog } = useSelector((state: RootState) => state.blog);
+
+	useEffect(() => {
+		dispatch(getBlogDispatch(slug, setLoading));
+	}, [dispatch, slug]);
 
 	return (
 		<>
@@ -17,53 +30,47 @@ export default function BlogDetail() {
 								<li> <Link href="/">Home</Link><span className="arrow-right">
 									<svg width={7} height={12} viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
 										<path d="M1 11L6 6L1 1" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-									</svg></span></li>
+									</svg></span>
+								</li>
 								<li> <Link href="/destination">Blog</Link><span className="arrow-right">
 									<svg width={7} height={12} viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
 										<path d="M1 11L6 6L1 1" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
 									</svg></span></li>
-								<li> <span className="text-breadcrumb">Globetrotting in Style: A Journey Through My Lens</span></li>
+								<li> <span className="text-breadcrumb">{blog?.title}</span></li>
 							</ul>
 						</div>
 					</section>
 					<section className="box-section box-content-blog-detail background-body">
-						<div className="container-banner-blog-detail"> <img src="/assets/imgs/page/blog/banner-detail.png" alt="Travila" /></div>
+						<div className="container-banner-blog-detail"> <img src={blog?.imageUrl} alt="Travila" /></div>
 						<div className="container">
 							<div className="box-content-detail-blog">
 								<div className="box-content-info-detail">
 									<div className="head-blog-detail text-center"> <Link className="btn btn-label-tag-lg background-2" href="#">Wanderlust</Link><Link className="btn btn-label-tag-lg background-7" href="#">Adventure</Link>
-										<h4 className="neutral-1000 mt-25 mb-25">Wanderlust Chronicles: Unveiling Hidden Havens and Forgotten Pathways</h4>
+										<h4 className="neutral-1000 mt-25 mb-25">{blog?.title}</h4>
 										<div className="meta-post">
 											<div className="meta-user">
 												<div className="box-author-small"><img src="/assets/imgs/page/homepage1/avatar.png" alt="Travilla" />
 													<p className="text-sm-bold neutral-1000">Jimmy Dave</p>
 												</div>
 												<div className="post-meta-date">
-													<div className="post-date neutral-1000">18 Sep 2024</div>
-													<div className="post-time neutral-1000">6 mins</div>
+													<div className="post-date neutral-1000">{formatDate(blog?.publishedDate ?? "")}</div>
+													<div className="post-time neutral-1000">{timeAgo(blog?.publishedDate)}</div>
 													<div className="post-comment neutral-1000">38 comments</div>
 												</div>
 											</div>
 										</div>
 									</div>
 									<div className="content-detail-post">
-										<p className="neutral-1000">In a world filled with wonders waiting to be discovered, the allure of  the road less traveled beckons to the adventurous soul. Join me on a  journey beyond the beaten path, where each destination promises unique  experiences and unforgettable memories. From hidden paradises to  cultural gems, let's embark on an odyssey of exploration and discovery.</p>
-									</div>
-									<div className="box-image-video"> <img src="/assets/imgs/page/blog/img-video.png" alt="Travilla" />
-										<VideoPopup vdocls="btn-play-video popup-youtube" />
+										<div 
+											className="neutral-1000" style={{
+												wordWrap: 'break-word',
+												overflowWrap: 'break-word',
+												whiteSpace: 'normal'
+											  }}
+											dangerouslySetInnerHTML={{ __html: blog?.content || '' }}
+										></div>
 									</div>
 									<div className="content-detail-post">
-										<p>In a world filled with wonders waiting to be discovered, the allure of  the road less traveled beckons to the adventurous soul. Join me on a  journey beyond the beaten path, where each destination promises unique  experiences and unforgettable memories. From hidden paradises to  cultural gems, let's embark on an odyssey of exploration and discovery.</p>
-										<h6>1. Embracing Serenity in the Scottish Highlands:</h6>
-										<p>Our adventure begins amidst the rugged beauty of the Scottish Highlands,  where mist-covered mountains and shimmering lochs create a landscape  straight out of a fairytale. Far from the hustle and bustle of city  life, we'll wander along winding trails, breathing in the crisp Highland  air and immersing ourselves in the tranquility of nature. From the  ancient ruins of castles to the timeless charm of quaint villages, every  corner of this enchanting region holds the promise of adventure.</p>
-										<h6>2. Chasing Waterfalls in the Heart of Costa Rica:</h6>
-										<p>Next, we'll journey to the lush rainforests of Costa Rica, a land of  unparalleled biodiversity and natural splendor. Here, hidden within the  emerald green canopy, lie some of the world's most breathtaking  waterfalls. We'll trek through dense jungle trails, listening to the  symphony of exotic birdsong and the gentle rush of cascading water as we  discover hidden oases tucked away from the beaten path. With each  plunge into crystal-clear pools beneath thundering falls, we'll find  renewal and connection with the raw power of nature.</p>
-										<h6>3. Uncovering Ancient Mysteries in the Temples of Myanmar:</h6>
-										<p>Our quest for adventure takes us to the enchanting land of Myanmar,  where ancient temples and pagodas whisper tales of bygone eras. From the  sprawling plains of Bagan to the serene shores of Inle Lake, we'll  journey through a landscape steeped in spirituality and tradition.  Amidst the golden spires and intricate carvings of centuries-old  monuments, we'll uncover the timeless beauty of Burmese culture and the  enduring legacy of a land shrouded in mystery.</p>
-										<h6>4. Sailing into the Unknown in the Galápagos Islands:</h6>
-										<p>Our voyage of discovery leads us to the remote shores of the Galápagos  Islands, a haven of biodiversity teeming with life found nowhere else on  Earth. Setting sail on azure waters, we'll explore pristine beaches,  volcanic landscapes, and bustling seabird colonies. Snorkeling alongside  graceful sea turtles and playful sea lions, we'll witness the delicate  balance of life in one of the world's most pristine marine ecosystems,  leaving us humbled by the wonders of the natural world.</p>
-										<h6>5. Lost in Time: Exploring the Medieval Villages of Transylvania, Romania:</h6>
-										<p>Our final destination transports us to the storied land of Transylvania,  where medieval castles and fortified churches dot the landscape like  something out of a Gothic fairy tale. Venturing off the beaten path,  we'll wander through cobblestone streets and labyrinthine alleyways,  immersing ourselves in the rich history and folklore of this captivating  region. From the haunting beauty of Bran Castle to the picturesque  charm of Sighisoara, every corner of Transylvania holds a story waiting  to be discovered.</p>
 										<div className="footer-post-tags">
 											<div className="box-tags">  <Link className="btn btn-tag" href="#">Travel</Link><Link className="btn btn-tag" href="#">Temple tours</Link><Link className="btn btn-tag" href="#">Ancient</Link></div>
 											<div className="box-share">
@@ -85,7 +92,7 @@ export default function BlogDetail() {
 												</div>
 											</div>
 										</div>
-										<div className="box-leave-comment background-100">
+										{/* <div className="box-leave-comment background-100">
 											<div className="box-form-reviews">
 												<h5 className="neutral-1000 mb-25">Leave a Comment</h5>
 												<div className="row">
@@ -113,8 +120,8 @@ export default function BlogDetail() {
 													</div>
 												</div>
 											</div>
-										</div>
-										<div className="box-list-comment background-card">
+										</div> */}
+										{/* <div className="box-list-comment background-card">
 											<div className="list-reviews">
 												<div className="item-review">
 													<div className="head-review">
@@ -177,7 +184,7 @@ export default function BlogDetail() {
 														</svg></span></Link></li>
 												</ul>
 											</nav>
-										</div>
+										</div> */}
 									</div>
 								</div>
 							</div>

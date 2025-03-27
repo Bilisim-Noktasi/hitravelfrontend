@@ -90,24 +90,24 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         if (extra.name === extraName) {
           // Eğer ekstra seçildiyse, selected durumu güncelleniyor
           const updatedExtra = { ...extra, selected: checked };
-  
+
           // Eğer miktar (quantity) sağlanmışsa, bu değeri de ekleyelim
           if (checked && quantity !== undefined) {
             updatedExtra.quantity = quantity;
           }
-  
+
           // Eğer ekstra seçilmemişse, quantity'i sıfırlıyoruz
           if (!checked) {
             updatedExtra.quantity = 1;
           }
-  
+
           return updatedExtra;
         }
         return extra;
       })
     );
   };
-  
+
   // Çocuk sayısı değiştiğinde childAges dizisini güncelle
   const handleChildCountChange = (newCount: number) => {
     if (newCount < 0) return; // Negatif sayıya düşmesin
@@ -137,8 +137,14 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
 
   const handleBooking = async () => {
     // Form doğrulama
-    if (!date || !time) {
-      setBookingError(t("Please select a date and time"));
+    if (!date) {
+      setBookingError(t("Please select a date"));
+      return;
+    }
+
+    // Başlangıç Satti
+    if (!time && (tour?.startTimes ?? []).length > 0) {
+      setBookingError(t("Please select a time"));
       return;
     }
 
@@ -198,7 +204,7 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
 
       // İlk etapta Redux state'e kaydet ve sessionStorage'a sakla
       sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-      
+
       // Rezervasyon sayfasına yönlendir
       router.push(`/${locale}/reservation`);
     } catch (error) {
@@ -232,25 +238,28 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
       </div>
 
       {/* Saat Seçimi */}
-      <div className="item-line-booking">
-        <strong className="text-md-bold neutral-1000">{t("Hours")}:</strong>
-        <div className="line-booking-right flex-wrap">
-          {tour?.startTimes?.map((item, index) => {
-            const formattedTime = item.startTime.substring(0, 5);
-            return (
-              <label key={index}>
-                <input
-                  type="radio"
-                  name="time"
-                  value={formattedTime}
-                  onChange={(e) => setTime(e.target.value)}
-                />
-                {formattedTime}
-              </label>
-            );
-          })}
+      {tour?.startTimes && tour.startTimes.length > 0 ? (
+        <div className="item-line-booking">
+          <strong className="text-md-bold neutral-1000">{t("Hours")}:</strong>
+          <div className="line-booking-right flex-wrap">
+            {/* Saatleri listele */}
+            {tour.startTimes.map((item, index) => {
+              const formattedTime = item.startTime.substring(0, 5);
+              return (
+                <label key={index}>
+                  <input
+                    type="radio"
+                    name="time"
+                    value={formattedTime}
+                    onChange={(e) => setTime(e.target.value)}
+                  />
+                  {formattedTime}
+                </label>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}  {/* Eğer startTimes verisi yoksa, saat seçimi kısmını göstermiyoruz */}
 
       {/* Bilet Seçimi */}
       <div className="item-line-booking">
@@ -335,8 +344,8 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
                 {tour?.tourExtras.map((extra, index) => (
                   <li key={index}>
                     <label className="cb-container">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         onChange={(e) => handleExtraChange(extra.name, e.target.checked)}
                         checked={selectedExtras.find(item => item.name === extra.name)?.selected || false}
                       />
@@ -378,11 +387,11 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         <div className="box-tickets">
           <strong className="text-md-bold neutral-1000">{t("Transfer")}:</strong>
           <div className="line-booking-tickets">
-            <input 
-              type="checkbox" 
-              checked={isTransferSelected} 
-              onChange={handleCheckboxChange} 
-              style={{ width: "20px", height: "20px", marginRight: "20px", marginTop: "12px" }} 
+            <input
+              type="checkbox"
+              checked={isTransferSelected}
+              onChange={handleCheckboxChange}
+              style={{ width: "20px", height: "20px", marginRight: "20px", marginTop: "12px" }}
             />
             {isTransferSelected &&
               <select
@@ -414,8 +423,8 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
 
       {/* Rezervasyon butonu */}
       <div className="box-button-book">
-        <button 
-          className="btn btn-book" 
+        <button
+          className="btn btn-book"
           onClick={handleBooking}
           disabled={isLoading}
         >

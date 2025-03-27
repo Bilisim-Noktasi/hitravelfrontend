@@ -94,7 +94,7 @@ const extractUserFromToken = (token: string, email: string = ''): User => {
   // Token payload'dan bilgileri çıkartmaya çalış
   // JWT standartlarına göre ve yaygın claim adlarını desteleyecek şekilde
   const extractedEmail = tokenPayload?.email || tokenPayload?.sub || email || '';
-  const userId = tokenPayload?.id || tokenPayload?.userId || tokenPayload?.nameid || tokenPayload?.sub || '';
+  const userId = tokenPayload?.id || tokenPayload?.userId || tokenPayload?.nameid || tokenPayload?.sub;
   const firstName = tokenPayload?.name || tokenPayload?.given_name || tokenPayload?.firstName || '';
   const lastName = tokenPayload?.surname || tokenPayload?.family_name || tokenPayload?.lastName || '';
 
@@ -119,7 +119,6 @@ const initialState: AuthState = {
   error: null,
 };
 
-// login - Sabit şifre ile login olmayı sağlar
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
@@ -179,7 +178,6 @@ export const initAuth = createAsyncThunk(
       const token = getStoredToken();
 
       if (!token) {
-        console.log('Token bulunamadı, oturum kapatılıyor');
         return rejectWithValue('No token found');
       }
 

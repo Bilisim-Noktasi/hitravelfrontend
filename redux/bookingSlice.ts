@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { postRequest } from '../service/requestService';
+import { postRequest, postGuardRequest } from '../service/requestService';
 import axios from 'axios';
 import { RootState } from './store';
 
@@ -47,6 +47,7 @@ interface Booking {
   } | null;
   status: string;
   currency: string;
+  userId?: string;
 }
 
 interface BookingState {
@@ -67,35 +68,27 @@ const initialState: BookingState = {
 // Create Booking async thunk
 export const createBooking = createAsyncThunk(
   'booking/create',
-  async (bookingData: Partial<Booking>, { rejectWithValue, getState }) => {
+  async (bookingData: Partial<Booking>, { rejectWithValue }) => {
     try {
-      // Auth state'inden token'ı al
-      const state = getState() as RootState;
-      const token = state.auth.token;
+      const bookingDataToSend = { ...bookingData };
       
-      if (!token) {
-        return rejectWithValue('Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.');
+      if (!bookingDataToSend.userId) {
+        delete bookingDataToSend.userId;
       }
       
-      const response = await axios.post(
-        'https://api.hitravel.com.tr/api/Bookings',
-        bookingData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+      if (bookingDataToSend.userId === '') {
+        delete bookingDataToSend.userId;
+      }
+      
+      const response = await postRequest(
+        { 
+          controller: 'Bookings'
+        },
+        bookingDataToSend
       );
-      return response.data;
+      return response;
     } catch (error: any) {
-      // Token ile ilgili hatalar için özel kontrol
-      if (error.response?.status === 401) {
-        return rejectWithValue('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
-      } else if (error.response?.status === 403) {
-        return rejectWithValue('Bu işlem için yetkiniz bulunmuyor.');
-      }
-      return rejectWithValue(error.response?.data?.message || 'Booking creation failed. Please try again.');
+      return rejectWithValue(error.response?.data?.message || 'Rezervasyon oluşturma başarısız oldu. Lütfen tekrar deneyin.');
     }
   }
 );
@@ -103,35 +96,17 @@ export const createBooking = createAsyncThunk(
 // Process payment async thunk
 export const processPayment = createAsyncThunk(
   'booking/processPayment',
-  async (paymentData: { bookingId: string; paymentMethod: string; cardDetails?: any }, { rejectWithValue, getState }) => {
+  async (paymentData: { bookingId: string; paymentMethod: string; cardDetails?: any }, { rejectWithValue }) => {
     try {
-      // Auth state'inden token'ı al
-      const state = getState() as RootState;
-      const token = state.auth.token;
-      
-      if (!token) {
-        return rejectWithValue('Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.');
-      }
-      
-      const response = await axios.post(
-        'https://api.hitravel.com.tr/api/Payments',
-        paymentData,
+      const response = await postGuardRequest(
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+          controller: 'Payments'
+        },
+        paymentData
       );
-      return response.data;
+      return response;
     } catch (error: any) {
-      // Token ile ilgili hatalar için özel kontrol
-      if (error.response?.status === 401) {
-        return rejectWithValue('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
-      } else if (error.response?.status === 403) {
-        return rejectWithValue('Bu işlem için yetkiniz bulunmuyor.');
-      }
-      return rejectWithValue(error.response?.data?.message || 'Payment processing failed. Please try again.');
+      return rejectWithValue(error.response?.data?.message || 'Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin.');
     }
   }
 );

@@ -47,7 +47,7 @@ interface RequestParameter {
 
 // URL oluşturma yardımcı fonksiyonu
 const buildUrl = (requestParameter: RequestParameter): string => {
-  return `/${requestParameter.controller ?? ''}${
+  return `${requestParameter.controller ?? ''}${
     requestParameter.action ? `/${requestParameter.action}` : ''
   }${requestParameter.id ? `/${requestParameter.id}` : ''}`;
 };
