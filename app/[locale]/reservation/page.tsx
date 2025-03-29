@@ -112,9 +112,11 @@ export default function Reservation() {
         adultCount: bookingData.adults.count,
         childCount: bookingData.children.length,
         contactName: name,
+        contactSurname: surname,
+        identityNumber: tc,
         contactEmail: email,
         contactPhone: phone,
-        specialRequests: "bookingData.not",
+        specialRequests: "booking",
         discountCode: "1234",
 
         // Katılımcı bilgileri
@@ -164,13 +166,30 @@ export default function Reservation() {
         setSuccess(true);
 
         // Rezervasyon API yanıtını session storage'a kaydet (ödeme sayfası için)
-        sessionStorage.setItem('bookingResponse', JSON.stringify(response.data));
+        const bookingResponseData = {
+          ...response.data,
+          // Sepette gösterilecek ek bilgiler
+          tourName: bookingData.tourName,
+          date: bookingData.date,
+          time: bookingData.time,
+          adultCount: bookingData.adults.count,
+          adultTotalPrice: bookingData.adults.count * bookingData.adults.price,
+          childCount: bookingData.children.length,
+          childTotalPrice: bookingData.children.reduce((sum: number, child: any) => sum + child.price, 0),
+          extras: bookingData.extras,
+          extrasTotalPrice: bookingData.extras ? bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0) : 0,
+          transfer: bookingData.transfer,
+          transferPrice: bookingData.transfer ? bookingData.transfer.price : 0,
+          totalPrice: bookingData.totalPrice
+        };
+
+        sessionStorage.setItem('bookingResponse', JSON.stringify(bookingResponseData));
 
         // Rezervasyon verilerini session storage'dan kaldır
         sessionStorage.removeItem('bookingData');
 
         // Ödeme sayfasına yönlendir
-        router.push(`/${locale}/payment?bookingId=${response.data.id || ''}`);
+        router.push(`/${locale}/payment`);
       }
     } catch (error) {
       console.error("Error submitting booking:", error);
@@ -189,11 +208,6 @@ export default function Reservation() {
       } else {
         setError(t("An error occurred during booking"));
       }
-
-      // Hata durumunda da test amaçlı payment sayfasına yönlendir (geçici çözüm)
-      setTimeout(() => {
-        router.push(`/${locale}/payment`);
-      }, 3000);
     } finally {
       setIsSubmitting(false);
     }
@@ -242,14 +256,6 @@ export default function Reservation() {
           </div>
         </section>
 
-        {success ? (
-          <div className="container my-5">
-            <div className="alert alert-success p-4 text-center">
-              <h3>{t("Booking successful!")}</h3>
-              <p>{t("You are being redirected to the payment page")}</p>
-            </div>
-          </div>
-        ) : (
         <section className="background-body py-8 mt-20">
           <div className="container max-w-6xl mx-auto px-4">
             <div className="row">
@@ -551,7 +557,6 @@ export default function Reservation() {
             </div>
           </div>
         </section>
-        )}
       </Layout>
     </>
   );

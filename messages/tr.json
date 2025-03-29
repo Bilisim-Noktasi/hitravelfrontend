@@ -28,6 +28,9 @@
     "google": "Google ile giriş yap",
     "mail": "Mail Adresi",
     "password": "Şifre",
+    "phone": "Cep Telefonu",
+    "firstName": "Ad",
+    "surName": "Soyad",
     "password1": "Tekrar Şifre",
     "subTitle": "Hüküm ve koşulları kabul ediyorum",
     "button": "Yeni Hesap Oluştur",
@@ -772,7 +775,8 @@
     "Rezervasyon Numarası": "Rezervasyon Numarası",
     "Şirket Ünvanı": "Şirket Ünvanı",
     "Fatura Adresi": "Fatura Adresi",
-    "ana": "Anasayfa"
+    "ana": "Anasayfa",
+    "loading": "Yükleniyor..."
   },
   "thankYou": {
     "thank": "Teşekkürler!",

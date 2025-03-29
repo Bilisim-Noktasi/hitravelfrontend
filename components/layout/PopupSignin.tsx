@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/authSlice";
@@ -14,12 +14,12 @@ export default function PopupSignin({
   const t = useTranslations("SignIn");
   const dispatch = useDispatch<AppDispatch>();
   const { isLoading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
-  
+
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({
@@ -27,7 +27,7 @@ export default function PopupSignin({
       [name]: value,
     }));
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -44,7 +44,7 @@ export default function PopupSignin({
       handleLogin(); // Popup'ı kapat
     }
   }, [isAuthenticated, isLogin, handleLogin]);
-  
+
   return (
     <>
       <div
@@ -102,8 +102,8 @@ export default function PopupSignin({
                 </div>
                 <div className="form-group">
                   <label className="text-sm-medium">{t("password")}</label>
-                  <input 
-                    className="form-control password" 
+                  <input
+                    className="form-control password"
                     type="password"
                     name="password"
                     value={credentials.password}
@@ -128,8 +128,8 @@ export default function PopupSignin({
                   </div>
                 </div>
                 <div className="form-group mt-45 mb-30">
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-black-lg"
                     disabled={isLoading}
                   >
@@ -152,17 +152,17 @@ export default function PopupSignin({
                   </button>
                 </div>
                 <p className="text-sm-medium neutral-500 px-6">
-                  {" "}
                   {t("subTitle")}
-                  <a
-                    className="neutral-1000 font-bold"
+                  <Link
+                    className="text-sm-medium neutral-1000"
+                    href="#"
                     onClick={() => {
                       handleRegister();
                       handleLogin();
                     }}
                   >
-                    {t("subTitle2")}{" "}
-                  </a>
+                    {t("subTitle2")}
+                  </Link>
                 </p>
               </form>
             </div>

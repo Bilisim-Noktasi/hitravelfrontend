@@ -170,6 +170,46 @@ export const logout = createAsyncThunk(
   }
 );
 
+// Register thunk
+export const register = createAsyncThunk(
+  'auth/register',
+  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+    try {
+      const registerResponse = await postRequest(
+        { controller: 'Auth', action: 'Register' },
+        credentials
+      );
+
+      console.log('Register Raw Response:', registerResponse);
+
+      if (!registerResponse.token) {
+        return rejectWithValue('API geçerli bir toke döndürmedi');
+      }
+      // Token'ı sakla (cookie veya localStorage)
+      const token = registerResponse.token;
+      setCookie('next-auth.session-token', token, {
+        maxAge: 30 * 24 * 60 * 60, // 30 gün
+        path: '/',
+      });
+
+      // Token'dan kullanıcı bilgilerini çıkart
+      const userInfo = extractUserFromToken(token, credentials.email);
+
+      // Kullanıcı bilgilerini localStorage'a kaydet
+      saveUserToStorage(userInfo);
+
+      return {
+        token,
+        user: userInfo,
+      };
+
+    } catch (error) {
+      console.error('Register failed');
+      return rejectWithValue('Register failed. Please check your credentials.');
+    }
+  }
+)
+
 // Initialize auth - Sayfa yüklendiğinde veya yenilendiğinde çağırılır
 export const initAuth = createAsyncThunk(
   'auth/initAuth',
@@ -187,7 +227,7 @@ export const initAuth = createAsyncThunk(
       // Eğer localStorage'da bilgi yoksa token'dan çıkartmayı deneyin
       if (!userInfo) {
         userInfo = extractUserFromToken(token);
-        
+
         // Email yoksa geçersiz token
         if (!userInfo.email) {
           console.log('Token geçersiz (email bulunamadı), oturum kapatılıyor');
@@ -312,7 +352,29 @@ const authSlice = createSlice({
       .addCase(initAuth.rejected, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
-      });
+      })
+      .addCase(register.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(register.fulfilled, (state, action) => {
+        console.log('Register Success:', action.payload);
+      
+        if (!action.payload || !action.payload.token) {
+          console.error('Payload token not found:', action.payload);
+          return;
+        }
+      
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user || null;  // user yoksa hata vermesin
+        state.token = action.payload.token;
+      })
+      .addCase(register.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
   },
 });
 
