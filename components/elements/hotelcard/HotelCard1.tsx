@@ -58,12 +58,14 @@ export default function HotelCard1({ villa }: any) {
           </div>
           <div className="card-program">
             <div className="card-location">
-              <p className=" text-sm-medium neutral-00">📍 Antalya, Kaş</p>
+              <p className=" text-sm-medium neutral-00">📍</p>
             </div>
             <div className="endtime">
               <div className="card-price">
-                <h6 className="heading-6 neutral-1000">$48.25</h6>
-                <p className="text-md-medium neutral-500">{t("night")}</p>
+                <h6 className="heading-6 neutral-1000"> </h6>
+                <p className="text-md-medium neutral-500">
+                  {/* {t("night")} */}
+                  </p>
               </div>
               <div className="card-button">
                 {" "}

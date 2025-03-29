@@ -94,13 +94,13 @@ export default function TopRated1() {
                       </div>
                       <div className="card-program flex justify-between items-center">
                         <div className="text-right">
-                          <p className="text-location text-md-bold neutral-900 ">📍 Antalya</p>
+                          <p className="text-location text-md-bold neutral-900 ">📍</p>
                         </div>
                         <div className="endtime flex items-center space-x-4">
                           <div className="card-price">
-                            <h6 className="heading-6 text-neutral-1000">$40</h6>
+                            <h6 className="heading-6 text-neutral-1000"> </h6>
                             <p className="text-md-medium neutral-800">
-                              / 9 {t("day")}
+                              {/* / 9 {t("day")} */}
                             </p>
                           </div>
                           <div className="card-button">

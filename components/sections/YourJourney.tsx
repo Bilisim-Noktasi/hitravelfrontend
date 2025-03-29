@@ -15,7 +15,7 @@ export default function YourJourney() {
   const t_card = useTranslations("TourCard")
 
   useEffect(() => {
-    dispatch(getToursDispatch(0, 10));
+    dispatch(getToursDispatch(0, 30));
   }, [dispatch]);
 
   return (

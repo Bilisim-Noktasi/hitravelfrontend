@@ -154,7 +154,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
               <ul className="breadcrumbs">
                 <li>
                   {" "}
-                  <Link href="/">{t("Anasayfa")}</Link>
+                  <Link href="/">{t("home")}</Link>
                   <span className="arrow-right">
                     <svg
                       width={7}
@@ -922,10 +922,10 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                                 {villa?.title}
                               </Link>
                               <span className="price text-sm-bold neutral-1000">
-                                $48.25
+                                {/* $48.25 */}
                               </span>
                               <span className="price-through text-sm-bold neutral-500">
-                                $60.75
+                                {/* $60.75 */}
                               </span>
                             </div>
                           </div>
@@ -945,10 +945,10 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                                 {villa?.title}
                               </Link>
                               <span className="price text-sm-bold neutral-1000">
-                                $48.25
+                                {/* $48.25 */}
                               </span>
                               <span className="price-through text-sm-bold neutral-500">
-                                $60.75
+                                {/* $60.75 */}
                               </span>
                             </div>
                           </div>

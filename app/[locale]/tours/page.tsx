@@ -34,7 +34,7 @@ export default function TourGrid() {
   const t = useTranslations("tourGrid");
   
   useEffect(() => {
-    dispatch(getToursDispatch(0,12))
+    dispatch(getToursDispatch(0,100))
     setTimeout(() => {
       setIsLoading(false)
     }, 500)
