@@ -1,6 +1,6 @@
 "use client";
 import Layout from "@/components/layout/Layout";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import useAuth from "@/hooks/useAuth";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +8,7 @@ import { processPayment } from "@/redux/paymentSlice";
 import { AppDispatch, RootState } from "@/redux/store";
 import React, { useState, useEffect, FormEvent } from "react";
 import { Link } from "@/i18n/routing";
+import { formatDate } from "@/utils/dateUtils";
 
 export default function Payment() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function Payment() {
   const bookingId = searchParams.get("bookingId");
   const { token } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
+  const params = useParams();
+  const locale = params.locale as string;
 
   // Redux state'leri
   const { success } = useSelector((state: RootState) => state.payment);
@@ -48,10 +51,10 @@ export default function Payment() {
     if (success) {
       setPaymentSuccess(true);
       setTimeout(() => {
-        router.push('/thank-you');
+        router.push(`/${locale}/thank-you`);
       }, 2000);
     }
-  }, [success, router]);
+  }, [success, router, locale]);
 
   const handlePayment = async (method: number) => {
     if (!bookingId) {
@@ -78,18 +81,18 @@ export default function Payment() {
       setPaymentError(null);
 
       try {
-        const result = await dispatch(processPayment(paymentData));
-
-        if (processPayment.fulfilled.match(result)) {
-          sessionStorage.removeItem("bookingData");
-          setPaymentSuccess(true);
-          router.push(`/thank-you`);
-        } else if (processPayment.rejected.match(result)) {
-          setPaymentError(result.payload as string);
+        const result = await dispatch(processPayment(paymentData)).unwrap();
+    
+        if (result.status === "success" && result.content) {
+          // 3D Secure doğrulama sayfasına yönlendir
+          const encodedContent = encodeURIComponent(result.content);
+          router.push(`/${locale}/payment/secure?content=${encodedContent}`);
+        } else {
+          setPaymentError("Ödeme işlemi başarısız oldu.");
         }
       } catch (error) {
         console.error("Ödeme başarısız:", error);
-        setPaymentError("Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+        setPaymentError("Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
       } finally {
         setPaymentIsLoading(false);
         setIsSubmitting(false);
@@ -160,18 +163,18 @@ export default function Payment() {
     setPaymentError(null);
 
     try {
-      const result = await dispatch(processPayment(paymentData));
-
-      if (processPayment.fulfilled.match(result)) {
-        sessionStorage.removeItem("bookingData");
-        setPaymentSuccess(true);
-        router.push(`/thank-you`);
-      } else if (processPayment.rejected.match(result)) {
-        setPaymentError(result.payload as string || "Ödeme işlemi başarısız oldu");
+      const result = await dispatch(processPayment(paymentData)).unwrap();
+    
+      if (result.status === "success" && result.content) {
+        // 3D Secure doğrulama sayfasına yönlendir
+        const encodedContent = encodeURIComponent(result.content);
+        router.push(`/${locale}/payment/secure?content=${encodedContent}`);
+      } else {
+        setPaymentError("Ödeme işlemi başarısız oldu.");
       }
     } catch (error) {
       console.error("Ödeme başarısız:", error);
-      setPaymentError("Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+      setPaymentError("Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setPaymentIsLoading(false);
       setIsSubmitting(false);
@@ -214,21 +217,13 @@ export default function Payment() {
         <section className="section-box box-next-trips background-body">
           <div className="container">
             <div className="row align-items-end">
-              <div className="col-lg-8">
+              <div className="col-lg-12">
                 <h2 className="neutral-1000">{t("payment")} 💳</h2>
               </div>
             </div>
           </div>
         </section>
 
-        {paymentSuccess ? (
-          <div className="container my-5">
-            <div className="alert alert-success p-4 text-center">
-              <h3>{t("Ödeme başarılı!")}</h3>
-              <p>{t("Teşekkür sayfasına yönlendiriliyorsunuz")}</p>
-            </div>
-          </div>
-        ) : (
           <>
             <div
               className="row g-0 justify-content-center"
@@ -530,10 +525,10 @@ export default function Payment() {
                           <>
                             <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding: "20px" }}>
                               <div className="text-black text-md font-extrabold">
-                                📍{bookingData.tourName || bookingData.tour?.name}
+                                📍{bookingData.tourName}
                               </div>
                               <div className="neutral-500">
-                                📆 {bookingData.tourDate || bookingData.date || bookingData.tour?.date} - {bookingData.time || bookingData.tour?.time}
+                                📆 {formatDate(bookingData.tourDate)}  {bookingData.tourStartTime}
                               </div>
                               <div className="neutral-500">
                                 🎫 {t2("code")}: {bookingData.bookingCode}
@@ -626,7 +621,6 @@ export default function Payment() {
               </section>
             )}
 
-            {/* Diğer ödeme formları da benzer şekilde düzenlenebilir */}
             {showBankTransferForm && (
               <section className="background-body py-8 mt-20">
                 <div className="container max-w-6xl mx-auto px-4">
@@ -794,7 +788,6 @@ export default function Payment() {
               </section>
             )}
           </>
-        )}
       </Layout>
     </>
   );

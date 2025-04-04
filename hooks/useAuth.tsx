@@ -1,8 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-import { login, logout, setCredentials, clearAuth, initAuth } from '../redux/authSlice';
+import { login, logout } from '../redux/authSlice';
 import { useEffect } from 'react';
-import { getCookie } from 'cookies-next';
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -10,35 +9,17 @@ export const useAuth = () => {
     (state: RootState) => state.auth
   );
 
-  const handleLogin = async (credentials: { email: string; password: string }) => {
-    try {
-      return await dispatch(login(credentials)).unwrap();
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    }
-  };
+  const handleLogin = (credentials: { email: string; password: string }) =>
+    dispatch(login(credentials)).unwrap();
 
   const handleLogout = () => {
     dispatch(logout());
   };
 
-  const setAuth = (userData: { user: any; token: string }) => {
-    dispatch(setCredentials(userData));
-  };
-
-  const clearAuthState = () => {
-    dispatch(clearAuth());
-  };
-
   useEffect(() => {
     if (isLoading) return;
 
-    const hasToken = getCookie('next-auth.session-token');
-    if (!isAuthenticated && hasToken) {
-      dispatch(initAuth());
-    }
-  }, [dispatch, isAuthenticated, isLoading]);
+  }, [dispatch, token, isLoading]);
 
   return {
     user,
@@ -48,8 +29,6 @@ export const useAuth = () => {
     error,
     login: handleLogin,
     logout: handleLogout,
-    setAuth,
-    clearAuth: clearAuthState,
   };
 };
 

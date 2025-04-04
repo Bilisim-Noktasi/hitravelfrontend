@@ -9,36 +9,23 @@ interface Booking {
   date: string;
   time: string;
   totalPrice: number;
+  participants: {
+    isChild: boolean;
+    age: number;
+  }[];
   adults: {
-    count: number;
-    price: number;
+    isChild: boolean;
+    age: number;
   };
   children?: {
     age: number;
     price: number;
   }[];
-  tourExtras?: {
+  bookingExtras?: {
     name: string;
     price: number;
   }[];
-  transfer?: {
-    id: string;
-    cityId: string;
-    cityName: string;
-    stateId: string;
-    stateName: string;
-    price: number;
-  } | null;
-  customerInfo?: {
-    name: string;
-    surname: string;
-    email: string;
-    phone: string;
-    identityNumber?: string;
-    note?: string;
-  };
-  status: string;
-  currency: string;
+  transferId: string;
   userId?: string;
 }
 
@@ -61,14 +48,7 @@ export const createBooking = createAsyncThunk(
   async (bookingData: Partial<Booking>, { rejectWithValue }) => {
     try {
       const bookingDataToSend = { ...bookingData };
-      
-      if (!bookingDataToSend.userId) {
-        delete bookingDataToSend.userId;
-      }
-      
-      if (bookingDataToSend.userId === '') {
-        delete bookingDataToSend.userId;
-      }
+      console.log("bookingDataSend:", bookingDataToSend);
       
       const response = await postRequest(
         { 
@@ -93,7 +73,10 @@ const bookingSlice = createSlice({
       state.error = null;
     },
     setBookingData: (state, action: PayloadAction<Partial<Booking>>) => {
-      state.booking = { ...state.booking, ...action.payload } as Booking;
+      state.booking = {
+        ...state.booking,
+        ...action.payload
+      } as Booking;
     },
   },
   extraReducers: (builder) => {

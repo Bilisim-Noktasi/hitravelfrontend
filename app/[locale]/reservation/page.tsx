@@ -101,46 +101,23 @@ export default function Reservation() {
       // API için uygun veri formatı
       const completeBookingData = {
         // Temel tur bilgileri
+        command: "Create", // API'nin beklediği command alanı
         userId: user?.id || undefined,
         tourId: bookingData.tourId,
-        tourName: bookingData.tourName,
         tourDate: bookingData.date,
-        time: bookingData.time,
-        totalPrice: bookingData.totalPrice,
-
-        //Burası Booking Post İşlemi İçin Geçiçi !!!!
+        tourStartTime: bookingData.time,
         adultCount: bookingData.adults.count,
-        childCount: bookingData.children.length,
+        childCount: bookingData.children.count,
+        specialRequests: note,
+        contactEmail: email,
+        contactPhone: phone,
         contactName: name,
         contactSurname: surname,
         identityNumber: tc,
-        contactEmail: email,
-        contactPhone: phone,
-        specialRequests: "booking",
         discountCode: "1234",
-
-        // Katılımcı bilgileri
-        adults: bookingData.adults,
-        children: bookingData.children && bookingData.children.length > 0 ? bookingData.children : [],
-        bookingExtras: bookingData.extras && bookingData.extras.length > 0 ? bookingData.extras : [],
         transferId: bookingData.transfer ? bookingData.transfer.id : null,
-
-        // Müşteri bilgileri
-        customerInfo: {
-          name: name,
-          surname: surname,
-          email: email,
-          phone: phone,
-          identityNumber: tc || "",
-          note: note || ""
-        },
-
-        // Fatura bilgileri (opsiyonel)
-        billingInfo: billingInfo,
-
-        // İşlem durumu ve para birimi
-        status: "Pending",
-        currency: bookingData.currency || "USD"
+        bookingExtras: bookingData.extras && bookingData.extras.length > 0 ? bookingData.extras : [],
+        participants: bookingData.participants,
       };
 
       console.log("Sending booking data:", completeBookingData);
@@ -189,7 +166,7 @@ export default function Reservation() {
         sessionStorage.removeItem('bookingData');
 
         // Ödeme sayfasına yönlendir
-        router.push(`/${locale}/payment`);
+        router.push(`/${locale}/payment?bookingId=${response.data.id}`);
       }
     } catch (error) {
       console.error("Error submitting booking:", error);

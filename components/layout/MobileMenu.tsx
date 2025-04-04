@@ -4,7 +4,6 @@ import { Link } from "@/i18n/routing";
 import { useState } from "react";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import useAuth from "@/hooks/useAuth";
-import { useRouter } from "next/router";
 
 export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin, handleLogout }: any) {
   const [isAccordion, setIsAccordion] = useState(0);
@@ -91,42 +90,6 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                         <li>
                           <Link href="/tour-grid-3">
                             Tours List - Top Fillter
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-grid">
-                            Tours List - Sidebar Left Fillter
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-grid-2">
-                            Tours List - Sidebar Right Fillter
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-list">Tours List 1</Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-list-2">Tours List 2</Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-detail">
-                            Tour Single 01 - Gallery
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-detail-2">
-                            Tour Single 02 - Slideshow
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-detail-3">
-                            Tour Single 03 - Video
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/tour-detail-4">
-                            Tour Single 04 - Image
                           </Link>
                         </li>
                       </ul>

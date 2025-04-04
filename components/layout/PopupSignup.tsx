@@ -8,14 +8,14 @@ import { login, register } from "@/redux/authSlice";
 export default function PopupSignup({ isRegister, handleRegister, handleLogin }: any) {
   const t = useTranslations("SignUp");
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
     firstName: "",
     lastName: "",
-    phone: "",
+    phoneNumber: "",
     confirmPassword: "",
   });
 
@@ -29,13 +29,25 @@ export default function PopupSignup({ isRegister, handleRegister, handleLogin }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
+    // Şifreler uyuşuyor mu kontrol et
+    if (credentials.password !== credentials.confirmPassword) {
+      console.error("Passwords do not match!");
+      return; // Hata durumunda işlemi durdur
+    }
+  
     try {
-      await dispatch(register(credentials)).unwrap();
+      // confirmPassword'u API'ye göndermemek için yeni bir nesne oluşturuyoruz
+      const { confirmPassword, ...dataToSend } = credentials;
+  
+      await dispatch(register(dataToSend)).unwrap();
+      
       if (handleRegister) handleRegister(); // Başarılı girişten sonra popup'ı kapat
     } catch (err) {
       console.error("Login error:", err);
     }
   };
+  
 
   // Giriş başarılı olduğunda popup'ı kapat
   useEffect(() => {
@@ -69,7 +81,7 @@ export default function PopupSignup({ isRegister, handleRegister, handleLogin }:
                       name="firstName"
                       value={credentials.firstName}
                       onChange={handleChange}
-                    // required
+                      required
                     />
                   </div><div className="col-lg-6 form-group">
                     <label className="text-sm-medium">{t("surName")}</label>
@@ -80,7 +92,7 @@ export default function PopupSignup({ isRegister, handleRegister, handleLogin }:
                       name="lastName"
                       value={credentials.lastName}
                       onChange={handleChange}
-                    // required
+                      required
                     />
                   </div>
                 </div>
@@ -102,10 +114,10 @@ export default function PopupSignup({ isRegister, handleRegister, handleLogin }:
                     className="form-control username"
                     type="tel"
                     placeholder={t("phone")}
-                    name="phone"
-                    value={credentials.phone}
+                    name="phoneNumber"
+                    value={credentials.phoneNumber}
                     onChange={handleChange}
-                  // required
+                    required
                   />
                 </div>
                 <div className="row">

@@ -181,13 +181,40 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
 
       // Formatlı tarih YYYY-MM-DD şeklinde
       const formattedDate = date.toISOString().split('T')[0];
+      
+      // Time formatını düzelt (HH:mm:ss şeklinde olmalı)
+      // Eğer time sadece HH:mm formatındaysa, sonuna ":00" ekle
+      const formattedTime = time && time.includes(':') && time.split(':').length === 2 
+        ? `${time}:00` 
+        : time;
+
+      // Participants dizisini doğrudan oluştur
+      const participants = [];
+
+      // Yetişkinleri ekle (isChild: false)
+      for (let i = 0; i < adultCount; i++) {
+        participants.push({
+          isChild: false,
+          age: 18, // Varsayılan yetişkin yaşı
+          fullName: `Adult ${i+1}` // Her katılımcı için fullName alanı ekliyoruz
+        });
+      }
+
+      // Çocukları ekle (yaş ≤ 3 ise isChild: true)
+      childAges.forEach((age, index) => {
+        participants.push({
+          isChild: age <= 3,
+          age: age,
+          fullName: `Child ${index+1}` // Her katılımcı için fullName alanı ekliyoruz
+        });
+      });
 
       // Rezervasyon verilerini oluştur
       const bookingData = {
         tourId: tour.id,
         tourName: tour.name,
         date: formattedDate,
-        time: time,
+        time: formattedTime, // Düzgün formatlı saat
         totalPrice: totalPrice,
         adults: {
           count: adultCount,
@@ -196,8 +223,8 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         children: childrenData.length > 0 ? childrenData : [],
         extras: selectedExtrasData.length > 0 ? selectedExtrasData : [],
         transfer: transferData,
-        currency: "USD",
-        status: "Pending"
+        participants: participants, // Direkt participants dizisini ekle
+        command: "Create" // API'nin beklediği command alanını ekle
       };
 
       console.log("Booking data:", bookingData);
