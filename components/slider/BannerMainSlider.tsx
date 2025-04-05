@@ -126,54 +126,25 @@ export default function BannerMainSlider() {
     <>
       {!isMobile ? (
         <>
-          <Slider {...settingsMain} ref={slider1} className="banner-main">
-            <div className="banner-slide">
-              <div className="banner-image-1">
-                <div className="container">
-                  <h3 className="mt-2 mb-20 text-white text-right">
-                    <br className="d-none d-lg-block" />
-                  </h3>
+          <Slider {...settingsMain}>
+            {banners.map((banner) => (
+              banner.bannerImages.map((bannerImage, index) => (
+                <div key={index}>
+                  <img src={bannerImage} style={{
+            minHeight: '768px',
+            width: '100%',
+            objectFit: 'cover' // opsiyonel
+          }}/>
                 </div>
-              </div>
-            </div>
-            <div className="banner-slide">
-              <div className="banner-image ">
-                <div className="container">
-                  <h1 className="mt-20 mb-20">
-                    <br className="d-none d-lg-block" />
-                  </h1>
-                  <h6 className="heading-6-medium"></h6>
-                </div>
-              </div>
-            </div>
-            <div className="banner-slide">
-              <div className="banner-image-2">
-                <div className="container">
-                  <h1 className="mt-20 mb-20">
-                    <br className="d-none d-lg-block" />
-                  </h1>
-                  <h6 className="heading-6-medium"></h6>
-                </div>
-              </div>
-            </div>
-            <div className="banner-slide">
-              <div className="banner-image-3">
-                <div className="container">
-                  <h1 className="mt-20 mb-20">
-                    <br className="d-none d-lg-block" />
-                  </h1>
-                  <h6 className="heading-6-medium"></h6>
-                </div>
-              </div>
-            </div>
+              ))
+            ))}
           </Slider>
           <div className="slider-thumnail">
-            <Slider
-              {...settingsThumbs} ref={slider2} className="slider-nav-thumbnails">
+            <Slider {...settingsThumbs} className="slider-nav-thumbnails">
               {banners.map((banner) => (
                 banner.miniImages.map((miniImage, index) => (
                   <div className="banner-slide" key={index}>
-                    <img src={miniImage} alt="Banner" />
+                    <img src={miniImage}/>
                   </div>
                 ))
               ))}
@@ -183,20 +154,20 @@ export default function BannerMainSlider() {
       ) : (
         <>
           <Slider {...settingsMain} ref={slider1} className="banner-main">
-          {banners.map((banner) => (
-                banner.mobileImages.map((mobileImage, index) => (
-            <div className="banner-slide" key={index} style={{ width: "100vw" }}>
-              <div
-                className="banner-image"
-                style={{
-                  backgroundImage: `url(${mobileImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
-            </div>
-                ))
-              ))}
+            {banners.map((banner) => (
+              banner.mobileImages.map((mobileImage, index) => (
+                <div className="banner-slide" key={index} style={{ width: "100vw" }}>
+                  <div
+                    className="banner-image"
+                    style={{
+                      backgroundImage: `url(${mobileImage})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  ></div>
+                </div>
+              ))
+            ))}
           </Slider>
         </>
       )}

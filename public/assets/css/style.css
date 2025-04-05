@@ -9215,16 +9215,17 @@ a.icon-socials:hover svg {
   border: 3px solid var(--bs-neutral-0);
   border-radius: 16px;
   overflow: hidden;
-  height: 140px;
   object-fit: cover;
+  height: 130px;
   width: 100%;
 }
+
 .slider-nav-thumbnails .banner-slide.slick-current {
   border-color: var(--bs-brand-secondary);
 }
 
 .banner-main .banner-image .container {
-  padding-right: 250px;
+  /* padding-right: 250px; */
 }
 
 .box-search-advance {
@@ -14800,7 +14801,7 @@ h2 span {
   .banner-main .banner-image .container {
     padding-right: 0px;
     padding-top: 30px;
-      width: 100%;
+    width: 100%;
   }
   .banner-main .banner-image-1 .container {
     padding-right: 0px;
