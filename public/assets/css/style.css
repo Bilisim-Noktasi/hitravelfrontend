@@ -3278,7 +3278,7 @@ label {
   min-width: 100%;
 }
 .card-journey-small .card-info {
-  padding: 43px 32px;
+  padding: 25px 25px;
   background-color: var(--bs-neutral-0);
   border-radius: 30px;
   position: relative;
@@ -3425,7 +3425,7 @@ label {
   background: url(../imgs/page/homepage2/seat.svg) no-repeat left center;
 }
 .card-journey-small .card-info .card-program .duration {
-  margin-bottom: 45px;
+  margin-bottom: 20px;
 }
 .card-journey-small .card-info .card-program .duration .card-price {
   display: flex;
@@ -3435,12 +3435,12 @@ label {
   margin-right: 6px;
 }
 .card-journey-small .card-info .card-program .card-duration-tour {
-  display: flex;
-  align-items: center;
+  /* display: flex;
+  align-items: center; */
   margin-bottom: 35px;
 }
 .card-journey-small .card-info .card-program .icon-duration {
-  padding: 0px 20px 0px 22px;
+  padding: 0px 10px 0px 22px;
   background: url(../imgs/template/icons/duration.svg) no-repeat left center;
 }
 .card-journey-small .card-info .card-program .icon-guest {
@@ -9121,41 +9121,29 @@ a.icon-socials:hover svg {
 .banner-image {
   min-height: 769px;
   padding-bottom: 250px;
-  background: url(../imgs/page/homepage2/banner1.png) no-repeat top center;
-}
-
-.banner-image-1 {
-  min-height: 769px;
-  padding-bottom: 250px;
-
-  background: url(../imgs/page/homepage2/banner.png) no-repeat top center;
-}
-
-.banner-image-2{
-  min-height: 769px;
-  padding-bottom: 250px;
-
-  background: url(../imgs/page/homepage2/banner2.png) no-repeat top center;
-}
-
-.banner-image {
-  min-height: 769px;
-  padding-bottom: 250px;
-  background: url(../imgs/page/homepage2/banner1.png) no-repeat top center;
+  background: url(http://res.cloudinary.com/djjzpczfo/image/upload/v1741945586/jfmjvc7gpokkxkfyra0c.webp) no-repeat top center;
   background-size: cover;
 }
 
 .banner-image-1 {
   min-height: 769px;
   padding-bottom: 250px;
-  background: url(../imgs/page/homepage2/banner.png) no-repeat top center;
+  background: url(http://res.cloudinary.com/djjzpczfo/image/upload/v1741945585/urfmhblg8fig08yso99f.webp) no-repeat top center;
   background-size: cover;
 }
 
 .banner-image-2 {
   min-height: 769px;
   padding-bottom: 250px;
-  background: url(../imgs/page/homepage2/banner2.png) no-repeat top center;
+  background: url(http://res.cloudinary.com/djjzpczfo/image/upload/v1741945587/kswoupfhenqrrv2sojh1.webp) no-repeat top center;
+  background-size: cover;
+}
+
+.banner-image-3{
+  min-height: 769px;
+  padding-bottom: 250px;
+
+  background: url(http://res.cloudinary.com/djjzpczfo/image/upload/v1741983031/gtqr2v66csqd7qei2vyp.jpg) no-repeat top center;
   background-size: cover;
 }
 
@@ -9227,6 +9215,8 @@ a.icon-socials:hover svg {
   border: 3px solid var(--bs-neutral-0);
   border-radius: 16px;
   overflow: hidden;
+  height: 140px;
+  object-fit: cover;
   width: 100%;
 }
 .slider-nav-thumbnails .banner-slide.slick-current {

@@ -7,12 +7,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { getToursDispatch } from "@/redux/tourSlice";
+import { useParams } from "next/navigation";
 
 export default function YourJourney() {
   const dispatch = useDispatch<AppDispatch>();
   const { tours } = useSelector((state: RootState) => state.tour);
   const t = useTranslations("HomePage");
   const t_card = useTranslations("TourCard")
+  const params = useParams();
+  const locale = params.locale as string;
 
   useEffect(() => {
     dispatch(getToursDispatch(0, 30));
@@ -65,75 +68,83 @@ export default function YourJourney() {
           <div className="box-swiper mt-30">
             <div className="swiper-container mx-64 swiper-group-animate swiper-group-journey">
               <Swiper {...swiperGroupAnimate} loop={false}>
-                {tours?.map((item, index) => (
-                  <SwiperSlide key={index}>
-                    <div className="card-journey-small background-card">
-                      <div className="card-image">
-                        <Link className="wish" href={`/tours/${item.slug}`}>
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke="black"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
+                {tours
+                  ?.filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
+                  .map((item, index) => (
+                    <SwiperSlide key={index}>
+                      <div className="card-journey-small background-card">
+                        <div className="card-image">
+                          <Link className="wish" href={`/tours/${item.slug}`}>
+                            <svg
+                              width={20}
+                              height={18}
+                              viewBox="0 0 20 18"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
+                                stroke="black"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                fill="none"
+                              />
+                            </svg>
+                          </Link>
+                          <Link href={`/tours/${item.slug}`}>
+                            <img
+                              src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"}
+                              alt="Travila"
+                              className="cursor-pointer"
                             />
-                          </svg>
-                        </Link>
-                        <Link href={`/tours/${item.slug}`}>
-                          <img
-                            src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"}
-                            alt="Travila"
-                            className="cursor-pointer"
-                          />
-                        </Link>
-                      </div>
-                      <div className="card-info background-card">
-                        <div className="card-rating">
-                          <div className="card-left"></div>
-                          <div className="card-right">
-                            <span className="rating">
-                              {item.isPopular} 5.0
-                            </span>
-                          </div>
+                          </Link>
                         </div>
-                        <div className="card-title">
-                          <Link className="heading-6 neutral-1000" href={`/tours/${item.slug}`}>{item.name.length > 19 ? item.name.slice(0, 19) + "..." : item.name}</Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="duration">
-                            <p className="text-md-medium neutral-500">
-                              📍{item.stateName}, {item.cityName}
-                            </p>
-                          </div>
-                          <div className="endtime">
-                            <div className="card-price">
-                              <h6 className="heading-6 neutral-1000">$ {item.tourPriceUSD}</h6>
-                              <p className="text-md-medium neutral-500">/ {t_card('person')}</p>
-                            </div>
-                            <div className="card-button">
-                              <Link className="btn btn-gray" href={`/tours/${item.slug}`}>
-                                {t("book")}
-                              </Link>
+                        <div className="card-info background-card">
+                          <div className="card-rating">
+                            <div className="card-left"></div>
+                            <div className="card-right">
+                              <span className="rating">
+                                {item.isPopular} 5.0
+                              </span>
                             </div>
                           </div>
+                          <div className="card-title">
+                            <Link className="heading-6 neutral-1000" href={`/tours/${item.slug}`}>{item.name.length > 19 ? item.name.slice(0, 19) + ".." : item.name}</Link>
+                          </div>
+                          <div className="card-program">
+                            <div className="duration">
+                              <p className="text-md-medium neutral-500">
+                                📍{item.stateName}, {item.cityName}
+                              </p>
+                              <p className="text-md-medium neutral-500">
+                              🙋🏻‍♀️{item.size} {t("guest")}
+                              </p>
+                            </div>
+                            <div className="endtime">
+                              <div className="card-price">
+                                <h6 className="heading-6 neutral-1000">$ {item.tourPriceUSD}</h6>
+                                {item.pricingType == 1 &&
+                                  < p className="text-md-medium neutral-500">/ {t_card('person')}</p>
+                                }
+
+                              </div>
+                              <div className="card-button">
+                                <Link className="btn btn-gray" href={`/tours/${item.slug}`}>
+                                  {t("book")}
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
+                    </SwiperSlide>
+                  ))}
               </Swiper>
 
             </div>
           </div>
         </div>
-      </section>
+      </section >
     </>
   );
 }

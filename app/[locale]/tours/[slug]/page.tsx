@@ -488,7 +488,7 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                         <div className="card card-body">
                           <div
                             dangerouslySetInnerHTML={{
-                              __html: tour?.note || [],
+                              __html: tour?.note || '',
                             }}
                           />
                         </div>
@@ -536,7 +536,7 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                         <div className="card card-body">
                           <div
                             dangerouslySetInnerHTML={{
-                              __html: tour?.overview || [],
+                              __html: tour?.overview || '',
                             }}
                           />
                         </div>

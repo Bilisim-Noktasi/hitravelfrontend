@@ -11,7 +11,7 @@ import SortToursFilter from "@/components/elements/SortToursFilter";
 import TourCard1 from "@/components/elements/tourcard/TourCard1";
 import Layout from "@/components/layout/Layout";
 import { AppDispatch, RootState } from "@/redux/store";
-import { getTourDispatch, getToursDispatch } from "@/redux/tourSlice";
+import { getToursDispatch } from "@/redux/tourSlice";
 import rawToursData from "@/util/tours.json";
 import useTourFilter from "@/util/useTourFilter";
 import { useTranslations } from "next-intl";
@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Preloader from "@/components/elements/Preloader";
+import { useParams } from "next/navigation";
 
 const toursData = rawToursData.map((tour) => ({
   ...tour,
@@ -29,17 +30,19 @@ const toursData = rawToursData.map((tour) => ({
 
 export default function TourGrid() {
   const dispatch = useDispatch<AppDispatch>()
-  const { tours } = useSelector((state:RootState) => state.tour)
+  const { tours } = useSelector((state: RootState) => state.tour)
   const [isLoading, setIsLoading] = useState(true)
   const t = useTranslations("tourGrid");
-  
+  const params = useParams();
+  const locale = params.locale as string;
+
   useEffect(() => {
-    dispatch(getToursDispatch(0,100))
+    dispatch(getToursDispatch(0, 100))
     setTimeout(() => {
       setIsLoading(false)
     }, 500)
   }, [dispatch])
-  
+
   const {
     filter,
     sortCriteria,
@@ -64,14 +67,14 @@ export default function TourGrid() {
     startItemIndex,
     endItemIndex,
   } = useTourFilter(toursData);
-  
+
   if (isLoading) {
     return <Preloader />
   }
-  
+
   return (
     <>
-     
+
       <Layout headerStyle={1} footerStyle={1}>
         <main className="main">
           <section className="box-section block-banner-tourlist">
@@ -79,7 +82,7 @@ export default function TourGrid() {
               <div className="text-center">
                 <h3>{t("title")}</h3>
                 <h6 className="heading-6-medium">
-                 
+
                 </h6>
               </div>
               <div className="box-search-advance box-search-advance-3 background-card wow fadeInUp">
@@ -103,16 +106,17 @@ export default function TourGrid() {
                       sortedTours={sortedTours}
                     />
                   </div>
+
                   <div className="box-grid-tours wow fadeIn">
                     <div className="row">
-                      {tours?.map((tour) => (
-                        <div
-                          className="col-xl-4 col-lg-6 col-md-6"
-                          key={tour.id}
-                        >
-                          <TourCard1 tour={tour} />
-                        </div>
-                      ))}
+                      {tours
+                        ?.filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
+                        .map((tour) => (
+                          <div className="col-xl-4 col-lg-6 col-md-6" key={tour.id}>
+                            <TourCard1 tour={tour} />
+                          </div>
+                        ))}
+
                     </div>
                   </div>
 

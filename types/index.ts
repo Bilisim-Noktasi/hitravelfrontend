@@ -4,6 +4,8 @@ export interface Tour {
     id: string;
     slug: string;
     name: string;
+    languageCode: number;
+    pricingType: number;
     size: number;
     categoryId: string;
     categoryName: string;

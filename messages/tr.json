@@ -145,7 +145,8 @@
     "days": "Gün",
     "night": "Gece",
     "guest": "Misafir",
-    "bookNow": "Rezervasyon"
+    "bookNow": "Rezervasyon",
+    "person": "Kişi"
   },
   "HotelGrid": {
     "bigTitle": "Lüks Bir Dünya Sizi Bekliyor",
@@ -286,7 +287,8 @@
     "popular_villa_subtitle": "Müşteriler bu villaları çok sevdi!😍 ",
     "popular_destinations": "Popüler Hedefler",
     "popular_destinations_subtitle": "Müşteri yorumlarına göre favori destinasyonlar",
-    "book": "Rezervasyon"
+    "book": "Rezervasyon",
+    "guest": "Misafir"
   },
   "VillaDetail": {
     "show_on_map": "Haritada Göster",
@@ -725,7 +727,8 @@
     "not": "Not",
     "An error occurred during booking":"Bir hata oluştu",
     "İşlem Yapılıyor":"İşlem Yapılıyor",
-    "Lütfen gizlilik politikasını kabul ediniz": "Lütfen gizlilik politikasını kabul ediniz"
+    "Lütfen gizlilik politikasını kabul ediniz": "Lütfen gizlilik politikasını kabul ediniz",
+    "discountCode": "İndirim Kodu"
   },
   "pay": {
     "toplamTutar": "Toplam Tutar",
@@ -777,7 +780,17 @@
     "Şirket Ünvanı": "Şirket Ünvanı",
     "Fatura Adresi": "Fatura Adresi",
     "ana": "Anasayfa",
-    "loading": "Yükleniyor..."
+    "loading": "Yükleniyor...",
+    "Ödeme Onayı": "Ödeme Onayı",
+    "devamEt": "Eğer havale/EFT işlemini gerçekleştirdiyseniz 'Devam Et' butonuna basın.",
+    "bankaOnay": "Bu işlem, sadece havale/EFT işlemini gerçekleştirdiğinizi bildirmek içindir. Ödemeniz banka tarafından onaylandıktan sonra rezervasyonunuz tamamlanacaktır.",
+    "İptal Et": "İptal Et",
+    "Devam Et": "Devam Et",
+    "yuzde25": "Bu ödeme yöntemi ile rezervasyon tutarının %25'ini şimdi ödeyeceksiniz. Kalan miktar tur başlangıcında ödenecektir.",
+    "odenecek25": "Şimdi sadece ödeyeceğiniz tutar:",
+    "turdaOde": "Bu ödeme yöntemi ile ödemeyi tur başlangıcında yapacaksınız. Rezervasyonunuz şimdi oluşturulacak, ödemeyi tur günü rehberimize yapabilirsiniz.",
+    "rehbereOde": "Bu tutarı tur gününde rehberinize ödeyeceksiniz.",
+    "kdv": "KDV Dahildir."
   },
   "thankYou": {
     "thank": "Teşekkürler!",

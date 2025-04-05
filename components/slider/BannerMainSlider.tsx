@@ -1,6 +1,14 @@
 "use client";
+import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import Slider from "react-slick";
+
+export interface Banner {
+  id: string;
+  bannerImages: string[];
+  mobileImages: string[];
+  miniImages: string[];
+}
 
 const SlickArrowLeft = ({ currentSlide, slideCount, ...props }: any) => (
   <button
@@ -60,6 +68,8 @@ export default function BannerMainSlider() {
   const [nav1, setNav1] = useState<Slider | undefined>(undefined);
   const [nav2, setNav2] = useState<Slider | undefined>(undefined);
   const [isMobile, setIsMobile] = useState(false);
+  const [banners, setBanners] = useState<Banner[]>([]);
+
   useEffect(() => {
     setNav1(slider1.current ?? undefined);
     setNav2(slider2.current ?? undefined);
@@ -74,6 +84,21 @@ export default function BannerMainSlider() {
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.hitravel.com.tr/api/Banners?PageIndex=0&PageSize=10"
+        );
+        setBanners(response.data.items || []);
+      } catch (error) {
+        console.error("Banner verileri alınamadı:", error);
+      }
+    };
+
+    fetchBanners();
   }, []);
 
   const settingsMain = {
@@ -111,7 +136,6 @@ export default function BannerMainSlider() {
                 </div>
               </div>
             </div>
-
             <div className="banner-slide">
               <div className="banner-image ">
                 <div className="container">
@@ -132,61 +156,47 @@ export default function BannerMainSlider() {
                 </div>
               </div>
             </div>
+            <div className="banner-slide">
+              <div className="banner-image-3">
+                <div className="container">
+                  <h1 className="mt-20 mb-20">
+                    <br className="d-none d-lg-block" />
+                  </h1>
+                  <h6 className="heading-6-medium"></h6>
+                </div>
+              </div>
+            </div>
           </Slider>
           <div className="slider-thumnail">
             <Slider
-              {...settingsThumbs}
-              ref={slider2}
-              className="slider-nav-thumbnails"
-            >
-              <div className="banner-slide">
-                <img src="/assets/imgs/page/homepage2/efes.webp" alt="Efes" />
-              </div>
-              <div className="banner-slide">
-                <img
-                  src="/assets/imgs/page/homepage2/akdeniz.webp"
-                  alt="Akdeniz"
-                />
-              </div>
-              <div className="banner-slide">
-                <img src="/assets/imgs/page/homepage2/gunes.webp" alt="" />
-              </div>
+              {...settingsThumbs} ref={slider2} className="slider-nav-thumbnails">
+              {banners.map((banner) => (
+                banner.miniImages.map((miniImage, index) => (
+                  <div className="banner-slide" key={index}>
+                    <img src={miniImage} alt="Banner" />
+                  </div>
+                ))
+              ))}
             </Slider>
           </div>
         </>
       ) : (
         <>
           <Slider {...settingsMain} ref={slider1} className="banner-main">
-            <div className="banner-slide" style={{ width: "100vw" }}>
+          {banners.map((banner) => (
+                banner.mobileImages.map((mobileImage, index) => (
+            <div className="banner-slide" key={index} style={{ width: "100vw" }}>
               <div
                 className="banner-image"
                 style={{
-                  backgroundImage: `url(/assets/imgs/mobileefes.webp)`,
+                  backgroundImage: `url(${mobileImage})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
               ></div>
             </div>
-            <div className="banner-slide">
-              <div
-                className="banner-image"
-                style={{
-                  backgroundImage: `url(/assets/imgs/mobileefes.webp)`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
-            </div>
-            <div className="banner-slide">
-              <div
-                className="banner-image"
-                style={{
-                  backgroundImage: `url(/assets/imgs/mobileefes.webp)`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              ></div>
-            </div>
+                ))
+              ))}
           </Slider>
         </>
       )}

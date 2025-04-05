@@ -181,11 +181,11 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
 
       // Formatlı tarih YYYY-MM-DD şeklinde
       const formattedDate = date.toISOString().split('T')[0];
-      
+
       // Time formatını düzelt (HH:mm:ss şeklinde olmalı)
       // Eğer time sadece HH:mm formatındaysa, sonuna ":00" ekle
-      const formattedTime = time && time.includes(':') && time.split(':').length === 2 
-        ? `${time}:00` 
+      const formattedTime = time && time.includes(':') && time.split(':').length === 2
+        ? `${time}:00`
         : time;
 
       // Participants dizisini doğrudan oluştur
@@ -196,7 +196,7 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         participants.push({
           isChild: false,
           age: 18, // Varsayılan yetişkin yaşı
-          fullName: `Adult ${i+1}` // Her katılımcı için fullName alanı ekliyoruz
+          fullName: `Adult ${i + 1}` // Her katılımcı için fullName alanı ekliyoruz
         });
       }
 
@@ -205,7 +205,7 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         participants.push({
           isChild: age <= 3,
           age: age,
-          fullName: `Child ${index+1}` // Her katılımcı için fullName alanı ekliyoruz
+          fullName: `Child ${index + 1}` // Her katılımcı için fullName alanı ekliyoruz
         });
       });
 
@@ -289,77 +289,79 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
       ) : null}  {/* Eğer startTimes verisi yoksa, saat seçimi kısmını göstermiyoruz */}
 
       {/* Bilet Seçimi */}
-      <div className="item-line-booking">
-        <div className="box-tickets">
-          <strong className="text-md-bold neutral-1000">{t("Ticket")}:</strong>
-          <div className="line-booking-tickets">
-            {/* Yetişkinler */}
-            <div className="item-ticket">
-              <p className="text-md-medium neutral-500 mr-35">{t("adults")}</p>
-              <p className="text-md-medium neutral-500">{adultCount}</p>
+      {tour?.pricingType == 1 &&
+        <div className="item-line-booking">
+          <div className="box-tickets">
+            <strong className="text-md-bold neutral-1000">{t("Ticket")}:</strong>
+            <div className="line-booking-tickets">
+              {/* Yetişkinler */}
+              <div className="item-ticket">
+                <p className="text-md-medium neutral-500 mr-35">{t("adults")}</p>
+                <p className="text-md-medium neutral-500">{adultCount}</p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
+                  onClick={() => setAdultCount(Math.max(1, adultCount - 1))}
+                >
+                  -
+                </button>
+                <button
+                  className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
+                  onClick={() => setAdultCount(Math.min(9, adultCount + 1))}
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div className="flex space-x-2">
-              <button
-                className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
-                onClick={() => setAdultCount(Math.max(1, adultCount - 1))}
-              >
-                -
-              </button>
-              <button
-                className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
-                onClick={() => setAdultCount(Math.min(9, adultCount + 1))}
-              >
-                +
-              </button>
+
+            {/* Çocuklar */}
+            <div className="line-booking-tickets">
+              <div className="item-ticket">
+                <p className="text-md-medium neutral-500 mr-45">{t("children")}</p>
+                <p className="text-md-medium neutral-500">{childCount}</p>
+              </div>
+              <div>
+                <button
+                  className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
+                  onClick={() => handleChildCountChange(Math.max(0, childCount - 1))}
+                >
+                  -
+                </button>
+                <button
+                  className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
+                  onClick={() => handleChildCountChange(Math.min(4, childCount + 1))}
+                >
+                  +
+                </button>
+              </div>
             </div>
+
+            {/* Çocuk yaşları */}
+            {childCount > 0 && (
+              <div className="item-line-booking">
+                {childAges.map((age, index) => (
+                  <div key={index} className="mt-2">
+                    <label className="text-sm-medium neutral-500">
+                      {index + 1}. Çocuk
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="17"
+                      placeholder={`Çocuk ${index + 1} Yaşı`}
+                      value={age}
+                      onChange={(e) => handleAgeChange(index, e.target.value)}
+                      className="!w-20 !h-10 border border-gray-400 rounded-md"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* Çocuklar */}
-          <div className="line-booking-tickets">
-            <div className="item-ticket">
-              <p className="text-md-medium neutral-500 mr-45">{t("children")}</p>
-              <p className="text-md-medium neutral-500">{childCount}</p>
-            </div>
-            <div>
-              <button
-                className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
-                onClick={() => handleChildCountChange(Math.max(0, childCount - 1))}
-              >
-                -
-              </button>
-              <button
-                className="px-3 py-1 text-lg font-semibold border border-gray-500 rounded-md hover:bg-gray-100 transition"
-                onClick={() => handleChildCountChange(Math.min(4, childCount + 1))}
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Çocuk yaşları */}
-          {childCount > 0 && (
-            <div className="item-line-booking">
-              {childAges.map((age, index) => (
-                <div key={index} className="mt-2">
-                  <label className="text-sm-medium neutral-500">
-                    {index + 1}. Çocuk
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="17"
-                    placeholder={`Çocuk ${index + 1} Yaşı`}
-                    value={age}
-                    onChange={(e) => handleAgeChange(index, e.target.value)}
-                    className="!w-20 !h-10 border border-gray-400 rounded-md"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
         </div>
-      </div>
+      }
+
 
       {/* Ekstra Seçenekler */}
       <div className="item-line-booking">
@@ -422,7 +424,7 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
             />
             {isTransferSelected &&
               <select
-                className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-1 py-1 mt-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 onChange={handleTransferChange}
                 value={selectedTransfer?.cityName || ""}
               >

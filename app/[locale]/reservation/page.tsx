@@ -14,10 +14,8 @@ export default function Reservation() {
   const t = useTranslations("book");
   const t2 = useTranslations("pay");
   // State tanımlamaları
-  const [vkn, setVkn] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
   const [surname, setSurname] = useState<string | undefined>(undefined);
-  const [showBillingInfo, setShowBillingInfo] = useState(false);
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [phone, setPhone] = useState<string | undefined>(undefined);
   const [tc, setTc] = useState<string | undefined>(undefined);
@@ -26,15 +24,11 @@ export default function Reservation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [discountCode, setDiscountCode] = useState<string | undefined>(undefined);
 
   // Rezervasyon bilgileri
   const [bookingData, setBookingData] = useState<any>(null);
   const { user, token } = useAuth();
-
-  // Fatura bilgileri
-  const [companyName, setCompanyName] = useState<string>("");
-  const [taxOffice, setTaxOffice] = useState<string>("");
-  const [billingAddress, setBillingAddress] = useState<string>("");
 
   useEffect(() => {
     // Session storage'dan rezervasyon verilerini al
@@ -52,15 +46,6 @@ export default function Reservation() {
       setError(t("Error loading booking information"));
     }
   }, []);
-
-  const handleVknChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
-    setVkn(value);
-  };
-
-  const handleCheckboxChange = () => {
-    setShowBillingInfo(!showBillingInfo);
-  };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -89,15 +74,6 @@ export default function Reservation() {
         return;
       }
 
-      // Fatura bilgilerini hazırla
-      const billingInfo = vkn ? {
-        vkn: vkn,
-        companyName: name,
-        address: "",
-        taxOffice: "",
-        taxNumber: vkn
-      } : null;
-
       // API için uygun veri formatı
       const completeBookingData = {
         // Temel tur bilgileri
@@ -114,7 +90,7 @@ export default function Reservation() {
         contactName: name,
         contactSurname: surname,
         identityNumber: tc,
-        discountCode: "1234",
+        discountCode: discountCode,
         transferId: bookingData.transfer ? bookingData.transfer.id : null,
         bookingExtras: bookingData.extras && bookingData.extras.length > 0 ? bookingData.extras : [],
         participants: bookingData.participants,
@@ -157,8 +133,9 @@ export default function Reservation() {
           extrasTotalPrice: bookingData.extras ? bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0) : 0,
           transfer: bookingData.transfer,
           transferPrice: bookingData.transfer ? bookingData.transfer.price : 0,
-          totalPrice: bookingData.totalPrice
+          // totalPrice: bookingData.totalPrice
         };
+        console.log(bookingResponseData)
 
         sessionStorage.setItem('bookingResponse', JSON.stringify(bookingResponseData));
 
@@ -173,15 +150,7 @@ export default function Reservation() {
 
       if (axios.isAxiosError(error) && error.response) {
         console.log("API error details:", error.response.data);
-        
-        // Token ile ilgili hataları kontrol et (401, 403)
-        if (error.response.status === 401) {
-          setError(t("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın."));
-        } else if (error.response.status === 403) {
-          setError(t("Bu işlem için yetkiniz bulunmuyor."));
-        } else {
-          setError(`${t("API Error")}: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-        }
+
       } else {
         setError(t("An error occurred during booking"));
       }
@@ -238,18 +207,18 @@ export default function Reservation() {
             <div className="row">
               <div className="col-12 col-md-8">
                 <div className="card p-4">
-                    {/* Kişisel Bilgiler */}
-                    <h4 className="mb-4">{t("Kişisel Bilgiler")}</h4>
+                  {/* Kişisel Bilgiler */}
+                  <h4 className="mb-4">{t("Kişisel Bilgiler")}</h4>
                   <div className="mb-4 d-flex">
                     <div className="form-group w-50 me-2">
                       <label htmlFor="name" className="form-label">
-                          {t("ad")} *
+                        {t("ad")} *
                       </label>
                       <input
                         type="text"
                         className="form-control bg-white border"
                         id="name"
-                          value={name || ""}
+                        value={name || ""}
                         onChange={(e) =>
                           setName(
                             e.target.value.replace(
@@ -259,19 +228,19 @@ export default function Reservation() {
                           )
                         }
                         placeholder={t("ad")}
-                          required
+                        required
                       />
                     </div>
 
-                      <div className="form-group w-50 ms-2">
+                    <div className="form-group w-50 ms-2">
                       <label htmlFor="surname" className="form-label">
-                          {t("Soyad")} *
+                        {t("Soyad")} *
                       </label>
                       <input
                         type="text"
                         className="form-control bg-white border"
                         id="surname"
-                          value={surname || ""}
+                        value={surname || ""}
                         onChange={(e) =>
                           setSurname(
                             e.target.value.replace(
@@ -281,14 +250,14 @@ export default function Reservation() {
                           )
                         }
                         placeholder={t("Soyad")}
-                          required
+                        required
                       />
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label htmlFor="phone" className="form-label">
-                          {t("phone")} *
+                        {t("phone")} *
                       </label>
                       <input
                         type="text"
@@ -300,21 +269,21 @@ export default function Reservation() {
                         }
                         placeholder="0555 456 7890"
                         maxLength={15}
-                          required
+                        required
                       />
                     </div>
                     <div className="col-md-6 mb-3">
                       <label htmlFor="email" className="form-label">
-                          Mail *
+                        Mail *
                       </label>
                       <input
                         type="email"
                         className="form-control bg-white border"
                         id="email"
-                          value={email || ""}
-                          onChange={(e) => setEmail(e.target.value)}
+                        value={email || ""}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="mail@mail.com"
-                          required
+                        required
                       />
                     </div>
                   </div>
@@ -326,7 +295,7 @@ export default function Reservation() {
                       type="text"
                       className="form-control bg-white border"
                       id="tc"
-                        value={tc || ""}
+                      value={tc || ""}
                       onChange={(e) =>
                         setTc(e.target.value.replace(/[^0-9]/g, ""))
                       }
@@ -335,84 +304,8 @@ export default function Reservation() {
                     />
                   </div>
 
-                    {/* Fatura Bilgileri */}
-                    <div className="mb-4 form-check">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id="billingInfo"
-                        checked={showBillingInfo}
-                        onChange={handleCheckboxChange}
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="billingInfo"
-                      >
-                        {t("Fatura Bilgilerini Ekle")}
-                      </label>
-                    </div>
-
-                    {showBillingInfo && (
-                      <div className="billing-info mb-4">
-                        <h4 className="mb-3">{t("Fatura Bilgileri")}</h4>
-                        <div className="mb-3">
-                          <label htmlFor="companyName" className="form-label">
-                            {t2("Şirket/Kurum Adı")}
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="companyName"
-                            value={companyName}
-                            onChange={(e) => setCompanyName(e.target.value)}
-                            placeholder={t2("Şirket/Kurum Adı")}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <label htmlFor="vkn" className="form-label">
-                            {t2("vkn")}
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="vkn"
-                            value={vkn}
-                            onChange={handleVknChange}
-                            placeholder="VKN/TCKN"
-                            maxLength={11}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <label htmlFor="taxOffice" className="form-label">
-                            {t2("vd")}
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control bg-white border"
-                            id="taxOffice"
-                            value={taxOffice}
-                            onChange={(e) => setTaxOffice(e.target.value)}
-                            placeholder={t2("vd")}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <label htmlFor="billingAddress" className="form-label">
-                            {t2("add")}
-                          </label>
-                          <textarea
-                            className="form-control bg-white border"
-                            id="billingAddress"
-                            value={billingAddress}
-                            onChange={(e) => setBillingAddress(e.target.value)}
-                            placeholder={t2("add")}
-                            style={{ minHeight: "100px", resize: "vertical" }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Not Alanı */}
-                    <div className="mb-4">
+                  {/* Not Alanı */}
+                  <div className="mb-4">
                     <label htmlFor="note" className="form-label">
                       {t("not")}
                     </label>
@@ -426,111 +319,133 @@ export default function Reservation() {
                     />
                   </div>
 
-                    {/* Gizlilik Politikası */}
-                    <div className="mb-4 form-check">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id="privacy"
-                        checked={privacy}
-                        onChange={() => setPrivacy(!privacy)}
-                        required
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="privacy"
-                      >
-                        {t2("okudum")} <Link href="/privacy">{t2("privacy")}</Link>
-                      </label>
-                    </div>
-
-                    {/* Hata Mesajı */}
-                    {error && (
-                      <div className="alert alert-danger mb-4">
-                        {error}
-                      </div>
-                    )}
-
-                    {/* Rezervasyon Butonu */}
-                    <button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="btn btn-dark w-100 py-2"
+                  {/* Gizlilik Politikası */}
+                  <div className="mb-4 form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="privacy"
+                      checked={privacy}
+                      onChange={() => setPrivacy(!privacy)}
+                      required
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor="privacy"
                     >
-                      {isSubmitting ? t("İşlem Yapılıyor") : t("rez")}
-                    </button>
+                      {t2("okudum")} <Link href="/privacy">{t2("privacy")}</Link>
+                    </label>
+                  </div>
+
+                  {/* Hata Mesajı */}
+                  {error && (
+                    <div className="alert alert-danger mb-4">
+                      {error}
+                    </div>
+                  )}
+
+                  {/* Rezervasyon Butonu */}
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="btn btn-dark w-100 py-2"
+                  >
+                    {isSubmitting ? t("İşlem Yapılıyor") : t("rez")}
+                  </button>
                 </div>
               </div>
 
               <div className="col-12 col-md-4 mt-4 mt-md-0">
-                  <div className="card p-4">
-                    <h5 className="mb-4">{t2("sepetOzeti")}</h5>
-                    {bookingData && (
-                      <>
-                        <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding: "20px" }}>
-                    <div className="text-black text-md font-extrabold">
-                            📍{bookingData.tourName}
-                    </div>
-                    <div className="neutral-500">
-                            📆 {bookingData.date} - {bookingData.time}
-                    </div>
-                          {bookingData.tourId && (
-                    <div className="neutral-500">
-                              🎫 {t("code")}: {bookingData.tourId.substring(0, 8)}
-                    </div>
-                          )}
-                  </div>
-
-                        <hr className="w-100 border-secondary" />
-                        <p className="d-flex justify-content-between">
-                          {bookingData.adults.count} {t("a")}
-                          <span>${bookingData.adults.count * bookingData.adults.price}</span>
-                        </p>
-
-                        {bookingData.children && bookingData.children.length > 0 && (
-                          <>
-                            <hr className="w-100 border-secondary" />
-                            <p className="d-flex justify-content-between">
-                              {bookingData.children.length} {t("ç")}
-                              <span>
-                                ${bookingData.children.reduce((sum: number, child: any) => sum + child.price, 0)}
-                              </span>
-                            </p>
-                          </>
+                <div className="card p-4">
+                  <h5 className="mb-4">{t2("sepetOzeti")}</h5>
+                  {bookingData && (
+                    <>
+                      <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding: "20px" }}>
+                        <div className="text-black text-md font-extrabold">
+                          📍{bookingData.tourName}
+                        </div>
+                        <div className="neutral-500">
+                          📆 {bookingData.date} - {bookingData.time}
+                        </div>
+                        {bookingData.tourId && (
+                          <div className="neutral-500">
+                            🎫 {t("code")}: {bookingData.tourId.substring(0, 8)}
+                          </div>
                         )}
+                      </div>
 
-                        {bookingData.extras && bookingData.extras.length > 0 && (
-                          <>
-                  <hr className="w-100 border-secondary" />
-                  <p className="d-flex justify-content-between">
-                              {t("Ekstralar")}
-                              <span>
-                                ${bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0)}
-                              </span>
-                            </p>
-                          </>
-                        )}
+                      <hr className="w-100 border-secondary" />
+                      <p className="d-flex justify-content-between">
+                        {bookingData.adults.count} {t("a")}
+                        <span>${bookingData.adults.count * bookingData.adults.price}</span>
+                      </p>
 
-                        {bookingData.transfer && (
-                          <>
-                  <hr className="w-100 border-secondary" />
-                  <p className="d-flex justify-content-between">
-                              {t("Transfer")} - {bookingData.transfer.cityName}
-                              <span>${bookingData.transfer.price}</span>
-                  </p>
-                          </>
-                        )}
+                      {bookingData.children && bookingData.children.length > 0 && (
+                        <>
+                          <hr className="w-100 border-secondary" />
+                          <p className="d-flex justify-content-between">
+                            {bookingData.children.length} {t("ç")}
+                            <span>
+                              {bookingData.children.length * bookingData.adults.price}
+                            </span>
+                          </p>
+                        </>
+                      )}
 
-                  <hr className="w-100 border-secondary" />
-                  <p className="d-flex justify-content-between text-dark fw-bold">
-                    {t("total")}
-                          <span>${bookingData.totalPrice}</span>
-                  </p>
-                      </>
-                    )}
-                  </div>
+                      {bookingData.extras && bookingData.extras.length > 0 && (
+                        <>
+                          <hr className="w-100 border-secondary" />
+                          <p className="d-flex justify-content-between">
+                            {t("Ekstralar")}
+                            <span>
+                              ${bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0)}
+                            </span>
+                          </p>
+                        </>
+                      )}
+
+                      {bookingData.transfer && (
+                        <>
+                          <hr className="w-100 border-secondary" />
+                          <p className="d-flex justify-content-between">
+                            {t("Transfer")} - {bookingData.transfer.cityName}
+                            <span>${bookingData.transfer.price}</span>
+                          </p>
+                        </>
+                      )}
+
+                      <hr className="w-100 border-secondary" />
+                      <p className="d-flex justify-content-between text-dark fw-bold">
+                        {t("total")}
+                        <span>${bookingData.totalPrice}</span>
+                      </p>
+                    </>
+                  )}
                 </div>
+                <div className="card p-4 mt-4">
+                  <label htmlFor="discountCode" className="form-label">
+                    {t("discountCode")}
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control bg-white border"
+                    id="discountCode"
+                    value={discountCode || ""}
+                    onChange={(e) =>
+                      setDiscountCode(
+                        e.target.value
+                          .toUpperCase() // Küçük harfleri büyük harfe çevir
+                          .replace(/[^A-Z0-9]/g, "") // Sadece büyük harf ve rakam
+                          .slice(0, 15)
+                      )
+                    }
+                    placeholder={t("discountCode")}
+                  />
+                </div>
+
+
+              </div>
             </div>
           </div>
         </section>
