@@ -278,7 +278,11 @@ const authSlice = createSlice({
     setUser: (state, action) => {
       state.token = action.payload.token;
       state.user = action.payload.user;
-      state.isAuthenticated = true;
+      
+      // isAuthenticated değerini doğrudan payload'dan al ya da varsayılan olarak true olsun
+      state.isAuthenticated = action.payload.isAuthenticated !== undefined 
+        ? action.payload.isAuthenticated 
+        : true;
       
       if (action.payload.tokenExpiresAt) {
         state.tokenExpiresAt = action.payload.tokenExpiresAt;

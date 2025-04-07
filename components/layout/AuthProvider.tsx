@@ -1,21 +1,36 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { getCookie, setCookie } from 'cookies-next';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/authSlice';
 import { extractUserFromToken } from '@/utils/auth';
 import { User } from '@/utils/auth';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
+import { RootState } from '@/redux/store';
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
+  const isInitialized = useRef(false);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   
   // Token yenileme servisini başlat (15 dakika = 900000 ms, 1 dakika önce yenilesin = 60000 ms)
   // Backend token süresi 15 dakika ise, 14 dakika sonra yenileme yapacak şekilde ayarlayalım
   const { manualRefresh } = useTokenRefresh(60000); // 1 dakika önce yenile
 
   useEffect(() => {
+    // Client tarafında çalıştığından emin ol
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
+    // Çift yükleme sorununu önle
+    if (isInitialized.current) {
+      return;
+    }
+    
+    isInitialized.current = true;
+    
     const initAuth = () => {
       // First get token from cookie
       let token = getCookie('next-auth.session-token') as string | null;
@@ -96,7 +111,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Redux'a kullanıcı bilgilerini ayarla
           if (user) {
-            dispatch(setUser({ token, user, tokenExpiresAt }));
+            // isAuthenticated değerini açıkça true olarak belirtiyoruz
+            dispatch(setUser({ token, user, tokenExpiresAt, isAuthenticated: true }));
           }
           
           // TokenStorage'a kaydet (senkronizasyon için)
@@ -110,7 +126,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // Check auth state when page loads
-    initAuth();
+    setTimeout(() => {
+      initAuth();
+    }, 0);
 
     // Check token when tab visibility changes (returning to tab)
     const handleVisibilityChange = () => {

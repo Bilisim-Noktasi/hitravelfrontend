@@ -1,3 +1,5 @@
+'use client';
+
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
 import { login, logout } from '../redux/authSlice';
@@ -12,9 +14,13 @@ interface User {
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, token, isAuthenticated, isLoading, error } = useSelector(
-    (state: RootState) => state.auth
-  );
+  
+  // State'e daha güvenli erişim için ayrı selector'lar kullanılıyor
+  const user = useSelector((state: RootState) => state.auth?.user || null);
+  const token = useSelector((state: RootState) => state.auth?.token || null);
+  const isAuthenticated = useSelector((state: RootState) => state.auth?.isAuthenticated || false);
+  const isLoading = useSelector((state: RootState) => state.auth?.isLoading || false);
+  const error = useSelector((state: RootState) => state.auth?.error || null);
 
   // Giriş işlemi
   const handleLogin = (credentials: { email: string; password: string }) =>

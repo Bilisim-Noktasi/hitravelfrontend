@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshToken } from '@/redux/authSlice';
@@ -11,9 +13,12 @@ import { AnyAction } from '@reduxjs/toolkit';
  */
 const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
   const dispatch = useDispatch();
-  const { isAuthenticated, token, tokenExpiresAt, isRefreshing } = useSelector(
-    (state: RootState) => state.auth
-  );
+  
+  // State'e daha güvenli erişim için ayrı selector'lar kullanılıyor
+  const isAuthenticated = useSelector((state: RootState) => state.auth?.isAuthenticated || false);
+  const token = useSelector((state: RootState) => state.auth?.token || null);
+  const tokenExpiresAt = useSelector((state: RootState) => state.auth?.tokenExpiresAt || null);
+  const isRefreshing = useSelector((state: RootState) => state.auth?.isRefreshing || false);
   
   // Zamanlayıcıyı tutmak için ref
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -44,6 +49,11 @@ const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
   
   // Auth state değiştiğinde timer'ı güncelle
   useEffect(() => {
+    // Client tarafında çalıştığından emin ol
+    if (typeof window === 'undefined') {
+      return () => {};
+    }
+    
     startRefreshTimer();
     
     return () => {
@@ -56,6 +66,11 @@ const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
   
   // Sayfa görünürlüğü değiştiğinde (sekme aktif olduğunda) süresi geçmişse tokeni yenile
   useEffect(() => {
+    // Client tarafında çalıştığından emin ol
+    if (typeof window === 'undefined') {
+      return () => {};
+    }
+    
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         if (
