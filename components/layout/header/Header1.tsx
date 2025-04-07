@@ -168,7 +168,7 @@ export default function Header1({
                       aria-expanded="false"
                     >
                       <FaUser className="me-2" />
-                      {user.email}
+                      {user?.email || "Kullanıcı"}
                     </button>
                     <ul className="dropdown-menu" aria-labelledby="userDropdown"> 
                       <li>
