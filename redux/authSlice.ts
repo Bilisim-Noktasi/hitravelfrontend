@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { postRequest } from '../service/requestService';
 import { deleteCookie, setCookie, getCookie } from 'cookies-next';
+import { extractUserFromToken } from '@/utils/auth';
 
 // Define types for state
 interface User {
@@ -26,28 +27,6 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
-};
-
-const decodeToken = (token: string): any => {
-  try {
-    const base64Url = token.split('.')[1];
-    if (!base64Url) return null;
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(base64));
-  } catch {
-    return null;
-  }
-};
-
-const extractUserFromToken = (token: string, email: string = ''): User => {
-  const payload = decodeToken(token);
-  return {
-    id: payload?.id || payload?.sub,
-    email: payload?.email || email,
-    firstName: payload?.given_name || '',
-    lastName: payload?.family_name || '',
-    status: true,
-  };
 };
 
 export const login = createAsyncThunk(
@@ -96,6 +75,11 @@ const authSlice = createSlice({
       state.error = null;
       deleteCookie('next-auth.session-token');
     },
+    setUser: (state, action) => {
+      state.token = action.payload.token;
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -129,5 +113,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuth } = authSlice.actions;
+export const { clearAuth, setUser } = authSlice.actions;
 export default authSlice.reducer;
