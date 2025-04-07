@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshToken } from '@/redux/authSlice';
 import { RootState } from '@/redux/store';
@@ -13,18 +13,30 @@ import { AnyAction } from '@reduxjs/toolkit';
  */
 const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
   const dispatch = useDispatch();
+  const [isClient, setIsClient] = useState(false);
   
-  // State'e daha güvenli erişim için ayrı selector'lar kullanılıyor
-  const isAuthenticated = useSelector((state: RootState) => state.auth?.isAuthenticated || false);
-  const token = useSelector((state: RootState) => state.auth?.token || null);
-  const tokenExpiresAt = useSelector((state: RootState) => state.auth?.tokenExpiresAt || null);
-  const isRefreshing = useSelector((state: RootState) => state.auth?.isRefreshing || false);
+  // Client-side'da olduğumuzdan emin olalım
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Tek bir selector ile güvenli erişim sağlayalım
+  const authState = useSelector((state: RootState) => state?.auth);
+  
+  // Güvenli değerler oluşturalım
+  const isAuthenticated = !!authState?.isAuthenticated;
+  const token = authState?.token || null;
+  const tokenExpiresAt = authState?.tokenExpiresAt || null;
+  const isRefreshing = !!authState?.isRefreshing;
   
   // Zamanlayıcıyı tutmak için ref
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Token yenileme işlemini başlat
   const startRefreshTimer = () => {
+    // Client tarafında değilsek işlem yapma
+    if (!isClient) return;
+    
     if (refreshTimerRef.current) {
       clearTimeout(refreshTimerRef.current);
     }
@@ -49,10 +61,8 @@ const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
   
   // Auth state değiştiğinde timer'ı güncelle
   useEffect(() => {
-    // Client tarafında çalıştığından emin ol
-    if (typeof window === 'undefined') {
-      return () => {};
-    }
+    // Client tarafında değilsek hiçbir şey yapma
+    if (!isClient) return () => {};
     
     startRefreshTimer();
     
@@ -62,14 +72,12 @@ const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
         clearTimeout(refreshTimerRef.current);
       }
     };
-  }, [isAuthenticated, token, tokenExpiresAt, isRefreshing]);
+  }, [isClient, isAuthenticated, token, tokenExpiresAt, isRefreshing]);
   
   // Sayfa görünürlüğü değiştiğinde (sekme aktif olduğunda) süresi geçmişse tokeni yenile
   useEffect(() => {
-    // Client tarafında çalıştığından emin ol
-    if (typeof window === 'undefined') {
-      return () => {};
-    }
+    // Client tarafında değilsek hiçbir şey yapma
+    if (!isClient) return () => {};
     
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -93,10 +101,13 @@ const useTokenRefresh = (refreshBeforeExpiryMS: number = 60000) => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isAuthenticated, tokenExpiresAt, isRefreshing]);
+  }, [isClient, isAuthenticated, tokenExpiresAt, isRefreshing]);
   
   // Manuel olarak token yenileme işlemini tetikleyen fonksiyon
   const manualRefresh = () => {
+    // Client tarafında değilsek hiçbir şey yapma
+    if (!isClient) return;
+    
     if (isAuthenticated && !isRefreshing) {
       dispatch(refreshToken() as unknown as AnyAction);
     }

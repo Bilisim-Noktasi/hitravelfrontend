@@ -50,27 +50,37 @@ const createPreloadedState = () => {
   return {};
 };
 
-// Redux store yapılandırması
-export const store = configureStore({
+// Next.js SSR için güvenli bir store oluşturma fonksiyonu
+const createStoreWithSafeDefaults = () => {
+  return configureStore({
     reducer: {
-        villa: villaSlice,
-        tour: tourSlice,
-        // admin: adminSlice,
-        currencyRate: currencyRate,
-        // search: searchSlice,
-        tourCategory: tourCategorySlice,
-        tourSubCategory: tourSubCategorySlice,
-        auth: authSlice,
-        booking: bookingSlice,
-        payment: paymentSlice,
-        blog: blogSlice,
+      villa: villaSlice,
+      tour: tourSlice,
+      // admin: adminSlice,
+      currencyRate: currencyRate,
+      // search: searchSlice,
+      tourCategory: tourCategorySlice,
+      tourSubCategory: tourSubCategorySlice,
+      auth: authSlice,
+      booking: bookingSlice,
+      payment: paymentSlice,
+      blog: blogSlice,
     },
-    // Serializable check'i devre dışı bırakarak hydration sorunlarını önleyelim
+    // SSR ile CSR arasındaki hydration sorunlarını önlemek için
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
-        serializableCheck: false
+        serializableCheck: false,
+        immutableCheck: false,
+        thunk: {
+          extraArgument: undefined
+        }
       })
-})
+  });
+};
+
+// Server-side'da her istek için yeni store oluşturulmasını sağla
+// Client-side'da singleton olarak çalışsın
+export const store = createStoreWithSafeDefaults();
 
 export type RootState = ReturnType<typeof store.getState>;
 

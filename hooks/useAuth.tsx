@@ -3,7 +3,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
 import { login, logout } from '../redux/authSlice';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // Kullanıcı tipini belirleyelim
 interface User {
@@ -14,13 +14,22 @@ interface User {
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const [isClient, setIsClient] = useState(false);
+  
+  // Client tarafında olduğumuzdan emin olalım
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   // State'e daha güvenli erişim için ayrı selector'lar kullanılıyor
-  const user = useSelector((state: RootState) => state.auth?.user || null);
-  const token = useSelector((state: RootState) => state.auth?.token || null);
-  const isAuthenticated = useSelector((state: RootState) => state.auth?.isAuthenticated || false);
-  const isLoading = useSelector((state: RootState) => state.auth?.isLoading || false);
-  const error = useSelector((state: RootState) => state.auth?.error || null);
+  // Client-side'da değilsek undefined dönebilir, o yüzden fallback değerleri kullanıyoruz
+  const authState = useSelector((state: RootState) => state?.auth);
+  
+  const user = authState?.user || null;
+  const token = authState?.token || null;
+  const isAuthenticated = !!authState?.isAuthenticated; // boolean tipine zorla
+  const isLoading = !!authState?.isLoading; // boolean tipine zorla
+  const error = authState?.error || null;
 
   // Giriş işlemi
   const handleLogin = (credentials: { email: string; password: string }) =>
@@ -31,10 +40,20 @@ export const useAuth = () => {
     dispatch(logout());
   };
 
-  useEffect(() => {
-    if (isLoading) return; // Eğer isLoading true ise, herhangi bir işlem yapılmasın.
-  }, [isLoading]); // sadece isLoading'e bağlı olarak trigger yapıyoruz.
-
+  // İstemci tarafında değilsek, güvenli varsayılan değerler döndür
+  if (!isClient) {
+    return {
+      user: null,
+      email: "Kullanıcı",
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      login: handleLogin,
+      logout: handleLogout,
+    };
+  }
+  
   // Kullanıcı objesinin mevcut olup olmadığını kontrol edelim ve varsayılan değer sağlayalım
   const safeUser = user || null; // Eğer user objesi null ise, null olarak ayarla
   const safeEmail = safeUser?.email || "Kullanıcı"; // email'e güvenli erişim

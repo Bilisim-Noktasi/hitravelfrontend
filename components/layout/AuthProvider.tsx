@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getCookie, setCookie } from 'cookies-next';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/authSlice';
@@ -12,7 +12,14 @@ import { RootState } from '@/redux/store';
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const isInitialized = useRef(false);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const [isLoaded, setIsLoaded] = useState(false);
+  // Önemli: Tarayıcı tarafında olup olmadığımızı takip eden state
+  const [isBrowser, setIsBrowser] = useState(false);
+  
+  // Client tarafında olduğumuzda isBrowser'ı true yapıyoruz
+  useEffect(() => {
+    setIsBrowser(true);
+  }, []);
   
   // Token yenileme servisini başlat (15 dakika = 900000 ms, 1 dakika önce yenilesin = 60000 ms)
   // Backend token süresi 15 dakika ise, 14 dakika sonra yenileme yapacak şekilde ayarlayalım
@@ -123,6 +130,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error('Auth initialization error:', error);
         }
       }
+      
+      // Auth yükleme işlemi tamamlandı
+      setIsLoaded(true);
     };
 
     // Check auth state when page loads
@@ -153,6 +163,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [dispatch]);
+
+  // Önemli: Sadece isBrowser true ise ve yüklenmediyse "Yükleniyor..." göster
+  // Böylece server-side rendering sırasında bu mesaj gösterilmeyecek
+  if (isBrowser && !isLoaded) {
+    return <div className="loading-auth">Yükleniyor...</div>;
+  }
 
   return <>{children}</>;
 };
