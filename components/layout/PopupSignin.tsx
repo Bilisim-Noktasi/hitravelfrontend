@@ -13,7 +13,12 @@ export default function PopupSignin({
 }: any) {
   const t = useTranslations("SignIn");
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  
+  // Güvenli selector kullanımı (state değeri olmadığında uygun varsayılan değerler kullan)
+  const authState = useSelector((state: RootState) => state?.auth);
+  const isLoading = authState?.isLoading || false;
+  const error = authState?.error || null;
+  const isAuthenticated = authState?.isAuthenticated || false;
 
   const [credentials, setCredentials] = useState({
     email: "",

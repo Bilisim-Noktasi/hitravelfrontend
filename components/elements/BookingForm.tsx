@@ -13,7 +13,11 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
   const router = useRouter();
   const t = useTranslations("tour");
   const dispatch = useDispatch();
-  const { isLoading, error } = useSelector((state: RootState) => state.booking);
+  
+  // Güvenli selector kullanımı (state değeri olmadığında uygun varsayılan değerler kullan)
+  const bookingState = useSelector((state: RootState) => state?.booking);
+  const isLoading = bookingState?.isLoading || false;
+  const error = bookingState?.error || null;
 
   const [date, setDate] = useState<Date | null>(null);
   const [time, setTime] = useState<string | null>(null);

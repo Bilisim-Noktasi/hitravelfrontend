@@ -30,7 +30,8 @@ const toursData = rawToursData.map((tour) => ({
 
 export default function TourGrid() {
   const dispatch = useDispatch<AppDispatch>()
-  const { tours } = useSelector((state: RootState) => state.tour)
+  const tourState = useSelector((state: RootState) => state?.tour)
+  const tours = tourState?.tours || []
   const [isLoading, setIsLoading] = useState(true)
   const t = useTranslations("tourGrid");
   const params = useParams();

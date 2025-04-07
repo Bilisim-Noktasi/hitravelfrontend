@@ -11,7 +11,8 @@ import { useParams } from "next/navigation";
 
 export default function YourJourney() {
   const dispatch = useDispatch<AppDispatch>();
-  const { tours } = useSelector((state: RootState) => state.tour);
+  const tourState = useSelector((state: RootState) => state?.tour);
+  const tours = tourState?.tours || [];
   const t = useTranslations("HomePage");
   const t_card = useTranslations("TourCard")
   const params = useParams();

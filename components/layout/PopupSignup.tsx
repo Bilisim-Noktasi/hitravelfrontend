@@ -8,7 +8,10 @@ import { login, register } from "@/redux/authSlice";
 export default function PopupSignup({ isRegister, handleRegister, handleLogin }: any) {
   const t = useTranslations("SignUp");
   const dispatch = useDispatch<AppDispatch>();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  
+  // Güvenli selector kullanımı
+  const authState = useSelector((state: RootState) => state?.auth);
+  const isAuthenticated = authState?.isAuthenticated || false;
 
   const [credentials, setCredentials] = useState({
     email: "",

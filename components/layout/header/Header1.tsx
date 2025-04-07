@@ -26,8 +26,12 @@ export default function Header1({
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const { categories } = useSelector((state: RootState) => state.tourCategory);
-  const { subCategories } = useSelector((state: RootState) => state.tourSubCategory);
+  // Güvenli selector kullanımı
+  const categoryState = useSelector((state: RootState) => state?.tourCategory);
+  const subCategoryState = useSelector((state: RootState) => state?.tourSubCategory);
+  
+  const categories = categoryState?.categories || [];
+  const subCategories = subCategoryState?.subCategories || [];
   
   const [selectedCategory, setSelectedCategory] = useState<any>(null); // State to store selected category
 
