@@ -6,7 +6,7 @@ import currencyRate from './currencyRate';
 // import searchSlice from './searchSlice';
 import tourCategorySlice from './tourCategorySlice';
 import tourSubCategorySlice from './tourSubCategorySlice';
-import authReducer from './authSlice';
+import authSlice from './authSlice';
 import bookingSlice from './bookingSlice';
 import paymentSlice from './paymentSlice';
 import blogSlice from './blogSlice';
@@ -20,7 +20,7 @@ export const store = configureStore({
         // search: searchSlice,
         tourCategory: tourCategorySlice,
         tourSubCategory: tourSubCategorySlice,
-        auth: authReducer,
+        auth: authSlice,
         booking: bookingSlice,
         payment: paymentSlice,
         blog: blogSlice,

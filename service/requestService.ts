@@ -1,20 +1,63 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getCookie } from "cookies-next";
 import { store } from "../redux/store";
-import { clearAuth } from "../redux/authSlice";
+import { clearAuth, refreshToken } from "../redux/authSlice";
 
 // API için axios instance oluştur
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_API,
 });
 
+// Token'ın geçerli olup olmadığını kontrol et 
+const isTokenExpiringSoon = (): boolean => {
+  const state = store.getState();
+  const auth = state.auth;
+  
+  if (!auth.tokenExpiresAt || !auth.token) {
+    return false;
+  }
+  
+  // Token süresinin dolmasına 30 saniyeden az kaldıysa
+  const timeToExpiry = auth.tokenExpiresAt - Date.now();
+  return timeToExpiry < 30000; // 30 saniye
+};
+
 // Request interceptor
 api.interceptors.request.use(
-  (config) => {
+  async (config: InternalAxiosRequestConfig) => {
+    // Mevcut tokeni al
     const token = getCookie('next-auth.session-token');
+    
+    // State'i kontrol et
+    const state = store.getState();
+    const auth = state.auth;
+    
+    // Eğer token varsa ve yakında sona erecekse ve şu anda yenilenmiyor ise
+    if (token && isTokenExpiringSoon() && !auth.isRefreshing) {
+      try {
+        // Göndermeden önce tokeni yenile
+        const result = await store.dispatch(refreshToken());
+        
+        // Yeni token ile isteği güncelle (başarıyla yenilendiyse)
+        if (refreshToken.fulfilled.match(result)) {
+          // Yeni token'ı al
+          const newToken = result.payload.token;
+          if (newToken) {
+            // Header'ı güncelle
+            config.headers.Authorization = `Bearer ${newToken}`;
+            return config;
+          }
+        }
+      } catch (error) {
+        console.error('Token refresh error in interceptor:', error);
+      }
+    } 
+    
+    // Normal durumda mevcut tokeni kullan
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
   },
   (error) => {
@@ -27,11 +70,37 @@ api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Token expired veya geçersiz
-      store.dispatch(clearAuth());
+  async (error: AxiosError) => {
+    const originalRequest = error.config;
+    
+    // Eğer 401 hatası alınırsa ve istek yinelenmediyse token yenilemeyi dene
+    if (error.response?.status === 401 && !originalRequest?.headers['X-Retry']) {
+      try {
+        // Token'ı yenile
+        const result = await store.dispatch(refreshToken());
+        
+        // Token başarıyla yenilendiyse, orijinal isteği tekrar gönder
+        if (refreshToken.fulfilled.match(result)) {
+          const newToken = result.payload.token;
+          
+          // İsteği yeniden oluştur
+          const newRequest = {
+            ...originalRequest,
+            headers: {
+              ...originalRequest?.headers,
+              'Authorization': `Bearer ${newToken}`,
+              'X-Retry': 'true' // Sonsuz döngüyü önlemek için
+            }
+          };
+          
+          return axios(newRequest);
+        }
+      } catch {
+        // Token yenileme başarısız olursa oturumu kapat
+        store.dispatch(clearAuth());
+      }
     }
+    
     return Promise.reject(error);
   }
 );

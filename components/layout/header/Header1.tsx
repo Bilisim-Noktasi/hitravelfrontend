@@ -13,10 +13,6 @@ import { FaChevronRight } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { FaUser } from "react-icons/fa";
 
-const ThemeSwitch = dynamic(() => import("@/components/elements/ThemeSwitch"), {
-  ssr: false,
-});
-
 export default function Header1({
   scroll,
   handleLogin,
@@ -26,7 +22,7 @@ export default function Header1({
   handleSidebar,
 }: any) {
   const t = useTranslations("HeaderLink");
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, email, isAuthenticated, logout } = useAuth();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -168,7 +164,7 @@ export default function Header1({
                       aria-expanded="false"
                     >
                       <FaUser className="me-2" />
-                      {user?.email || "Kullanıcı"}
+                      {email}
                     </button>
                     <ul className="dropdown-menu" aria-labelledby="userDropdown"> 
                       <li>
