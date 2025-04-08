@@ -4,7 +4,7 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false, // Strict Mode'u kapat
+  reactStrictMode: false,
 };
 
 export default withNextIntl(nextConfig);

@@ -5,9 +5,10 @@ import Slider from "react-slick";
 
 export interface Banner {
   id: string;
-  bannerImages: string[];
-  mobileImages: string[];
-  miniImages: string[];
+  type: number;
+  imageUrl: string;
+  sortOrder: number;
+  isActive: boolean;
 }
 
 const SlickArrowLeft = ({ currentSlide, slideCount, ...props }: any) => (
@@ -127,26 +128,22 @@ export default function BannerMainSlider() {
       {!isMobile ? (
         <>
           <Slider {...settingsMain}>
-            {banners.map((banner) => (
-              banner.bannerImages.map((bannerImage, index) => (
-                <div key={index}>
-                  <img src={bannerImage} style={{
-            minHeight: '768px',
-            width: '100%',
-            objectFit: 'cover' // opsiyonel
-          }}/>
-                </div>
-              ))
+            {banners.filter((banner) => banner.type === 1).sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
+              <div key={banner.id}>
+                <img src={banner.imageUrl} style={{
+                  minHeight: '768px',
+                  width: '100%',
+                  objectFit: 'cover' // opsiyonel
+                }} />
+              </div>
             ))}
           </Slider>
           <div className="slider-thumnail">
             <Slider {...settingsThumbs} className="slider-nav-thumbnails">
-              {banners.map((banner) => (
-                banner.miniImages.map((miniImage, index) => (
-                  <div className="banner-slide" key={index}>
-                    <img src={miniImage}/>
-                  </div>
-                ))
+              {banners.filter((banner) => banner.type === 3).sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
+                <div className="banner-slide" key={banner.id}>
+                  <img src={banner.imageUrl} />
+                </div>
               ))}
             </Slider>
           </div>
@@ -154,19 +151,10 @@ export default function BannerMainSlider() {
       ) : (
         <>
           <Slider {...settingsMain} ref={slider1} className="banner-main">
-            {banners.map((banner) => (
-              banner.mobileImages.map((mobileImage, index) => (
-                <div className="banner-slide" key={index} style={{ width: "100vw" }}>
-                  <div
-                    className="banner-image"
-                    style={{
-                      backgroundImage: `url(${mobileImage})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
-                  ></div>
-                </div>
-              ))
+            {banners.filter((banner) => banner.type === 2).sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
+              <div className="banner-slide" key={banner.id}>
+                <img src={banner.imageUrl} />
+              </div>
             ))}
           </Slider>
         </>

@@ -33,7 +33,7 @@ export default function Sales() {
                 </li>
                 <li>
                   {" "}
-                  <span className="text-breadcrumb">{t("satıs")}</span>
+                  <span className="text-breadcrumb">{t("satis")}</span>
                 </li>
               </ul>
             </div>

@@ -34,12 +34,11 @@ export default function Footer1() {
           <div className="row">
             <div className="col-md-3 col-sm-12 footer-1">
               <h6>{t("contact")} </h6>
-              <div className="mt-20 mb-20">
+              <div>
                 <div className="box-info-contact">
                   <p className="text-md neutral-400 icon-address">
                     {t("location")}
                   </p>
-
                   <p className="text-md neutral-400 text-black-2 icon-email">
                     info@hitravel.com.tr
                   </p>

@@ -43,12 +43,8 @@ export const getBlogDispatch = (blogSlug: string, setLoading: (value: boolean) =
             action: `by-slug/${blogSlug}`,
             params: {},
         });
-
-        console.log("✅ API Yanıtı Alındı:", res);
-
         if (res) {
             dispatch(getBlog(res));
-            console.log("✅ Redux'a Gönderilen Blog:", res);
         } else {
             console.error("❌ Hata: Redux'a gönderilecek blog verisi bulunamadı!");
         }
