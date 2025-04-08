@@ -22,7 +22,7 @@ export default function Header1({
   handleSidebar,
 }: any) {
   const t = useTranslations("HeaderLink");
-  const { user, email, isAuthenticated, logout } = useAuth();
+  const { user, email, isAuthenticated } = useAuth();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -140,7 +140,7 @@ export default function Header1({
                       <Link href="/coming">{t("hotel")}</Link>
                     </li>
                     <li className="mega-li-small">
-                      <Link href="/coming">{t("destinations")}</Link>
+                      <Link href="/tours">{t("destinations")}</Link>
                     </li>
                     <li>
                       <Link href="/blog">{t("blog")}</Link>
@@ -172,9 +172,9 @@ export default function Header1({
                     </button>
                     <ul className="dropdown-menu" aria-labelledby="userDropdown"> 
                       <li>
-                        <Link href="/profile" className="dropdown-item">
+                        <p className="dropdown-item">
                           {t("profile") || "Profile"}
-                        </Link>
+                        </p>
                       </li>
                       <li>
                         <button 

@@ -115,7 +115,7 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                 </li>
                 <li>
                   {" "}
-                  <Link href="/destination">{t("tours")}</Link>
+                  <Link href="/tours">{t("tours")}</Link>
                   <span className="arrow-right">
                     <svg
                       width={7}
@@ -647,18 +647,16 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                     <h6 className="text-lg-bold neutral-1000">Popular Tours</h6>
                     <div className="box-popular-posts box-popular-posts-md">
                       <ul>
-                        {popularTours.map((tourItem, index) => (
+                        {popularTours.slice(0, 4).map((tourItem) => (
                           <li key={tourItem.id}>
                             <div className="card-post">
                               <div className="card-image">
-                                {" "}
                                 <Link href={`/tour/${tourItem.id}`}>
-                                  <img src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
+                                  <img style={{width: "85px", height: "85px", objectFit: "cover"}} src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
                                 </Link>
 
                               </div>
                               <div className="card-info">
-                                {" "}
                                 <Link className="text-xs-bold" href="#">
                                   {tourItem.name}
                                 </Link>

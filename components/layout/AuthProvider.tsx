@@ -167,7 +167,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Önemli: Sadece isBrowser true ise ve yüklenmediyse "Yükleniyor..." göster
   // Böylece server-side rendering sırasında bu mesaj gösterilmeyecek
   if (isBrowser && !isLoaded) {
-    return <div className="loading-auth">Yükleniyor...</div>;
+    return <div className="loading-auth"></div>;
   }
 
   return <>{children}</>;

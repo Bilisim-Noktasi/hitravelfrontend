@@ -40,7 +40,6 @@ export default function BlogGrid2() {
             <div className="container">
               <ul className="breadcrumbs">
                 <li>
-                  {" "}
                   <Link href="/">{t("ana")}</Link>
                   <span className="arrow-right">
                     <svg
@@ -61,8 +60,7 @@ export default function BlogGrid2() {
                   </span>
                 </li>
                 <li>
-                  {" "}
-                  <Link href="/blog-grid">{t("blog")}</Link>
+                  <Link href="/blog">{t("blog")}</Link>
                 </li>
               </ul>
             </div>
@@ -92,18 +90,17 @@ export default function BlogGrid2() {
                       </div>
                       <div className="card-info">
                         <div className="card-info-blog">
-                          <Link className="btn btn-label-tag" href="#">
+                          <Link className="btn btn-label-tag" href={`/blog/${latestBlog.slug}`}>
                             Cultural
                           </Link>
                           <Link
                             className="card-title heading-5"
-                            href="/blog-detail"
+                            href={`/blog/${latestBlog.slug}`}
                           >
                             {latestBlog.title}
                           </Link>
                           <div className="card-meta-user">
                             <div className="box-author-small">
-                              {" "}
                               <img
                                 src={latestBlog.imageUrl}
                                 alt="Hi Travel"
@@ -127,7 +124,7 @@ export default function BlogGrid2() {
                         <div className="card-post">
                           <div className="card-image">
                             {" "}
-                            <Link href="/blog-detail">
+                            <Link href={`/blog/${item.slug}`}>
                               <img src={item.imageUrl ?? "/assets/imgs/default-image.png"} alt="Blog" />
                             </Link>
                           </div>
@@ -135,7 +132,7 @@ export default function BlogGrid2() {
                             {" "}
                             <Link
                               className="text-xl-bold neutral-1000"
-                              href="/blog-detail"
+                              href={`/blog/${item.slug}`}
                             >
                               {item.title}
                             </Link>
@@ -618,7 +615,7 @@ export default function BlogGrid2() {
                           {" "}
                           <Link
                             className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
+                            href={`/blog/${item.slug}`}
                           >
                             {item.title}
                           </Link>
@@ -639,7 +636,7 @@ export default function BlogGrid2() {
                               {" "}
                               <Link
                                 className="btn btn-gray"
-                                href="/blog-detail"
+                                href={`/blog/${item.slug}`}
                               >
                                 {t("keep")}
                               </Link>
@@ -651,73 +648,6 @@ export default function BlogGrid2() {
                   </div>
                   ))}
 
-                  <div className="col-lg-4 col-md-6 mb-30">
-                    <div className="card-news background-card hover-up">
-                      <div className="card-image">
-                        <label className="label">Discovery</label>
-                        <Link className="wish" href="#">
-                          <svg
-                            width={20}
-                            height={18}
-                            viewBox="0 0 20 18"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.071 10.1422L11.4141 15.7991C10.6331 16.5801 9.36672 16.5801 8.58568 15.7991L2.92882 10.1422C0.9762 8.1896 0.9762 5.02378 2.92882 3.07116C4.88144 1.11853 8.04727 1.11853 9.99989 3.07116C11.9525 1.11853 15.1183 1.11853 17.071 3.07116C19.0236 5.02378 19.0236 8.1896 17.071 10.1422Z"
-                              stroke=""
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              fill="none"
-                            />
-                          </svg>
-                        </Link>
-                        <img
-                          src="/assets/imgs/page/blog/recent3.png"
-                          alt="Travila"
-                        />
-                      </div>
-                      <div className="card-info">
-                        <div className="card-meta">
-                          {" "}
-                          <span className=" neutral-1000">📅 18 Sep 2024</span>
-                        </div>
-                        <div className="card-title">
-                          {" "}
-                          <Link
-                            className="text-xl-bold neutral-1000"
-                            href="/blog-detail"
-                          >
-                            Discovering Hidden Gems: 10 Off-the-Beaten-Path
-                            Travel Tips
-                          </Link>
-                        </div>
-                        <div className="card-program">
-                          <div className="endtime">
-                            <div className="card-author">
-                              {" "}
-                              <img
-                                src="/assets/imgs/page/homepage1/avatar.png"
-                                alt="Travila"
-                              />
-                              <p className="text-sm-bold neutral-1000">
-                                Jimmy Dave
-                              </p>
-                            </div>
-                            <div className="card-button">
-                              {" "}
-                              <Link
-                                className="btn btn-gray"
-                                href="/blog-detail"
-                              >
-                                {t("keep")}
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
                 <nav aria-label="Page navigation example">
                   <ul className="pagination">
@@ -751,21 +681,6 @@ export default function BlogGrid2() {
                     <li className="page-item">
                       <Link className="page-link active" href="#">
                         2
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link className="page-link" href="#">
-                        3
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link className="page-link" href="#">
-                        4
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link className="page-link" href="#">
-                        5
                       </Link>
                     </li>
                     <li className="page-item">

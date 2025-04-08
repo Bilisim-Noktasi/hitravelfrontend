@@ -14,7 +14,7 @@ export default function SortTicketsFilter({
 		<>
 			<div className="row align-items-center">
 				<div className="col-xl-4 col-md-4 mb-10 text-lg-start text-center">
-					<div className="box-view-type"><Link className="display-type display-grid active" href="/tour-grid">
+					<div className="box-view-type"><Link className="display-type display-grid active" href="/tours">
 						<svg width={22} height={22} viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
 							<path d="M20 8V2.75C20 2.3375 19.6625 2 19.25 2H14C13.5875 2 13.25 2.3375 13.25 2.75V8C13.25 8.4125 13.5875 8.75 14 8.75H19.25C19.6625 8.75 20 8.4125 20 8ZM19.25 0.5C20.495 0.5 21.5 1.505 21.5 2.75V8C21.5 9.245 20.495 10.25 19.25 10.25H14C12.755 10.25 11.75 9.245 11.75 8V2.75C11.75 1.505 12.755 0.5 14 0.5H19.25Z" />
 							<path d="M20 19.25V14C20 13.5875 19.6625 13.25 19.25 13.25H14C13.5875 13.25 13.25 13.5875 13.25 14V19.25C13.25 19.6625 13.5875 20 14 20H19.25C19.6625 20 20 19.6625 20 19.25ZM19.25 11.75C20.495 11.75 21.5 12.755 21.5 14V19.25C21.5 20.495 20.495 21.5 19.25 21.5H14C12.755 21.5 11.75 20.495 11.75 19.25V14C11.75 12.755 12.755 11.75 14 11.75H19.25Z" />

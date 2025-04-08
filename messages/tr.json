@@ -276,7 +276,8 @@
     "refund": "İptal ve İade Koşulları",
     "faq": "Sıkça Sorulan Sorular",
     "help-center": "Yardım Merkezi",
-    "all": "Hi Travel Tüm Hakları Saklıdır."
+    "all": "Hi Travel Tüm Hakları Saklıdır.",
+    "shipping": "Teslimat ve İade Koşulları"
   },
   "HomePage": {
     "title": "Senin Yolculuğun, Senin Yolun",
@@ -550,6 +551,27 @@
     "closing": "Saygılarımızla,",
     "hi": "Hi Travel Ekibi"
   },
+  "shipping": {
+    "home": "Anasayfa",
+    "satis": "Teslimat ve İade Koşulları",
+    "title": "Taraflar",
+    "desc": "İşbu sözleşme, Hi Travel Turizm Ticaret Ltd. Şti. (Satıcı) ile hitravel.com.tr internet sitesi üzerinden tur, otel, araç kiralama vb. hizmetleri satın alan kişi (Alıcı) arasında elektronik ortamda düzenlenmiştir.",
+    "titl2": "Konu",
+    "desc2": "Bu sözleşme, Alıcı’nın Satıcı’ya ait hitravel.com.tr internet sitesi üzerinden elektronik ortamda siparişini verdiği hizmetlerin teslimat ve iade koşullarını düzenler.",
+    "title3": "Teslimat Koşulları",
+    "desc3": "Alıcı tarafından satın alınan hizmetler, sistem üzerinden yapılan rezervasyonun onaylanmasıyla birlikte geçerlilik kazanır. Teslimat, hizmetin türüne göre rezervasyon belgesi, voucher, bilet veya diğer dijital belgelerin elektronik ortamda Alıcı’ya iletilmesi yoluyla gerçekleşir. Fiziksel bir ürün teslimi söz konusu değildir.",
+    "title4": "İptal ve İade Koşulları",
+    "desc4": "Alıcı, rezervasyonunu iptal etmek istediğinde, hizmetin niteliğine göre değişen iptal koşulları uygulanır. Otel, tur veya transfer hizmetlerinde iptal süresi ve iade politikası, her hizmetin açıklama kısmında ve rezervasyon sırasında belirtilir. Bazı promosyonlu veya özel kampanyalı hizmetlerde iptal ve iade mümkün olmayabilir. Bu gibi durumlar Alıcı’ya önceden bildirilir. Hizmetin başlamasından sonra iptal ve iade yapılamaz. Tedarikçi firmalardan kaynaklanan iptallerde, Alıcı’ya tam iade yapılır veya eşdeğer bir hizmet sunulur.",
+    "title5": "Cayma Hakkı",
+    "desc5": "Alıcı, uzaktan satış sözleşmeleri kapsamında cayma hakkına sahiptir; ancak 6502 sayılı Tüketicinin Korunması Hakkında Kanun gereği, konaklama, ulaşım, yiyecek-içecek tedariki gibi belirli tarih ve süre ile ifa edilen hizmetlerde cayma hakkı bulunmamaktadır.",
+    "title6": "Genel Hükümler",
+    "desc6": "Alıcı, işbu sözleşmeyi okuduğunu, anladığını ve onayladığını kabul eder. Satıcı, önceden haber vermeksizin sözleşme koşullarında değişiklik yapma hakkını saklı tutar.",
+    "title7": "Uyuşmazlık Durumu",
+    "desc7": "İşbu sözleşmeden doğabilecek uyuşmazlıklarda, T.C. Ticaret Bakanlığı tarafından ilan edilen değere göre Alıcı'nın yerleşim yerindeki Tüketici Hakem Heyetleri ve Tüketici Mahkemeleri yetkilidir.",
+    "help": "Herhangi bir sorunuz veya endişeniz olduğunda bizimle iletişime geçebilirsiniz:",
+    "closing": "Saygılarımızla,",
+    "hi": "Hi Travel Ekibi"
+  },
   "distance": {
     "home": "Anasayfa",
     "distance": "Mesafeli Satış Sözleşmesi",
@@ -620,7 +642,7 @@
   },
   "blog": {
     "ana": "Anasayfa",
-    "blog": "Hi Blog",
+    "blog": "Blog",
     "title": "Bir Sonraki Tatil İçin",
     "hi": "Hi Blog 🗞️",
     "esin": "Esinlen🤩",

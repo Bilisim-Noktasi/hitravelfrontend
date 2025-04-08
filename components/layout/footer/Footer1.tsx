@@ -122,6 +122,9 @@ export default function Footer1() {
                   <Link href="/distance-sales">{t("distancesales")}</Link>
                 </li>
                 <li>
+                  <Link href="/shipping">{t("shipping")}</Link>
+                </li>
+                <li>
                   <Link href="/refund">{t("refund")}</Link>
                 </li>
                 <li>
@@ -181,15 +184,18 @@ export default function Footer1() {
               </ul>
             </div>
           </div>
-          <div className="footer-bottom mt-20">
+          <div className="footer-bottom">
             <div
-              className="row justify-content-center align-items-center"
+              className="row"
               style={{ height: "100%" }}
             >
-              <div className="col-md-12 d-flex justify-content-center align-items-center">
+              <div className="col-md-6 d-flex justify-content-start">
                 <p className="text-sm color-white">
                   © {new Date().getFullYear()}~{t("all")}
                 </p>
+              </div>
+              <div className="col-md-6 d-flex justify-content-end">
+                <img src="/images/logo_band_white@1X.png" alt="Hi Travel Logo" />
               </div>
             </div>
           </div>

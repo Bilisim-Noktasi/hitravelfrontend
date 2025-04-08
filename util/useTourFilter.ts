@@ -1,23 +1,24 @@
 'use client'
 import { ChangeEvent, useState } from "react"
+import { Tour } from "@/types"
 
-interface Tour {
-	id: number
-	price: number
-	duration: number
-	groupSize: number
-	tourType: string
-	language: string
-	rating: number
-	name: string
-	activities: string
-	attraction: string
-}
+// interface Tour {
+// 	id: number
+// 	price: number
+// 	duration: number
+// 	groupSize: number
+// 	tourType: string
+// 	language: string
+// 	rating: number
+// 	name: string
+// 	activities: string
+// 	attraction: string
+// }
 
 interface Filter {
 	names: string[]
 	activities: string[]
-	languages: string[]
+	languages: number[]
 	attractions: string[]
 	priceRange: [number, number]
 	durationRange: [number, number]
@@ -33,7 +34,7 @@ const useTourFilter = (toursData: Tour[]) => {
 		activities: [],
 		languages: [],
 		attractions: [],
-		priceRange: [0, 500],
+		priceRange: [0, 10000],
 		durationRange: [0, 30],
 		ratings: [],
 		groupSize: [],
@@ -44,24 +45,24 @@ const useTourFilter = (toursData: Tour[]) => {
 
 	// Get unique values for name, activities, language, attraction, rating, duration, and group size
 	const uniqueNames = [...new Set(toursData.map((tour) => tour.name))]
-	const uniqueActivities = [...new Set(toursData.map((tour) => tour.activities))]
-	const uniqueLanguages = [...new Set(toursData.map((tour) => tour.language))]
-	const uniqueAttractions = [...new Set(toursData.map((tour) => tour.attraction))]
-	const uniqueRatings = [...new Set(toursData.map((tour) => tour.rating))]
-	const uniqueDurations = [...new Set(toursData.map((tour) => tour.duration))]
-	const uniqueGroupSizes = [...new Set(toursData.map((tour) => tour.groupSize))]
+	const uniqueActivities = [...new Set(toursData.map((tour) => tour.subCategoryName))]
+	const uniqueLanguages = [...new Set(toursData.map((tour) => tour.languageCode))]
+	const uniqueAttractions = [...new Set(toursData.map((tour) => tour.stateName))]
+	// const uniqueRatings = [...new Set(toursData.map((tour) => tour.rating))]
+	const uniqueDurations = [...new Set(toursData.map((tour) => tour.tourHours))]
+	const uniqueGroupSizes = [...new Set(toursData.map((tour) => tour.size))]
 
 	// Filter the tours by selected names, activities, languages, attractions, price range, duration, and rating
 	const filteredTours = toursData.filter((tour) => {
 		return (
 			(filter.names.length === 0 || filter.names.includes(tour.name)) &&
-			(filter.activities.length === 0 || filter.activities.includes(tour.activities)) &&
-			(filter.languages.length === 0 || filter.languages.includes(tour.language)) &&
-			(filter.attractions.length === 0 || filter.attractions.includes(tour.attraction)) &&
-			(tour.price >= filter.priceRange[0] && tour.price <= filter.priceRange[1]) &&
-			(tour.duration >= filter.durationRange[0] && tour.duration <= filter.durationRange[1]) &&
-			(filter.ratings.length === 0 || filter.ratings.includes(tour.rating)) &&
-			(filter.groupSize.length === 0 || filter.groupSize.includes(tour.groupSize))
+			(filter.activities.length === 0 || filter.activities.includes(tour.subCategoryName)) &&
+			(filter.languages.length === 0 || filter.languages.includes(tour.languageCode)) &&
+			(filter.attractions.length === 0 || filter.attractions.includes(tour.stateName)) &&
+			(tour.tourPriceUSD >= filter.priceRange[0] && tour.tourPriceUSD <= filter.priceRange[1]) &&
+			(tour.tourHours >= filter.durationRange[0] && tour.tourHours <= filter.durationRange[1]) &&
+			// (filter.ratings.length === 0 || filter.ratings.includes(tour.rating)) &&
+			(filter.groupSize.length === 0 || filter.groupSize.includes(tour.size))
 		)
 	})
 
@@ -70,9 +71,9 @@ const useTourFilter = (toursData: Tour[]) => {
 		if (sortCriteria === "name") {
 			return a.name.localeCompare(b.name)
 		} else if (sortCriteria === "price") {
-			return a.price - b.price
+			return a.tourPriceUSD - b.tourPriceUSD
 		} else if (sortCriteria === "rating") {
-			return b.rating - a.rating
+			// return b.rating - a.rating
 		}
 		return 0
 	})
@@ -148,7 +149,7 @@ const useTourFilter = (toursData: Tour[]) => {
 			activities: [],
 			languages: [],
 			attractions: [],
-			priceRange: [0, 500],
+			priceRange: [0, 10000],
 			durationRange: [0, 30],
 			ratings: [],
 			groupSize: [],
@@ -174,7 +175,7 @@ const useTourFilter = (toursData: Tour[]) => {
 		uniqueActivities,
 		uniqueLanguages,
 		uniqueAttractions,
-		uniqueRatings,
+		// uniqueRatings,
 		uniqueDurations,
 		uniqueGroupSizes,
 		filteredTours,

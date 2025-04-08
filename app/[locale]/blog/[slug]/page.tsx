@@ -1,19 +1,21 @@
 'use client'
 import Layout from "@/components/layout/Layout"
 import { swiperGroupAnimate } from "@/util/swiperOption"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { getBlogDispatch } from '@/redux/blogSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/redux/store'
 import { useEffect, useState } from 'react'
 import { formatDate, timeAgo } from '@/utils/dateUtils'
+import { useTranslations } from "next-intl"
 
 export default function BlogDetail({ params }: { params: { slug: string } }) {
 	const [loading, setLoading] = useState(true);
 	const { slug } = params;
 	const dispatch = useDispatch<AppDispatch>();
 	const { blog } = useSelector((state: RootState) => state.blog);
+	const t = useTranslations("blog");
 
 	useEffect(() => {
 		dispatch(getBlogDispatch(slug, setLoading));
@@ -27,12 +29,12 @@ export default function BlogDetail({ params }: { params: { slug: string } }) {
 					<section className="box-section box-breadcrumb background-body">
 						<div className="container">
 							<ul className="breadcrumbs">
-								<li> <Link href="/">Home</Link><span className="arrow-right">
+								<li> <Link href="/">{t("ana")}</Link><span className="arrow-right">
 									<svg width={7} height={12} viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
 										<path d="M1 11L6 6L1 1" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
 									</svg></span>
 								</li>
-								<li> <Link href="/destination">Blog</Link><span className="arrow-right">
+								<li> <Link href="/blog">{t("blog")}</Link><span className="arrow-right">
 									<svg width={7} height={12} viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
 										<path d="M1 11L6 6L1 1" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
 									</svg></span></li>
@@ -49,9 +51,6 @@ export default function BlogDetail({ params }: { params: { slug: string } }) {
 										<h4 className="neutral-1000 mt-25 mb-25">{blog?.title}</h4>
 										<div className="meta-post">
 											<div className="meta-user">
-												<div className="box-author-small"><img src="/assets/imgs/page/homepage1/avatar.png" alt="Travilla" />
-													<p className="text-sm-bold neutral-1000">Jimmy Dave</p>
-												</div>
 												<div className="post-meta-date">
 													<div className="post-date neutral-1000">{formatDate(blog?.publishedDate ?? "")}</div>
 													<div className="post-time neutral-1000">{timeAgo(blog?.publishedDate)}</div>
@@ -61,12 +60,12 @@ export default function BlogDetail({ params }: { params: { slug: string } }) {
 										</div>
 									</div>
 									<div className="content-detail-post">
-										<div 
+										<div
 											className="neutral-1000" style={{
 												wordWrap: 'break-word',
 												overflowWrap: 'break-word',
 												whiteSpace: 'normal'
-											  }}
+											}}
 											dangerouslySetInnerHTML={{ __html: blog?.content || '' }}
 										></div>
 									</div>

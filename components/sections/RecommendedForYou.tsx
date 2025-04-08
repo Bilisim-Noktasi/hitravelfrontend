@@ -1,4 +1,3 @@
-
 import Link from "next/link"
 
 export default function RecommendedForYou() {
@@ -187,7 +186,7 @@ export default function RecommendedForYou() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="d-flex justify-content-center"><Link className="btn btn-black-lg" href="/tour-grid-2">
+                            <div className="d-flex justify-content-center"><Link className="btn btn-black-lg" href="/tours">
                                 <svg className="first" width={25} height={24} viewBox="0 0 25 24" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M4.5 4H6.5V6H4.5V4Z" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                                     <path d="M4.5 18H6.5V20H4.5V18Z" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />

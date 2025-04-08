@@ -80,7 +80,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                       >
                         <i className="arrow-small-down"></i>
                       </span>
-                      <Link href="/tour-grid">{t("tours")}</Link>
+                      <Link href="/tours">{t("tours")}</Link>
                       <ul
                         className="sub-menu"
                         style={{
@@ -88,8 +88,8 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                         }}
                       >
                         <li>
-                          <Link href="/tour-grid-3">
-                            Tours List - Top Fillter
+                          <Link href="/tours">
+                            Tours List
                           </Link>
                         </li>
                       </ul>
@@ -104,7 +104,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                       >
                         <i className="arrow-small-down"></i>
                       </span>
-                      <Link href="/coming">{t("destinations")}</Link>
+                      <Link href="/tours">{t("destinations")}</Link>
                       <ul
                         className="sub-menu"
                         style={{

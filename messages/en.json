@@ -270,7 +270,8 @@
     "refund": "Cancellation and Refund Policy",
     "faq": "Frequently Asked Questions",
     "help-center": "Help Center",
-    "all": "Hi Travel All rights reserved."
+    "all": "Hi Travel All rights reserved.",
+    "shipping": "Shipping and Return Policy"
   },
   "HomePage": {
     "title": "Your Journey, Your Way",
@@ -475,7 +476,27 @@
     "closing": "Best regards,",
     "hi": "Hi Travel Team"
   },
-
+  "shipping": {
+  "home": "Home",
+  "intro": "Delivery and Return Conditions",
+  "title": "Parties",
+  "desc": "This agreement is electronically concluded between Hi Travel Turizm Ticaret Ltd. Şti. (Seller) and the person (Buyer) who purchases services such as tours, hotels, car rentals, etc. via the website hitravel.com.tr.",
+  "titl2": "Subject",
+  "desc2": "This agreement regulates the delivery and return conditions of the services ordered by the Buyer through the Seller’s website hitravel.com.tr.",
+  "title3": "Delivery Conditions",
+  "desc3": "The services purchased by the Buyer become valid upon confirmation of the reservation made through the system. Delivery takes place electronically by sending the reservation document, voucher, ticket, or other digital documents to the Buyer, depending on the type of service. There is no physical product delivery.",
+  "title4": "Cancellation and Refund Conditions",
+  "desc4": "When the Buyer wishes to cancel the reservation, cancellation conditions vary depending on the nature of the service. The cancellation period and refund policy for hotel, tour, or transfer services are specified in the service description and during the reservation. Cancellations and refunds may not be possible for promotional or special campaign services. Such conditions will be communicated to the Buyer in advance. No cancellations or refunds are accepted after the service has started. In case of cancellations caused by supplier companies, a full refund is provided or an equivalent service is offered to the Buyer.",
+  "title5": "Right of Withdrawal",
+  "desc5": "The Buyer has the right of withdrawal under distance sales contracts; however, according to the Consumer Protection Law No. 6502, the right of withdrawal does not apply to services such as accommodation, transportation, and food and beverage supply that are performed on a specific date or period.",
+  "title6": "General Provisions",
+  "desc6": "The Buyer acknowledges that they have read, understood, and approved this agreement. The Seller reserves the right to change the terms of the agreement without prior notice.",
+  "title7": "In Case of Dispute",
+  "desc7": "In case of disputes arising from this agreement, Consumer Arbitration Committees and Consumer Courts located in the Buyer’s residence area, within the limits announced by the Ministry of Trade of the Republic of Turkey, are authorized.",
+  "help": "If you have any questions or concerns, feel free to contact us:",
+  "closing": "Kind regards,",
+  "hi": "Hi Travel Team"
+},
   "refund": {
     "home": "Home",
     "refund": "Cancellation and Refund Policy",

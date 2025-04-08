@@ -21,13 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Preloader from "@/components/elements/Preloader";
 import { useParams } from "next/navigation";
 
-const toursData = rawToursData.map((tour) => ({
-  ...tour,
-  duration: parseFloat(tour.duration as string),
-  groupSize: parseInt(tour.groupSize as unknown as string),
-  rating: parseFloat(tour.rating as string),
-}));
-
 export default function TourGrid() {
   const dispatch = useDispatch<AppDispatch>()
   const tourState = useSelector((state: RootState) => state?.tour)
@@ -37,13 +30,12 @@ export default function TourGrid() {
   const params = useParams();
   const locale = params.locale as string;
 
-  useEffect(() => {
-    dispatch(getToursDispatch(0, 100))
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-  }, [dispatch])
+  const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
 
+  useEffect(() => {
+    dispatch(getToursDispatch(0, 100)).finally(() => setIsLoading(false));
+  }, [dispatch]);
+  
   const {
     filter,
     sortCriteria,
@@ -52,7 +44,7 @@ export default function TourGrid() {
     uniqueActivities,
     uniqueLanguages,
     uniqueAttractions,
-    uniqueRatings,
+    // uniqueRatings,
     sortedTours,
     totalPages,
     paginatedTours,
@@ -67,7 +59,7 @@ export default function TourGrid() {
     handleClearFilters,
     startItemIndex,
     endItemIndex,
-  } = useTourFilter(toursData);
+  } = useTourFilter(tours);
 
   if (isLoading) {
     return <Preloader />
@@ -110,14 +102,13 @@ export default function TourGrid() {
 
                   <div className="box-grid-tours wow fadeIn">
                     <div className="row">
-                      {tours
+                      {paginatedTours
                         ?.filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
                         .map((tour) => (
                           <div className="col-xl-4 col-lg-6 col-md-6" key={tour.id}>
                             <TourCard1 tour={tour} />
                           </div>
                         ))}
-
                     </div>
                   </div>
 
@@ -170,7 +161,7 @@ export default function TourGrid() {
                           handleDurationRangeChange={handleDurationRangeChange}
                         />
                       </div>
-                      <div className="block-filter border-1">
+                      {/* <div className="block-filter border-1">
                         <h6 className="text-lg-bold item-collapse neutral-1000">
                           {t("reviewScore")}
                         </h6>
@@ -189,7 +180,7 @@ export default function TourGrid() {
                           filter={filter}
                           handleCheckboxChange={handleCheckboxChange}
                         />
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   <div className="sidebar-left border-1 background-body">
@@ -198,140 +189,35 @@ export default function TourGrid() {
                     </h6>
                     <div className="box-popular-posts">
                       <ul>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img
-                                  src="/assets/imgs/page/tour/post.png"
-                                  alt="Travila"
-                                />
-                              </Link>
+                        {popularTours.slice(0, 4).map((item) => (
+                          <li key={item.id}>
+                            <div className="card-post">
+                              <div className="card-image">
+                                <Link href={`/tour/${item.id}`}>
+                                  <img
+                                    style={{ width: "85px", height: "85px", objectFit: "cover" }}
+                                    src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"}
+                                    alt="Travila"
+                                  />
+                                </Link>
+                              </div>
+                              <div className="card-info">
+                                <Link className="text-xs-bold" href="#">
+                                  {item.name}
+                                </Link>
+                                <span className="price text-sm-bold neutral-1000">
+                                  ${item.tourPriceUSD}
+                                </span>
+                                <span className="price-through text-sm-bold neutral-500">
+                                  ${item.tourPriceUSD * 1.2}
+                                </span>
+                              </div>
                             </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                Singapore Skylines: Urban Exploration
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                $48.25
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                $60.75
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img
-                                  src="/assets/imgs/page/tour/post2.png"
-                                  alt="Travila"
-                                />
-                              </Link>
-                            </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                Singapore Skylines: Urban Exploration
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                $48.25
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                $60.75
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img
-                                  src="/assets/imgs/page/tour/post3.png"
-                                  alt="Travila"
-                                />
-                              </Link>
-                            </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                Singapore Skylines: Urban Exploration
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                $48.25
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                $60.75
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img
-                                  src="/assets/imgs/page/tour/post4.png"
-                                  alt="Travila"
-                                />
-                              </Link>
-                            </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                Singapore Skylines: Urban Exploration
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                $48.25
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                $60.75
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img
-                                  src="/assets/imgs/page/tour/post5.png"
-                                  alt="Travila"
-                                />
-                              </Link>
-                            </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                Singapore Skylines: Urban Exploration
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                $48.25
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                $60.75
-                              </span>
-                            </div>
-                          </div>
-                        </li>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                     <div className="box-see-more mt-20 mb-25">
-                      {" "}
                       <Link className="link-see-more" href="#">
                         See more
                         <svg
