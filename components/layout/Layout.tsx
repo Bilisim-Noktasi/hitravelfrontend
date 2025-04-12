@@ -93,7 +93,7 @@ export default function Layout({ headerStyle, footerStyle, breadcrumbTitle, chil
 				handleRegister={handleRegister}
 			/> : null}
 			{headerStyle == 2 ? <Header2 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} /> : null}
-			<MobileMenu isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} />
+			<MobileMenu isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} handleLogin={handleLogin}/>
 			<Sidebar isSidebar={isSidebar} handleSidebar={handleSidebar} handleLogin={handleLogin} />
 
 			<main className="main">

@@ -1,6 +1,5 @@
 'use client'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 
 export default function SortToursFilter({
 	
@@ -22,7 +21,7 @@ export default function SortToursFilter({
 			<div className="row align-items-center">
 				<div className="col-xl-4 col-md-4 mb-10 text-lg-start text-center">
 					<div className="box-view-type">
-						<span className="text-sm-bold neutral-500 number-found">{startItemIndex} - {endItemIndex}  {sortedTours.length} {t("filterResult")}</span>
+						<span className="text-sm-bold neutral-500 number-found">{startItemIndex} - {endItemIndex} / {sortedTours.length} {t("filterResult")}</span>
 					</div>
 				</div>
 				<div className="col-xl-8 col-md-8 mb-10 text-lg-end text-center">
@@ -30,9 +29,9 @@ export default function SortToursFilter({
 						<button onClick={handleClearFilters}>{t("clearFilter")}</button>
 						<div className="item-sort border-1"><span className="text-xs-medium neutral-500 mr-5">{t("show")}</span>
 							<select value={itemsPerPage} onChange={handleItemsPerPageChange}>
-								<option value={10}>10</option>
-								<option value={15}>15</option>
-								<option value={20}>20</option>
+								<option value={20}>10</option>
+								<option value={30}>15</option>
+								<option value={40}>20</option>
 							</select>
 						</div>
 						<div className="item-sort border-1">

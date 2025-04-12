@@ -35,7 +35,7 @@ export default function News1() {
             </div>
           </div>
           <div className="box-list-news wow fadeInUp">
-            <div className="box-swiper mt-30">
+            <div className="box-swiper">
               <div className="swiper-container swiper-group-3">
                 <SwiperGroup3Slider />
               </div>

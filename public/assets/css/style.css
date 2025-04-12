@@ -985,11 +985,13 @@ h6,
   color: var(--bs-neutral-1000);
   text-decoration: none;
   transition-duration: 0.2s;
+  cursor: pointer;
 }
 .box-dropdown-cart .dropdown-account ul li a:hover,
 .box-dropdown-cart .dropdown-cart ul li a:hover {
   margin-left: 5px;
   transition-duration: 0.2s;
+  cursor: pointer;
 }
 
 .box-dropdown-cart .dropdown-account ul li a img,
@@ -6890,11 +6892,11 @@ label {
 }
 
 .footer-1 {
-  width: 30%;
+  width: 25%;
 }
 
 .footer-2 {
-  width: 17.5%;
+  width: 22.5%;
 }
 
 .footer-3 {
@@ -11504,7 +11506,7 @@ h1 span {
 }
 
 .box-popular-posts {
-  padding: 30px 0px 0px 0px;
+  padding: 20px 0px 0px 0px;
 }
 
 .box-list-tours .card-journey-small .card-image .wish {

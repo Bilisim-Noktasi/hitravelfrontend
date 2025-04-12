@@ -1,17 +1,60 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import useAuth from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { getTourCategoriesDispatch } from "@/redux/tourCategorySlice";
+import { getTourSubCategoriesDispatch } from "@/redux/tourSubCategorySlice";
+import { FaChevronRight } from "react-icons/fa";
 
-export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin, handleLogout }: any) {
+export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin }: any) {
   const [isAccordion, setIsAccordion] = useState(0);
 
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Güvenli selector kullanımı
+  const categoryState = useSelector((state: RootState) => state?.tourCategory);
+  const subCategoryState = useSelector((state: RootState) => state?.tourSubCategory);
+
+  const categories = categoryState?.categories || [];
+  const subCategories = subCategoryState?.subCategories || [];
+
+  const [selectedCategory, setSelectedCategory] = useState<any>(null); // State to store selected category
+
+  useEffect(() => {
+    if (!categories.length) {
+      dispatch(getTourCategoriesDispatch(0, 10));
+    }
+  }, [dispatch, categories]);
+
+  useEffect(() => {
+    if (!subCategories.length) {
+      dispatch(getTourSubCategoriesDispatch(0, 10));
+    }
+  }, [dispatch, subCategories]);
+
+  // Handle hover to set the selected category
+  const handleHoverCategoryChange = (categoryId: string) => {
+    const selected = categories.find((cat) => cat.id === categoryId);
+    setSelectedCategory(selected); // Update the selected category
+  };
 
   const handleAccordion = (key: any) => {
     setIsAccordion((prevState) => (prevState === key ? null : key));
+  };
+
+  const handleLogout = () => {
+    try {
+      // Önce çıkış yap
+      logout();
+    } catch (error) {
+      console.error("Çıkış yapılırken hata oluştu:", error);
+    }
   };
 
   const t = useTranslations("HeaderLink");
@@ -23,7 +66,6 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
       >
         <PerfectScrollbar className="mobile-header-wrapper-inner">
           <div className="mobile-header-logo">
-            {" "}
             <Link className="d-flex" href="/">
               <img
                 className="light-mode"
@@ -39,30 +81,28 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
           <div className="mobile-header-top">
             {isAuthenticated && user ? (
               <div className="box-author-profile">
-                <div className="card-author">
-                  <div className="card-image">
-                    <img
-                      src="/assets/imgs/page/homepage1/author2.png"
-                    />
-                  </div>
-                  <div className="card-info">
-                    <p className="text-md-bold neutral-1000">{user.email}</p>
-                    <p className="text-xs neutral-1000">{user.status}</p>
-                  </div>
+              <div className="card-author">
+                <div className="card-image">
+                  <img
+                    src="/assets/imgs/page/homepage1/author2.png"
+                  />
                 </div>
-                <button 
-                          className="dropdown-item text-danger" 
-                          onClick={handleLogout}
-                        >
-                          {t("logout") || "Logout"}
-                        </button>
+                <div className="card-info">
+                  <Link href="/profile">
+                    <p className="text-xs neutral-1000">{user?.email}</p>
+                  </Link>
+                </div>
               </div>
+              <button className="btn btn-black" onClick={handleLogout}>
+                {t("logout")}
+              </button>
+            </div>
             ) : (
-              <div className="d-none d-xxl-inline-block align-middle mr-15">
-                  <a className="btn btn-default btn-signin" onClick={handleLogin}>
-                    {t("signIn")}
-                  </a>
-                </div>
+              <div className="align-middle mr-15">
+                <a className="btn btn-default btn-signin" onClick={handleLogin}>
+                  {t("signIn")}
+                </a>
+              </div>
             )}
           </div>
           <div className="mobile-header-content-area">
@@ -70,29 +110,46 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
               <div className="mobile-menu-wrap mobile-header-border">
                 <nav>
                   <ul className="mobile-menu font-heading">
-                    <li
-                      className={`has-children ${isAccordion === 2 ? "active" : ""
-                        }`}
-                    >
-                      <span
-                        className="menu-expand"
-                        onClick={() => handleAccordion(2)}
-                      >
+                    <li className={`has-children ${isAccordion === 2 ? "active" : ""}`}>
+                      <span className="menu-expand" onClick={() => handleAccordion(2)}>
                         <i className="arrow-small-down"></i>
                       </span>
                       <Link href="/tours">{t("tours")}</Link>
-                      <ul
-                        className="sub-menu"
-                        style={{
-                          display: `${isAccordion == 2 ? "block" : "none"}`,
-                        }}
-                      >
-                        <li>
-                          <Link href="/tours">
-                            Tours List
-                          </Link>
-                        </li>
+                      <ul className="sub-menu" style={{ display: `${isAccordion == 2 ? "block" : "none"}`, }}>
+                        {categories
+                          ?.slice()
+                          .sort((a, b) => a.sortOrder - b.sortOrder)
+                          .map((item, index) => (
+                            <li onMouseEnter={() => handleHoverCategoryChange(item.id)} // Handle hover event
+                              key={index}>
+                              <Link
+                                href="/tours"
+                                style={{
+                                  color: selectedCategory?.id === item.id ? "orange" : "",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                {item.name}
+                                <FaChevronRight size={9} />
+                              </Link>
+                            </li>
+                          ))}
                       </ul>
+                      {selectedCategory && (
+                        <ul className="sub-menu" style={{ display: isAccordion === 2 ? "block" : "none", marginLeft: 16 }}>
+                          {subCategories
+                            ?.filter((sub) => sub.categoryId === selectedCategory.id)
+                            .map((subItem, index) => (
+                              <li key={index}>
+                                <Link href={`/tours?subCategory=${subItem.id}`} onClick={handleMobileMenu}>
+                                  {subItem.name}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      )}
                     </li>
                     <li
                       className={`has-children ${isAccordion === 3 ? "active" : ""
@@ -102,9 +159,9 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                         className="menu-expand"
                         onClick={() => handleAccordion(3)}
                       >
-                        <i className="arrow-small-down"></i>
+                        {/* <i className="arrow-small-down"></i> */}
                       </span>
-                      <Link href="/tours">{t("destinations")}</Link>
+                      <Link href="/coming">{t("destinations")}</Link>
                       <ul
                         className="sub-menu"
                         style={{
@@ -120,7 +177,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                         className="menu-expand"
                         onClick={() => handleAccordion(5)}
                       >
-                        <i className="arrow-small-down"></i>
+                        {/* <i className="arrow-small-down"></i> */}
                       </span>
                       <Link href="/coming">{t("hotel")}</Link>
                     </li>

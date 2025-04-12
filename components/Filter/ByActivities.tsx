@@ -16,7 +16,7 @@ export default function ByActivities({ uniqueActivities, filter, handleCheckboxC
 								<span className="text-sm-medium">{activity} </span>
 								<span className="checkmark" />
 							</label>
-							<span className="number-item">{activity?.length}</span>
+							<span className="number-item">{activity.length}</span>
 						</li>
 					))}
 				</ul>

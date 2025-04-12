@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useLocale } from "next-intl";
 import useAuth from "@/hooks/useAuth";
+import { formatDate, timeAgo } from "@/utils/dateUtils";
+import { useAppSelector } from "@/hooks/useCurrency";
 
 export default function Reservation() {
   const router = useRouter();
@@ -25,6 +27,7 @@ export default function Reservation() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [discountCode, setDiscountCode] = useState<string | undefined>(undefined);
+  const currency = useAppSelector((state) => state.currency.currency);
 
   // Rezervasyon bilgileri
   const [bookingData, setBookingData] = useState<any>(null);
@@ -88,6 +91,20 @@ export default function Reservation() {
         contactEmail: email,
         contactPhone: phone,
         contactName: name,
+        currency: (function() {
+          let currency = "USD"; // Varsayılan olarak USD fiyatını alıyoruz
+    
+          // currency'ye göre fiyatı ayarlıyoruz
+          if (currency === 'TL') {
+            currency = "TRY";
+          } else if (currency === 'EUR') {
+            currency = "EUR";
+          } else if (currency === 'USD') {
+            currency = "USD";
+          }
+    
+          return currency;
+        })(),
         contactSurname: surname,
         identityNumber: tc,
         discountCode: discountCode,
@@ -366,19 +383,28 @@ export default function Reservation() {
                           📍{bookingData.tourName}
                         </div>
                         <div className="neutral-500">
-                          📆 {bookingData.date} - {bookingData.time}
+                          📆 {formatDate(bookingData.date)} {bookingData.time && timeAgo(bookingData.time)}
                         </div>
-                        {bookingData.tourId && (
-                          <div className="neutral-500">
-                            🎫 {t("code")}: {bookingData.tourId.substring(0, 8)}
-                          </div>
-                        )}
                       </div>
 
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between">
                         {bookingData.adults.count} {t("a")}
-                        <span>${bookingData.adults.count * bookingData.adults.price}</span>
+                        {currency === 'USD' && (
+                              <span>
+                              ${bookingData.adults.count * bookingData.adults.price}
+                            </span>
+                            )}
+                            {currency === 'TL' && (
+                              <span>
+                              ₺{bookingData.adults.count * bookingData.adults.price}
+                            </span>
+                            )}
+                            {currency === 'EUR' && (
+                              <span>
+                              €{bookingData.adults.count * bookingData.adults.price}
+                            </span>
+                            )}
                       </p>
 
                       {bookingData.children && bookingData.children.length > 0 && (
@@ -386,9 +412,21 @@ export default function Reservation() {
                           <hr className="w-100 border-secondary" />
                           <p className="d-flex justify-content-between">
                             {bookingData.children.length} {t("ç")}
-                            <span>
-                              {bookingData.children.length * bookingData.adults.price}
+                            {currency === 'USD' && (
+                              <span>
+                              ${bookingData.totalPrice - (bookingData.adults.count * bookingData.adults.price)}
                             </span>
+                            )}
+                            {currency === 'TL' && (
+                              <span>
+                              ₺{bookingData.totalPrice - (bookingData.adults.count * bookingData.adults.price)}
+                            </span>
+                            )}
+                            {currency === 'EUR' && (
+                              <span>
+                              €{bookingData.totalPrice - (bookingData.adults.count * bookingData.adults.price)}
+                            </span>
+                            )}
                           </p>
                         </>
                       )}
@@ -398,9 +436,21 @@ export default function Reservation() {
                           <hr className="w-100 border-secondary" />
                           <p className="d-flex justify-content-between">
                             {t("Ekstralar")}
-                            <span>
+                            {currency === 'USD' && (
+                              <span>
                               ${bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0)}
                             </span>
+                            )}
+                            {currency === 'TL' && (
+                              <span>
+                              ₺{bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0)}
+                            </span>
+                            )}
+                            {currency === 'EUR' && (
+                              <span>
+                              €{bookingData.extras.reduce((sum: number, extra: any) => sum + (extra.price * extra.quantity), 0)}
+                            </span>
+                            )}
                           </p>
                         </>
                       )}
@@ -410,7 +460,15 @@ export default function Reservation() {
                           <hr className="w-100 border-secondary" />
                           <p className="d-flex justify-content-between">
                             {t("Transfer")} - {bookingData.transfer.cityName}
-                            <span>${bookingData.transfer.price}</span>
+                            {currency === 'USD' && (
+                              <span>${bookingData.transfer.price}</span>
+                            )}
+                            {currency === 'TL' && (
+                              <span>₺{bookingData.transfer.price}</span>
+                            )}
+                            {currency === 'EUR' && (
+                              <span>€{bookingData.transfer.price}</span>
+                            )}
                           </p>
                         </>
                       )}
@@ -418,7 +476,15 @@ export default function Reservation() {
                       <hr className="w-100 border-secondary" />
                       <p className="d-flex justify-content-between text-dark fw-bold">
                         {t("total")}
-                        <span>${bookingData.totalPrice}</span>
+                        {currency === 'USD' && (
+                          <span>${bookingData.totalPrice}</span>
+                        )}
+                        {currency === 'TL' && (
+                          <span>₺{bookingData.totalPrice}</span>
+                        )}
+                        {currency === 'EUR' && (
+                          <span>€{bookingData.totalPrice}</span>
+                        )}
                       </p>
                     </>
                   )}
@@ -443,8 +509,6 @@ export default function Reservation() {
                     placeholder={t("discountCode")}
                   />
                 </div>
-
-
               </div>
             </div>
           </div>

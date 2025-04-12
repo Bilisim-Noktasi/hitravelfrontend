@@ -1,5 +1,3 @@
-import exp from "constants";
-
 export interface Tour {
     id: string;
     slug: string;
@@ -29,6 +27,8 @@ export interface Tour {
     tourPriceUSD: number;
     tourPriceTRY: number;
     tourPriceEUR: number;
+    startDate: string;
+    endDate: string;
     languages: TourLanguage[];
     activities: TourActivity[];
     tourExtras: TourExtra[];
@@ -45,12 +45,14 @@ export interface Tour {
   export interface Category {
     id: string;
     name: string;
+    sortOrder: number;
     subCategories: string[];
   }
 
   export interface SubCategory {
     id: string;
     name: string;
+    sortOrder: number;
     categoryId: string;
   }
   

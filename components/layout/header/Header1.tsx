@@ -2,7 +2,6 @@
 import CurrencyDropdown from "@/components/elements/CurrencyDropdown";
 import LanguageDropdown from "@/components/elements/LanguageDropdown";
 import { useTranslations } from "next-intl";
-import dynamic from "next/dynamic";
 import { Link } from "@/i18n/routing";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -29,10 +28,10 @@ export default function Header1({
   // Güvenli selector kullanımı
   const categoryState = useSelector((state: RootState) => state?.tourCategory);
   const subCategoryState = useSelector((state: RootState) => state?.tourSubCategory);
-  
+
   const categories = categoryState?.categories || [];
   const subCategories = subCategoryState?.subCategories || [];
-  
+
   const [selectedCategory, setSelectedCategory] = useState<any>(null); // State to store selected category
 
   useEffect(() => {
@@ -40,13 +39,12 @@ export default function Header1({
       dispatch(getTourCategoriesDispatch(0, 10));
     }
   }, [dispatch, categories]);
-  
+
   useEffect(() => {
     if (!subCategories.length) {
       dispatch(getTourSubCategoriesDispatch(0, 10));
     }
   }, [dispatch, subCategories]);
-  
 
   // Handle hover to set the selected category
   const handleHoverCategoryChange = (categoryId: string) => {
@@ -79,36 +77,38 @@ export default function Header1({
                     </li>
                     <li className="mega-li-small has-children">
                       <Link href="/tours">{t("tours")}</Link>
-
                       {/* Kategorileri döngüye sokuyoruz */}
                       <div className="mega-menu">
                         <div className="mega-menu-inner mega-menu-inner-small">
                           <div className="row">
                             <div className="col-lg-6">
                               <ul className="sub-menu">
-                                {categories?.map((item, index) => (
-                                  <li
-                                    onMouseEnter={() => handleHoverCategoryChange(item.id)} // Handle hover event
-                                    key={index}
-                                  >
-                                    <Link
-                                      href="/tours"
-                                      style={{
-                                        width: "100%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        color:
-                                          selectedCategory?.id === item.id
-                                            ? "orange"
-                                            : "",
-                                      }}
+                                {categories
+                                  ?.slice()
+                                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                                  .map((item, index) => (
+                                    <li
+                                      onMouseEnter={() => handleHoverCategoryChange(item.id)} // Handle hover event
+                                      key={index}
                                     >
-                                      {item.name}
-                                      <FaChevronRight size={9} />
-                                    </Link>
-                                  </li>
-                                ))}
+                                      <Link
+                                        href="/tours"
+                                        style={{
+                                          width: "100%",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "space-between",
+                                          color:
+                                            selectedCategory?.id === item.id
+                                              ? "orange"
+                                              : "",
+                                        }}
+                                      >
+                                        {item.name}
+                                        <FaChevronRight size={9} />
+                                      </Link>
+                                    </li>
+                                  ))}
                               </ul>
                             </div>
                             <div className="col-lg-6">
@@ -124,7 +124,7 @@ export default function Header1({
                                     )
                                     .map((item: any, index: number) => (
                                       <li key={index}>
-                                        <Link href="/tours">{item.name}</Link>
+                                        <Link href={`/tours?subCategory=${item.id}`}>{item.name}</Link>
                                       </li>
                                     ))}
                               </ul>
@@ -140,11 +140,10 @@ export default function Header1({
                       <Link href="/coming">{t("hotel")}</Link>
                     </li>
                     <li className="mega-li-small">
-                      <Link href="/tours">{t("destinations")}</Link>
+                      <Link href="/coming">{t("destinations")}</Link>
                     </li>
                     <li>
                       <Link href="/blog">{t("blog")}</Link>
-                     
                     </li>
                     <li>
                       <Link href="/contact">{t("contact")}</Link>
@@ -160,31 +159,16 @@ export default function Header1({
               {isAuthenticated && user ? (
                 <div className="d-none d-xxl-inline-block align-middle mr-15">
                   <div className="dropdown">
-                    <button 
-                      className="btn btn-default dropdown-toggle" 
-                      type="button" 
-                      id="userDropdown" 
-                      data-bs-toggle="dropdown" 
+                    <button
+                      className="btn btn-default dropdown-toggle"
+                      type="button"
+                      id="userDropdown"
+                      data-bs-toggle="dropdown"
                       aria-expanded="false"
                     >
                       <FaUser className="me-2" />
                       {email}
                     </button>
-                    <ul className="dropdown-menu" aria-labelledby="userDropdown"> 
-                      <li>
-                        <p className="dropdown-item">
-                          {t("profile") || "Profile"}
-                        </p>
-                      </li>
-                      <li>
-                        <button 
-                          className="dropdown-item text-danger" 
-                          onClick={handleLogout}
-                        >
-                          {t("logout") || "Logout"}
-                        </button>
-                      </li>
-                    </ul>
                   </div>
                 </div>
               ) : (

@@ -12,12 +12,14 @@ import Preloader from "@/components/elements/Preloader";
 import News1 from "@/components/sections/News1";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
+import { useAppSelector } from "@/hooks/useCurrency";
 
 export default function TourDetail3({ params }: { params: { slug: string } }) {
   const [isAccordion, setIsAccordion] = useState(null);
   const [loading, setLoading] = useState(true);
   const { slug } = params;
   const t = useTranslations("tour");
+  const currency = useAppSelector((state) => state.currency.currency);
 
   // Move the dynamic import here where t is available
   const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
@@ -72,14 +74,14 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
       dispatch(getTourDispatch(slug, setLoading));
     }
   }, [dispatch, slug, tour]);
-  
+
 
   useEffect(() => {
     if (!tours.length) {
       dispatch(getToursDispatch(0, 10));
     }
   }, [dispatch, tours]);
-  
+
 
   if (loading) {
     return <Preloader />;
@@ -644,28 +646,53 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                     <BookingForm tour={tour} />
                   </div>
                   <div className="sidebar-left border-1 background-body">
-                    <h6 className="text-lg-bold neutral-1000">Popular Tours</h6>
+                    <h6 className="text-lg-bold neutral-1000">{t("popularTours")}</h6>
                     <div className="box-popular-posts box-popular-posts-md">
                       <ul>
                         {popularTours.slice(0, 4).map((tourItem) => (
                           <li key={tourItem.id}>
                             <div className="card-post">
                               <div className="card-image">
-                                <Link href={`/tour/${tourItem.id}`}>
-                                  <img style={{width: "85px", height: "85px", objectFit: "cover"}} src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
+                                <Link href={`/tours/${tourItem.slug}`}>
+                                  <img style={{ width: "85px", height: "85px", objectFit: "cover" }} src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
                                 </Link>
-
                               </div>
                               <div className="card-info">
-                                <Link className="text-xs-bold" href="#">
+                                <Link className="text-xs-bold" href={`/tours/${tourItem.slug}`}>
                                   {tourItem.name}
                                 </Link>
-                                <span className="price text-sm-bold neutral-1000">
-                                  ${tourItem.tourPriceUSD}
-                                </span>
-                                <span className="price-through text-sm-bold neutral-500">
-                                  ${tourItem.tourPriceUSD * 1.2}
-                                </span>
+                                {/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
+                                {currency === 'USD' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    ${tourItem.tourPriceUSD}
+                                  </span>
+                                )}
+                                {currency === 'TL' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    ₺ {tourItem.tourPriceTRY}
+                                  </span>
+                                )}
+                                {currency === 'EUR' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    € {tourItem.tourPriceEUR}
+                                  </span>
+                                )}
+
+                                {currency === 'USD' && (
+                                  <span className="price-through text-sm-bold neutral-500">
+                                    ${tourItem.tourPriceUSD * 1.2}
+                                  </span>
+                                )}
+                                {currency === 'TL' && (
+                                  <span className="price-through text-sm-bold neutral-500">
+                                    ₺ {tourItem.tourPriceTRY * 1.2}
+                                  </span>
+                                )}
+                                {currency === 'EUR' && (
+                                  <span className="price-through text-sm-bold neutral-500">
+                                    € {tourItem.tourPriceEUR * 1.2}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </li>

@@ -1,9 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import villaSlice from './villaSlice';
 import tourSlice from './tourSlice';
-// import adminSlice from './adminSlice';
-import currencyRate from './currencyRate';
 // import searchSlice from './searchSlice';
+import currencySlice from './currencySlice';
 import tourCategorySlice from './tourCategorySlice';
 import tourSubCategorySlice from './tourSubCategorySlice';
 import authSlice from './authSlice';
@@ -56,9 +55,8 @@ const createStoreWithSafeDefaults = () => {
     reducer: {
       villa: villaSlice,
       tour: tourSlice,
-      // admin: adminSlice,
-      currencyRate: currencyRate,
       // search: searchSlice,
+      currency: currencySlice,
       tourCategory: tourCategorySlice,
       tourSubCategory: tourSubCategorySlice,
       auth: authSlice,

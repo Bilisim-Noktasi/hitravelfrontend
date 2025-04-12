@@ -34,13 +34,13 @@ const useTourFilter = (toursData: Tour[]) => {
 		activities: [],
 		languages: [],
 		attractions: [],
-		priceRange: [0, 10000],
+		priceRange: [0, 2500],
 		durationRange: [0, 30],
 		ratings: [],
 		groupSize: [],
 	})
 	const [sortCriteria, setSortCriteria] = useState<SortCriteria>("name")
-	const [itemsPerPage, setItemsPerPage] = useState<number>(10)
+	const [itemsPerPage, setItemsPerPage] = useState<number>(20)
 	const [currentPage, setCurrentPage] = useState<number>(1)
 
 	// Get unique values for name, activities, language, attraction, rating, duration, and group size
@@ -149,7 +149,7 @@ const useTourFilter = (toursData: Tour[]) => {
 			activities: [],
 			languages: [],
 			attractions: [],
-			priceRange: [0, 10000],
+			priceRange: [0, 2500],
 			durationRange: [0, 30],
 			ratings: [],
 			groupSize: [],

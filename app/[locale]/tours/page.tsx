@@ -12,14 +12,14 @@ import TourCard1 from "@/components/elements/tourcard/TourCard1";
 import Layout from "@/components/layout/Layout";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getToursDispatch } from "@/redux/tourSlice";
-import rawToursData from "@/util/tours.json";
 import useTourFilter from "@/util/useTourFilter";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Preloader from "@/components/elements/Preloader";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/hooks/useCurrency";
 
 export default function TourGrid() {
   const dispatch = useDispatch<AppDispatch>()
@@ -28,16 +28,19 @@ export default function TourGrid() {
   const [isLoading, setIsLoading] = useState(true)
   const t = useTranslations("tourGrid");
   const params = useParams();
+  const searchParams = useSearchParams();
   const locale = params.locale as string;
+  const currency = useAppSelector((state) => state.currency.currency);
 
   const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
 
   useEffect(() => {
     dispatch(getToursDispatch(0, 100)).finally(() => setIsLoading(false));
   }, [dispatch]);
-  
+
   const {
     filter,
+    setFilter,
     sortCriteria,
     itemsPerPage,
     currentPage,
@@ -60,6 +63,28 @@ export default function TourGrid() {
     startItemIndex,
     endItemIndex,
   } = useTourFilter(tours);
+
+  // URL'den subCategory parametresini alıp filtreyi güncelleme
+  useEffect(() => {
+    const subCategoryId = searchParams.get('subCategory');
+    if (subCategoryId && tours.length > 0) {
+      // İlgili tour'u subCategoryId'ye göre bul
+      const matchingTour = tours.find(tour => tour.subCategoryId?.toString() === subCategoryId);
+
+      if (matchingTour && matchingTour.subCategoryName) {
+        // Aktivite filtre dizisine ekle (eğer zaten yoksa)
+        setFilter(prevFilter => {
+          if (!prevFilter.activities.includes(matchingTour.subCategoryName)) {
+            return {
+              ...prevFilter,
+              activities: [...prevFilter.activities, matchingTour.subCategoryName]
+            };
+          }
+          return prevFilter;
+        });
+      }
+    }
+  }, [searchParams, tours, setFilter]);
 
   if (isLoading) {
     return <Preloader />
@@ -193,7 +218,7 @@ export default function TourGrid() {
                           <li key={item.id}>
                             <div className="card-post">
                               <div className="card-image">
-                                <Link href={`/tour/${item.id}`}>
+                                <Link href={`/tours/${item.slug}`}>
                                   <img
                                     style={{ width: "85px", height: "85px", objectFit: "cover" }}
                                     src={item.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"}
@@ -202,33 +227,47 @@ export default function TourGrid() {
                                 </Link>
                               </div>
                               <div className="card-info">
-                                <Link className="text-xs-bold" href="#">
+                                <Link className="text-xs-bold" href={`/tours/${item.slug}`}>
                                   {item.name}
                                 </Link>
-                                <span className="price text-sm-bold neutral-1000">
-                                  ${item.tourPriceUSD}
-                                </span>
-                                <span className="price-through text-sm-bold neutral-500">
-                                  ${item.tourPriceUSD * 1.2}
-                                </span>
+                                {/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
+                                {currency === 'USD' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    ${item.tourPriceUSD}
+                                  </span>
+                                )}
+                                {currency === 'TL' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    ₺ {item.tourPriceTRY}
+                                  </span>
+                                )}
+                                {currency === 'EUR' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    € {item.tourPriceEUR}
+                                  </span>
+                                )}
+                                
+                                {currency === 'USD' && (
+                                  <span className="price-through text-xs-bold neutral-500">
+                                    ${item.tourPriceUSD * 1.2}
+                                  </span>
+                                )}
+                                {currency === 'TL' && (
+                                  <span className="price-through text-xs-bold neutral-500">
+                                    ₺ {item.tourPriceTRY * 1.2}
+                                  </span>
+                                )}
+                                {currency === 'EUR' && (
+                                  <span className="price-through text-xs-bold neutral-500">
+                                    € {item.tourPriceEUR * 1.2}
+                                  </span>
+                                )}
+
                               </div>
                             </div>
                           </li>
                         ))}
                       </ul>
-                    </div>
-                    <div className="box-see-more mt-20 mb-25">
-                      <Link className="link-see-more" href="#">
-                        See more
-                        <svg
-                          width={8}
-                          height={6}
-                          viewBox="0 0 8 6"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7.89553 1.02367C7.75114 0.870518 7.50961 0.864815 7.35723 1.00881L3.9998 4.18946L0.642774 1.00883C0.490387 0.86444 0.249236 0.870534 0.104474 1.02369C-0.0402885 1.17645 -0.0338199 1.4176 0.118958 1.56236L3.73809 4.99102C3.81123 5.06036 3.90571 5.0954 3.9998 5.0954C4.0939 5.0954 4.18875 5.06036 4.26191 4.99102L7.88104 1.56236C8.03382 1.41758 8.04029 1.17645 7.89553 1.02367Z" />
-                        </svg>
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -237,7 +276,6 @@ export default function TourGrid() {
           </section>
           <section className="section-box box-media background-body">
             <div className="container-media wow fadeInUp">
-              {" "}
               <img src="/assets/imgs/page/homepage5/media.png" alt="Travila" />
               <img src="/assets/imgs/page/homepage5/media2.png" alt="Travila" />
               <img src="/assets/imgs/page/homepage5/media3.png" alt="Travila" />

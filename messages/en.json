@@ -102,7 +102,8 @@
     "minDuration(days)": "Minimum Duration (Days)",
     "maxDuration(days)": "Maximum Duration (Days)",
     "stars": "Stars",
-    "title": "Early Booking Deals at Hi Travel"
+    "title": "Early Booking Deals at Hi Travel",
+    "person": "Person"
   },
   "SortToursFilter": {
     "filterResult": "Results Listed",
@@ -256,7 +257,7 @@
     "mail": "info@hitravel.com.tr",
     "socialMedia": "Find Us on Social Media",
     "support": "Hi Travel",
-    "company": "Hi Blog",
+    "hiBlog": "Hi Blog",
     "services": "Popular Tours",
     "legal": "Popular Villas",
     "hitour": "Popular Tours",
@@ -586,7 +587,8 @@
     "adults": "Adults",
     "children": "Children",
     "yardım": "Need help?",
-    "wishlish": "Favorilere Ekle"
+    "wishlish": "Favorilere Ekle",
+    "popularTours": "Popular Tours"
   },
   "blog": {
     "ana": "Home",

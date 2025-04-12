@@ -53,7 +53,7 @@ export const getTourSubCategoryDispatch = (subCategoryId: string, setLoading: (v
     } catch (error) {
         console.error("❌ API Hatası:", error);
     } finally {
-        setLoading(false); // İstek tamamlandığında yüklemeyi durdur
+        setLoading(false);
     }
 };
 

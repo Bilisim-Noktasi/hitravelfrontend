@@ -1,7 +1,35 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useEffect } from "react";
+import { getBlogsDispatch } from "@/redux/blogSlice";
+import { getToursDispatch } from "@/redux/tourSlice";
+import { useParams } from "next/navigation";
+import { getTourSubCategoriesDispatch } from "@/redux/tourSubCategorySlice";
+
 export default function Footer1() {
+
   const t = useTranslations("Footer");
+  const params = useParams();
+  const locale = params.locale as string;
+  const dispatch = useDispatch<AppDispatch>();
+  const { blogs } = useSelector((state: RootState) => state.blog);
+  const { tours } = useSelector((state: RootState) => state.tour);
+  const { subCategories } = useSelector((state: RootState) => state.tourSubCategory);
+
+  useEffect(() => {
+    dispatch(getBlogsDispatch(0, 10));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getToursDispatch(0, 100));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getTourSubCategoriesDispatch(0, 10));
+  }, [dispatch]);
+
   return (
     <>
       <footer className="footer">
@@ -102,7 +130,7 @@ export default function Footer1() {
                 </div>
               </div>
             </div>
-            <div className="col-md-2 col-xs-6 footer-2">
+            <div className="col-md-3 col-xs-6 footer-2">
               <h6 className="text-linear-3">{t("support")}</h6>
               <ul className="menu-footer">
                 <li>
@@ -135,51 +163,43 @@ export default function Footer1() {
               </ul>
             </div>
             <div className="col-md-2 col-xs-6 footer-3">
-              <h6 className="text-linear-3">{t("company")}</h6>
+              <h6 className="text-linear-3">{t("hiBlog")}</h6>
               <ul className="menu-footer">
-                <li>
-                  <Link href="#">Balkan Tarihi</Link>
-                </li>
-                <li>
-                  <Link href="#">Akdeniz'in İncisi Antalya</Link>
-                </li>
-                <li>
-                  <Link href="#">İstanbul Tarihi</Link>
-                </li>
-                <li>
-                  <Link href="#">Başkent Ankara</Link>
-                </li>
+                {blogs
+                  ?.slice()
+                  .sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())
+                  .slice(0, 5)
+                  .map((blog) => (
+                    <li key={blog.id}>
+                      <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
+                    </li>
+                  ))}
               </ul>
             </div>
+
             <div className="col-md-2 col-xs-6 footer-4">
               <h6 className="text-linear-3">{t("hitour")}</h6>
               <ul className="menu-footer">
-                <li>
-                  <Link href="#">Cruise Turları</Link>
-                </li>
-                <li>
-                  <Link href="#">Paris Turları</Link>
-                </li>
-                <li>
-                  <Link href="#">Yurtdışı Turları</Link>
-                </li>
-                <li>
-                  <Link href="#">Yurtiçi Turları</Link>
-                </li>
+              {tours
+                  ?.slice()
+                  .filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
+                  .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.endDate).getTime())
+                  .slice(0, 10)
+                  .map((tour) => (
+                    <li key={tour.id}>
+                      <Link href={`/tours/${tour.slug}`}>{tour.name}</Link>
+                    </li>
+                  ))}
               </ul>
             </div>
-            <div className="col-md-3 col-xs-6 footer-5">
+            <div className="col-md-2 col-xs-6 footer-5">
               <h6 className="text-linear-3">{t("legal")}</h6>
               <ul className="menu-footer">
-                <li>
-                  <Link href="#">Villa Mia</Link>
-                </li>
-                <li>
-                  <Link href="#">Villa Blue</Link>
-                </li>
-                <li>
-                  <Link href="#">Villa Hisar</Link>
-                </li>
+                {subCategories.map((subCategory) => (
+                  <li key={subCategory.id}>
+                    <Link href={`/tours`}>{subCategory.name}</Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>

@@ -107,7 +107,8 @@
     "minDuration(days)": "Minimum Süre(Gün)",
     "maxDuration(days)": "Maximum Süre(Gün)",
     "stars": "Yıldız",
-    "title": "Erken Rezervasyon Fırsatları Hi Travel'da"
+    "title": "Erken Rezervasyon Fırsatları Hi Travel'da",
+    "person": "Kişi"
   },
   "SortToursFilter": {
     "filterResult": "Sonuç listelendi",
@@ -262,9 +263,9 @@
     "mail": "info@hitravel.com.tr",
     "socialMedia": "Sosyal Medyada Biz",
     "support": "Hi Travel",
-    "company": "Hi Blog",
+    "hiBlog": "Hi Blog",
     "services": "Popüler Turlar",
-    "legal": "Popüler Villalar",
+    "legal": "Popüler Kategoriler",
     "hitour": "Popüler Turlar",
     "phone": "+90 532 669 11 07",
     "need": "Yardıma ihtiyacınız mı var?",
@@ -466,7 +467,8 @@
     "wishlish": "Favorilere Ekle",
     "Please select a date": "Lütfen bir tarih seçiniz",
     "Please select a time": "Lütfen bir saat seçiniz",
-    "Harita_yükleniyor": "Harita yükleniyor"
+    "Harita_yükleniyor": "Harita yükleniyor",
+    "popularTours": "Popüler Turlar"
   },
   "about": {
     "home": "Anasayfa",

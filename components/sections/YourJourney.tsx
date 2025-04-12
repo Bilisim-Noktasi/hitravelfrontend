@@ -8,8 +8,11 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { getToursDispatch } from "@/redux/tourSlice";
 import { useParams } from "next/navigation";
+import { useAppSelector } from '../../hooks/useCurrency';
 
 export default function YourJourney() {
+  const currency = useAppSelector((state) => state.currency.currency);
+
   const dispatch = useDispatch<AppDispatch>();
   const tourState = useSelector((state: RootState) => state?.tour);
   const tours = tourState?.tours || [];
@@ -118,12 +121,21 @@ export default function YourJourney() {
                                 📍{item.stateName}, {item.cityName}
                               </p>
                               <p className="text-md-medium neutral-500">
-                              🙋🏻‍♀️{item.size} {t("guest")}
+                                🙋🏻‍♀️{item.size} {t("guest")}
                               </p>
                             </div>
                             <div className="endtime">
                               <div className="card-price">
-                                <h6 className="heading-6 neutral-1000">$ {item.tourPriceUSD}</h6>
+                                {/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
+                                {currency === 'USD' && (
+                                  <h6 className="heading-6 neutral-1000">$ {item.tourPriceUSD}</h6>
+                                )}
+                                {currency === 'TL' && (
+                                  <h6 className="heading-6 neutral-1000">₺ {item.tourPriceTRY}</h6>
+                                )}
+                                {currency === 'EUR' && (
+                                  <h6 className="heading-6 neutral-1000">€ {item.tourPriceEUR}</h6>
+                                )}
                                 {item.pricingType == 1 &&
                                   < p className="text-md-medium neutral-500">/ {t_card('person')}</p>
                                 }

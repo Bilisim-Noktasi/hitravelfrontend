@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import React, { useState, useEffect, FormEvent } from "react";
 import { Link } from "@/i18n/routing";
 import { formatDate } from "@/utils/dateUtils";
+import { useAppSelector } from "@/hooks/useCurrency";
 
 export default function Payment() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function Payment() {
   const [paymentIsLoading, setPaymentIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const currency = useAppSelector((state) => state.currency.currency);
 
   // Rezervasyon bilgileri
   const [bookingData, setBookingData] = useState<any>(null);
@@ -48,14 +50,14 @@ export default function Payment() {
   const t2 = useTranslations("book");
 
   // Redux store'daki başarılı ödeme durumunu izleme
-  useEffect(() => {
-    if (success) {
-      setPaymentSuccess(true);
-      setTimeout(() => {
-        router.push(`/${locale}/thank-you`);
-      }, 2000);
-    }
-  }, [success, router, locale]);
+  // useEffect(() => {
+  //   if (success) {
+  //     setPaymentSuccess(true);
+  //     setTimeout(() => {
+  //       router.push(`/${locale}/thank-you`);
+  //     }, 2000);
+  //   }
+  // }, [success, router, locale]);
 
   const handlePayment = async (method: number) => {
     if (!bookingId) {
@@ -66,9 +68,9 @@ export default function Payment() {
     // Seçilen ödeme yöntemine göre formları göster/gizle
     setSelectedPaymentMethod(method);
     setShowCreditCardForm(method === 1);
-    setShowBankTransferForm(method === 2);
-    setShowPrepaymentForm(method === 3);
-    setShowTourPayForm(method === 4);
+    setShowBankTransferForm(method === 3);
+    setShowPrepaymentForm(method === 4);
+    setShowTourPayForm(method === 2);
   };
 
   // Havale/EFT ve diğer ödeme yöntemleri için ödeme işlemi
@@ -78,8 +80,8 @@ export default function Payment() {
       return;
     }
 
-    // Eğer Havale/EFT (method=2) ise modal'ı göster
-    if (method === 2) {
+    // Eğer Havale/EFT (method=3) ise modal'ı göster
+    if (method === 3) {
       setShowConfirmModal(true);
       return;
     }
@@ -128,7 +130,7 @@ export default function Payment() {
     const safeBookingId = bookingId;
     const paymentData = {
       bookingId: safeBookingId,
-      paymentMethod: 2 // Havale/EFT
+      paymentMethod: 3 // Havale/EFT
     };
 
     setPaymentIsLoading(true);
@@ -315,7 +317,7 @@ export default function Payment() {
                   marginTop: "20px",
                 }}
               >
-                {t("he")}
+                {t("tour")}
               </button>
             </div>
 
@@ -333,7 +335,7 @@ export default function Payment() {
                   marginTop: "20px",
                 }}
               >
-                {t("25")}
+                {t("he")}
               </button>
             </div>
 
@@ -351,7 +353,7 @@ export default function Payment() {
                   marginTop: "20px",
                 }}
               >
-                {t("tour")}
+                {t("25")}
               </button>
             </div>
           </div>
@@ -577,7 +579,7 @@ export default function Payment() {
                         </div>
                       ) : bookingData ? (
                         <>
-                          <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding:"20px" }}>
+                          <div className="mb-4 background-3 neutral-500" style={{ borderRadius: "3px", padding: "20px" }}>
                             <div className="text-black text-md font-extrabold">
                               📍{bookingData.tourName}
                             </div>
@@ -592,7 +594,15 @@ export default function Payment() {
                           <hr className="w-100 border-secondary" />
                           <p className="d-flex justify-content-between text-dark fw-bold">
                             {t2("total")}
-                            <span>${bookingData.totalPrice}</span>
+                            {currency === 'USD' && (
+                              <span>${bookingData.totalPrice}</span>
+                            )}
+                            {currency === 'TL' && (
+                              <span>₺{bookingData.totalPrice}</span>
+                            )}
+                            {currency === 'EUR' && (
+                              <span>€{bookingData.totalPrice}</span>
+                            )}
                           </p>
                           <p className="text-dark fw-bold">{t("kdv")}</p>
                         </>
@@ -700,7 +710,7 @@ export default function Payment() {
 
                     <div>
                       <button
-                        onClick={() => handleProcessPayment(2)}
+                        onClick={() => handleProcessPayment(3)}
                         className="container btn btn-dark mb-4"
                         disabled={paymentIsLoading || isSubmitting}
                       >
@@ -788,7 +798,7 @@ export default function Payment() {
 
                       <button
                         type="button"
-                        onClick={() => handleProcessPayment(3)}
+                        onClick={() => handleProcessPayment(4)}
                         disabled={paymentIsLoading || isSubmitting}
                         className="btn btn-dark w-100 h-30 items-center btn-custom mx-auto d-block"
                         style={{
@@ -867,7 +877,7 @@ export default function Payment() {
 
                       <button
                         type="button"
-                        onClick={() => handleProcessPayment(4)}
+                        onClick={() => handleProcessPayment(2)}
                         disabled={paymentIsLoading || isSubmitting}
                         className="btn btn-dark w-100 h-30 items-center btn-custom mx-auto d-block"
                         style={{

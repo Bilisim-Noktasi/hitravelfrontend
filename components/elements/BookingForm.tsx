@@ -7,13 +7,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useAppSelector } from "@/hooks/useCurrency";
 
 export default function BookingForm({ tour }: { tour: Tour | null }) {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("tour");
   const dispatch = useDispatch();
-  
+  const currency = useAppSelector((state) => state.currency.currency);
+
   // Güvenli selector kullanımı (state değeri olmadığında uygun varsayılan değerler kullan)
   const bookingState = useSelector((state: RootState) => state?.booking);
   const isLoading = bookingState?.isLoading || false;
@@ -27,29 +29,67 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
   const [isTransferSelected, setIsTransferSelected] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<any | null>(null);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedExtras, setSelectedExtras] = useState<{ name: string, selected: boolean, price: number, quantity: number, isExpandable: boolean }[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<{ name: string, selected: boolean, priceUSD: number, priceEUR: number, priceTRY: number, quantity: number, isExpandable: boolean }[]>([]);
   const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Fiyat hesaplama fonksiyonu
   useEffect(() => {
     if (!tour) return;
 
+    let tourPrice = tour.tourPriceUSD;
+
+    if (currency === 'USD') {
+      tourPrice = tour.tourPriceUSD;
+    } else if (currency === 'TL') {
+      tourPrice = tour.tourPriceTRY;
+    } else if (currency === 'EUR') {
+      tourPrice = tour.tourPriceEUR;
+    }
+
     // Tur fiyatı hesaplama
     // Yetişkin sayısı + 3 yaşından büyük çocuklar için ücret
     const childrenOver3 = childAges.filter(age => age > 3).length;
-    const baseTourPrice = tour.tourPriceUSD * (adultCount + childrenOver3);
+    const baseTourPrice = tourPrice * (adultCount + childrenOver3);
 
     // Ekstra ücretleri hesaplama
     const totalPersonCount = adultCount + childCount;
     const extrasPrice = selectedExtras
       .filter(extra => extra.selected)
-      .reduce((total, extra) => total + (extra.price * totalPersonCount), 0);
+      .reduce((total, extra) => {
+        let price = extra.priceUSD; // Varsayılan olarak USD alıyoruz
+
+        // currency'ye göre fiyatı ayarla
+        if (currency === 'TL' && extra.priceTRY) {
+          price = extra.priceTRY; // Backend'den gelen TRY fiyatını kullan
+        } else if (currency === 'EUR' && extra.priceEUR) {
+          price = extra.priceEUR; // Backend'den gelen EUR fiyatını kullan
+        } else if (currency === 'USD' && extra.priceUSD) {
+          price = extra.priceUSD; // Backend'den gelen USD fiyatını kullan
+        }
+
+        return total + (price * totalPersonCount);
+      }, 0);
+    // .reduce((total, extra) => total + (extra.price * totalPersonCount), 0);
 
     // Transfer ücreti hesaplama
     let transferPrice = 0;
     if (isTransferSelected && selectedTransfer) {
-      transferPrice = selectedTransfer.priceUSD * totalPersonCount;
+      let transferUnitPrice = selectedTransfer.priceUSD;
+
+      // currency'ye göre transfer fiyatını ayarla
+      if (currency === 'TL' && selectedTransfer.priceTRY) {
+        transferUnitPrice = selectedTransfer.priceTRY; // Backend'den gelen TRY fiyatını kullan
+      } else if (currency === 'EUR' && selectedTransfer.priceEUR) {
+        transferUnitPrice = selectedTransfer.priceEUR; // Backend'den gelen EUR fiyatını kullan
+      } else if (currency === 'USD' && selectedTransfer.priceUSD) {
+        transferUnitPrice = selectedTransfer.priceUSD; // Backend'den gelen USD fiyatını kullan
+      }
+
+      transferPrice = transferUnitPrice * totalPersonCount;
     }
+    // if (isTransferSelected && selectedTransfer) {
+    //   transferPrice = selectedTransfer.priceUSD * totalPersonCount;
+    // }
 
     // Toplam fiyat
     const calculatedTotal = baseTourPrice + extrasPrice + transferPrice;
@@ -63,7 +103,9 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         name: extra.name,
         quantity: extra.quantity || 1,
         selected: false,
-        price: extra.priceUSD,
+        priceUSD: extra.priceUSD,
+        priceTRY: extra.priceTRY,
+        priceEUR: extra.priceEUR,
         isExpandable: extra.IsExpandable || false,
       }));
       setSelectedExtras(initialExtras);
@@ -163,7 +205,20 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         .filter(extra => extra.selected)
         .map(extra => ({
           name: extra.name,
-          price: extra.price,
+          price: (function() {
+            let price = extra.priceUSD; // Varsayılan olarak USD fiyatını alıyoruz
+      
+            // currency'ye göre fiyatı ayarlıyoruz
+            if (currency === 'TL') {
+              price = extra.priceTRY; // TL fiyatını kullan
+            } else if (currency === 'EUR') {
+              price = extra.priceEUR; // EUR fiyatını kullan
+            } else if (currency === 'USD') {
+              price = extra.priceUSD; // USD fiyatını kullan
+            }
+      
+            return price;
+          })(),
           quantity: adultCount + childCount
         }));
 
@@ -174,7 +229,20 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         cityName: selectedTransfer.cityName,
         stateId: selectedTransfer.stateId,
         stateName: selectedTransfer.stateName,
-        price: selectedTransfer.priceUSD
+        price: (function() {
+          let price = selectedTransfer.priceUSD; // Varsayılan olarak USD fiyatını alıyoruz
+      
+          // currency'ye göre fiyatı ayarlıyoruz
+          if (currency === 'TL') {
+            price = selectedTransfer.priceTRY; // TL fiyatını kullan
+          } else if (currency === 'EUR') {
+            price = selectedTransfer.priceEUR; // EUR fiyatını kullan
+          } else if (currency === 'USD') {
+            price = selectedTransfer.priceUSD; // USD fiyatını kullan
+          }
+      
+          return price;
+        })()
       } : null;
 
       // Çocuk bilgilerini hazırla
@@ -222,7 +290,20 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         totalPrice: totalPrice,
         adults: {
           count: adultCount,
-          price: tour.tourPriceUSD
+          price: (function() {
+            let price = tour.tourPriceUSD; // Varsayılan olarak USD fiyatını alıyoruz
+      
+            // currency'ye göre fiyatı ayarlıyoruz
+            if (currency === 'TL') {
+              price = tour.tourPriceTRY; // TL fiyatını kullan
+            } else if (currency === 'EUR') {
+              price = tour.tourPriceEUR; // EUR fiyatını kullan
+            } else if (currency === 'USD') {
+              price = tour.tourPriceUSD; // USD fiyatını kullan
+            }
+      
+            return price;
+          })()
         },
         children: childrenData.length > 0 ? childrenData : [],
         extras: selectedExtrasData.length > 0 ? selectedExtrasData : [],
@@ -366,91 +447,135 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
         </div>
       }
 
-
       {/* Ekstra Seçenekler */}
-      <div className="item-line-booking">
-        <div className="box-tickets">
-          <strong className="text-md-bold neutral-1000">{t("Ekstra")}:</strong>
-          <div className="line-booking-tickets">
-            <div className="item-ticket">
-              <ul className="list-filter-checkbox">
-                {tour?.tourExtras.map((extra, index) => (
-                  <li key={index}>
-                    <label className="cb-container">
-                      <input
-                        type="checkbox"
-                        onChange={(e) => handleExtraChange(extra.name, e.target.checked)}
-                        checked={selectedExtras.find(item => item.name === extra.name)?.selected || false}
-                      />
-                      <span className="text-sm-medium">{extra.name}</span>
-                      <span className="checkmark" />
-                    </label>
-                    {/* Eğer extra IsExpandable true ise, input alanı gösterilir */}
-                    {extra.IsExpandable && (
-                      <div className="extra-quantity-input">
-                        <label htmlFor={`extra-input-${index}`} className="text-sm-medium">{t("Quantity")}</label>
+      {tour?.tourExtras && tour.tourExtras.length > 0 ? (
+        <div className="item-line-booking">
+          <div className="box-tickets">
+            <strong className="text-md-bold neutral-1000">{t("Ekstra")}:</strong>
+            <div className="line-booking-tickets">
+              <div className="item-ticket">
+                <ul className="list-filter-checkbox">
+                  {tour?.tourExtras.map((extra, index) => (
+                    <li key={index}>
+                      <label className="cb-container">
                         <input
-                          id={`extra-input-${index}`}
-                          type="number"
-                          min="1"
-                          onChange={(e) => handleExtraChange(extra.name, true, Number(e.target.value))}
-                          placeholder="Enter quantity"
+                          type="checkbox"
+                          onChange={(e) => handleExtraChange(extra.name, e.target.checked)}
+                          checked={selectedExtras.find(item => item.name === extra.name)?.selected || false}
                         />
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="include-price">
-              <ul>
-                {tour?.tourExtras.map((extra, index) => (
-                  <li key={index} className="text-md-bold neutral-1000">
-                    ${extra.priceUSD}
-                  </li>
-                ))}
-              </ul>
+                        <span className="text-sm-medium">{extra.name}</span>
+                        <span className="checkmark" />
+                      </label>
+                      {/* Eğer extra IsExpandable true ise, input alanı gösterilir */}
+                      {extra.IsExpandable && (
+                        <div className="extra-quantity-input">
+                          <label htmlFor={`extra-input-${index}`} className="text-sm-medium">{t("Quantity")}</label>
+                          <input
+                            id={`extra-input-${index}`}
+                            type="number"
+                            min="1"
+                            onChange={(e) => handleExtraChange(extra.name, true, Number(e.target.value))}
+                            placeholder="Enter quantity"
+                          />
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="include-price">
+                <ul>
+                  {tour?.tourExtras.map((extra, index) => (
+                    <li key={index} className="text-md-bold neutral-1000">
+                      {currency === 'USD' && (
+                        <p className="text-md-bold neutral-1000">
+                          ${extra.priceUSD}
+                        </p>
+                      )}
+                      {currency === 'TL' && (
+                        <p className="text-md-bold neutral-1000">
+                          ₺{extra.priceTRY}
+                        </p>
+                      )}
+                      {currency === 'EUR' && (
+                        <p className="text-md-bold neutral-1000">
+                          €{extra.priceEUR}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Transfer Seçimi */}
-      <div className="item-line-booking">
-        <div className="box-tickets">
-          <strong className="text-md-bold neutral-1000">{t("Transfer")}:</strong>
-          <div className="line-booking-tickets">
-            <input
-              type="checkbox"
-              checked={isTransferSelected}
-              onChange={handleCheckboxChange}
-              style={{ width: "20px", height: "20px", marginRight: "20px", marginTop: "12px" }}
-            />
-            {isTransferSelected &&
-              <select
-                className="w-full px-1 py-1 mt-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                onChange={handleTransferChange}
-                value={selectedTransfer?.cityName || ""}
-              >
-                <option value="">Transfer Seçiniz</option>
-                {tour?.transfers.map((transfer, index) => (
-                  <option key={index} value={transfer.cityName}>
-                    {transfer.cityName} - {transfer.stateName} (${transfer.priceUSD})
-                  </option>
-                ))}
-              </select>
-            }
+      {tour?.transfers && tour.transfers.length > 0 ? (
+        <div className="item-line-booking">
+          <div className="box-tickets">
+            <strong className="text-md-bold neutral-1000">{t("Transfer")}:</strong>
+            <div className="line-booking-tickets">
+              <input
+                type="checkbox"
+                checked={isTransferSelected}
+                onChange={handleCheckboxChange}
+                style={{ width: "20px", height: "20px", marginRight: "20px", marginTop: "12px" }}
+              />
+              {isTransferSelected &&
+                <select
+                  className="w-full px-1 py-1 mt-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  onChange={handleTransferChange}
+                  value={selectedTransfer?.cityName || ""}
+                >
+                  <option value="">Transfer Seçiniz</option>
+                  {tour?.transfers.map((transfer, index) => (
+                    <option key={index} value={transfer.cityName}>
+                      {transfer.cityName} - {transfer.stateName} 
+                      {currency === 'USD' && (
+                        <p className="text-md-bold neutral-1000">
+                          ${transfer.priceUSD}
+                        </p>
+                      )}
+                      {currency === 'TL' && (
+                        <p className="text-md-bold neutral-1000">
+                          ₺{transfer.priceTRY}
+                        </p>
+                      )}
+                      {currency === 'EUR' && (
+                        <p className="text-md-bold neutral-1000">
+                          €{transfer.priceEUR}
+                        </p>
+                      )}
+                    </option>
+                  ))}
+                </select>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Toplam Fiyat */}
       <div className="item-line-booking last-item">
         <strong className="text-md-bold neutral-1000">{t("Toplam")}:</strong>
         <div className="line-booking-right">
-          <p className="text-xl-bold neutral-1000">
-            ${totalPrice.toFixed(2)}
-          </p>
+          {currency === 'USD' && (
+            <p className="text-xl-bold neutral-1000">
+              ${totalPrice.toFixed(2)}
+            </p>
+          )}
+          {currency === 'TL' && (
+            <p className="text-xl-bold neutral-1000">
+              ₺{totalPrice.toFixed(2)}
+            </p>
+          )}
+          {currency === 'EUR' && (
+            <p className="text-xl-bold neutral-1000">
+              €{totalPrice.toFixed(2)}
+            </p>
+          )}
         </div>
       </div>
 

@@ -1,9 +1,12 @@
+import { useAppSelector } from '@/hooks/useCurrency';
 import { Tour } from '@/types'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 export default function TourCard1({ tour }: { tour: Tour }) {
+
 	const t = useTranslations("TourCard1")
+	const currency = useAppSelector((state) => state.currency.currency);
 
 	return (
 		<>
@@ -25,7 +28,16 @@ export default function TourCard1({ tour }: { tour: Tour }) {
 						</div>
 						<div className="endtime">
 							<div className="card-price">
-								<h6 className="heading-6 neutral-1000">${tour.tourPriceUSD}</h6>
+								{/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
+                                {currency === 'USD' && (
+                                  <h6 className="heading-6 neutral-1000">$ {tour.tourPriceUSD}</h6>
+                                )}
+                                {currency === 'TL' && (
+                                  <h6 className="heading-6 neutral-1000">₺ {tour.tourPriceTRY}</h6>
+                                )}
+                                {currency === 'EUR' && (
+                                  <h6 className="heading-6 neutral-1000">€ {tour.tourPriceEUR}</h6>
+                                )}
 								{tour.pricingType == 1 &&
 									<p className="text-md-medium neutral-500">/ {t('person')}</p>
 								}
