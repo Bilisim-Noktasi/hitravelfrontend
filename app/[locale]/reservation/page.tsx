@@ -368,7 +368,7 @@ export default function Reservation() {
                     disabled={isSubmitting}
                     className="btn btn-dark w-100 py-2"
                   >
-                    {isSubmitting ? t("İşlem Yapılıyor") : t("rez")}
+                    {isSubmitting ? t2("islemYapiliyor") : t("rez")}
                   </button>
                 </div>
               </div>

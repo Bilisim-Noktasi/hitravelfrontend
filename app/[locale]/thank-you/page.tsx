@@ -97,7 +97,7 @@ const ThankYouPage = () => {
             </motion.div>
           ),
           title: "Ödeme Başarılı!",
-          description: "Teşekkür ederiz, ödemeniz başarıyla tamamlandı. Tatiliniz için hazırız! 🏝️"
+          description: "Teşekkür ederiz, ödemeniz başarıyla tamamlandı. Rezervasyon bilgileri için mail adresinizi kontrol ediniz."
         };
       case "pending":
         return {

@@ -30,13 +30,13 @@ export default function TourCard1({ tour }: { tour: Tour }) {
 							<div className="card-price">
 								{/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
                                 {currency === 'USD' && (
-                                  <h6 className="heading-6 neutral-1000">$ {tour.tourPriceUSD}</h6>
+                                  <h6 className="heading-6 neutral-1000">${tour.tourPriceUSD}</h6>
                                 )}
                                 {currency === 'TL' && (
-                                  <h6 className="heading-6 neutral-1000">₺ {tour.tourPriceTRY}</h6>
+                                  <h6 className="heading-6 neutral-1000">₺{tour.tourPriceTRY}</h6>
                                 )}
                                 {currency === 'EUR' && (
-                                  <h6 className="heading-6 neutral-1000">€ {tour.tourPriceEUR}</h6>
+                                  <h6 className="heading-6 neutral-1000">€{tour.tourPriceEUR}</h6>
                                 )}
 								{tour.pricingType == 1 &&
 									<p className="text-md-medium neutral-500">/ {t('person')}</p>

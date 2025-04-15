@@ -39,8 +39,8 @@ export const getTourCategoryDispatch = (categoryId: string, setLoading: (value: 
 
     try {
         const res = await getRequest({
-            controller: "Categories",  // Controller kısmı doğru olmalı
-            action: categoryId,  // Tek bir kategori almak için action olarak categoryId'yi kullanıyoruz
+            controller: "Categories",
+            action: categoryId,
             params: {},
         });
 

@@ -1,19 +1,7 @@
 'use client'
 import { ChangeEvent, useState } from "react"
-import { Tour } from "@/types"
-
-// interface Tour {
-// 	id: number
-// 	price: number
-// 	duration: number
-// 	groupSize: number
-// 	tourType: string
-// 	language: string
-// 	rating: number
-// 	name: string
-// 	activities: string
-// 	attraction: string
-// }
+import { SubCategory, Tour } from "@/types"
+import { useLocale } from "next-intl"
 
 interface Filter {
 	names: string[]
@@ -28,7 +16,7 @@ interface Filter {
 
 type SortCriteria = "name" | "price" | "rating"
 
-const useTourFilter = (toursData: Tour[]) => {
+const useTourFilter = (toursData: Tour[], tourSubCategories: SubCategory[]) => {
 	const [filter, setFilter] = useState<Filter>({
 		names: [],
 		activities: [],
@@ -42,10 +30,11 @@ const useTourFilter = (toursData: Tour[]) => {
 	const [sortCriteria, setSortCriteria] = useState<SortCriteria>("name")
 	const [itemsPerPage, setItemsPerPage] = useState<number>(20)
 	const [currentPage, setCurrentPage] = useState<number>(1)
+	const locale = useLocale();
 
 	// Get unique values for name, activities, language, attraction, rating, duration, and group size
 	const uniqueNames = [...new Set(toursData.map((tour) => tour.name))]
-	const uniqueActivities = [...new Set(toursData.map((tour) => tour.subCategoryName))]
+	const uniqueActivities = [...new Set(tourSubCategories.map((sc) => locale === "tr" ? sc.name : sc.nameEn))]
 	const uniqueLanguages = [...new Set(toursData.map((tour) => tour.languageCode))]
 	const uniqueAttractions = [...new Set(toursData.map((tour) => tour.stateName))]
 	// const uniqueRatings = [...new Set(toursData.map((tour) => tour.rating))]
@@ -155,7 +144,7 @@ const useTourFilter = (toursData: Tour[]) => {
 			groupSize: [],
 		})
 		setSortCriteria("name")
-		setItemsPerPage(4)
+		setItemsPerPage(20)
 		setCurrentPage(1)
 	}
 

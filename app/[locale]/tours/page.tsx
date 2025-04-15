@@ -20,11 +20,14 @@ import { useDispatch, useSelector } from "react-redux";
 import Preloader from "@/components/elements/Preloader";
 import { useParams, useSearchParams } from "next/navigation";
 import { useAppSelector } from "@/hooks/useCurrency";
+import { getTourSubCategoriesDispatch } from "@/redux/tourSubCategorySlice";
 
 export default function TourGrid() {
   const dispatch = useDispatch<AppDispatch>()
   const tourState = useSelector((state: RootState) => state?.tour)
+  const subCategoryState = useSelector((state: RootState) => state?.tourSubCategory);
   const tours = tourState?.tours || []
+  const subCategories = subCategoryState?.subCategories || [];
   const [isLoading, setIsLoading] = useState(true)
   const t = useTranslations("tourGrid");
   const params = useParams();
@@ -37,6 +40,12 @@ export default function TourGrid() {
   useEffect(() => {
     dispatch(getToursDispatch(0, 100)).finally(() => setIsLoading(false));
   }, [dispatch]);
+
+  useEffect(() => {
+      if (!subCategories.length) {
+        dispatch(getTourSubCategoriesDispatch(0, 10));
+      }
+    }, [dispatch, subCategories]);
 
   const {
     filter,
@@ -62,7 +71,7 @@ export default function TourGrid() {
     handleClearFilters,
     startItemIndex,
     endItemIndex,
-  } = useTourFilter(tours);
+  } = useTourFilter(tours, subCategories);
 
   // URL'den subCategory parametresini alıp filtreyi güncelleme
   useEffect(() => {
@@ -92,7 +101,6 @@ export default function TourGrid() {
 
   return (
     <>
-
       <Layout headerStyle={1} footerStyle={1}>
         <main className="main">
           <section className="box-section block-banner-tourlist">

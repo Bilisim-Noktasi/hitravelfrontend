@@ -94,7 +94,7 @@ export default function BookingForm({ tour }: { tour: Tour | null }) {
     // Toplam fiyat
     const calculatedTotal = baseTourPrice + extrasPrice + transferPrice;
     setTotalPrice(calculatedTotal);
-  }, [tour, adultCount, childCount, childAges, selectedExtras, isTransferSelected, selectedTransfer]);
+  }, [tour, adultCount, childCount, childAges, selectedExtras, isTransferSelected, selectedTransfer, currency]);
 
   // Ekstra seçenekleri başlangıçta ayarla
   useEffect(() => {

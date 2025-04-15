@@ -28,7 +28,7 @@ const useTicketFilter = (ticketsData: Ticket[]) => {
 		names: [],
 		class: [],
 		locations: [],
-		priceRange: [0, 500],
+		priceRange: [0, 2500],
 		ratings: [],
 		airlines: [],
 	})
@@ -121,7 +121,7 @@ const useTicketFilter = (ticketsData: Ticket[]) => {
 			names: [],
 			class: [],
 			locations: [],
-			priceRange: [0, 500],
+			priceRange: [0, 2500],
 			ratings: [],
 			airlines: [],
 		})

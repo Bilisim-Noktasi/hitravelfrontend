@@ -4,7 +4,8 @@ import { getRequest } from "@/service/requestService";
 
 const initialState: TourState = {
     tour: null,
-    tours: []
+    tours: [],
+    count: 0,
 }
 
 const tourSlice = createSlice({
@@ -12,7 +13,8 @@ const tourSlice = createSlice({
     initialState,
     reducers: {
         getTours: (state, action) => {
-            state.tours = action.payload
+            state.tours = action.payload.items;
+            state.count = action.payload.count
         },
         getTour: (state, action) => {
             state.tour = action.payload
@@ -27,7 +29,7 @@ export const getToursDispatch = (page: number, size: number) => async (dispatch:
     })
         .then(res => {
             if (res?.items) {
-                dispatch(getTours(res.items));
+                dispatch(getTours(res));
             } else {
                 console.error("❌ Hata: Redux'a gönderilecek veri bulunamadı!");
             }

@@ -16,6 +16,8 @@ import { PiPersonSimpleSwimThin } from "react-icons/pi";
 import News1 from "@/components/sections/News1";
 import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
+import { getToursDispatch } from "@/redux/tourSlice";
+import { useAppSelector } from "@/hooks/useCurrency";
 
 // Dinamik olarak harita bileşenini yükle (SSR olmadan)
 // Using a simple loading state without translations
@@ -98,7 +100,10 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(true);
   const { villa } = useSelector((state: RootState) => state.villa);
+  const currency = useAppSelector((state) => state.currency.currency);
+  const { tours } = useSelector((state: RootState) => state.tour);
   const t = useTranslations("villaDetail");
+  const t2 = useTranslations("tour");
 
   // Move the dynamic import here where t is available
   const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
@@ -109,6 +114,14 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   useEffect(() => {
     dispatch(getVillaDispatch(url, setLoading));
   }, [dispatch, url]);
+
+  useEffect(() => {
+    if (!tours.length) {
+      dispatch(getToursDispatch(0, 10));
+    }
+  }, [dispatch, tours]);
+
+  const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
 
   const settingsMain = {
     slidesToShow: 1,
@@ -149,6 +162,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
     <>
       <Layout headerStyle={1} footerStyle={1}>
         <main className="main">
+
           <section className="box-section box-breadcrumb background-body">
             <div className="container">
               <ul className="breadcrumbs">
@@ -175,7 +189,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                 </li>
                 <li>
                   {" "}
-                  <Link href="/destination">{t("villa")}</Link>
+                  <Link href="/villa-list">{t("villa")}</Link>
                   <span className="arrow-right">
                     <svg
                       width={7}
@@ -203,7 +217,9 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
               </ul>
             </div>
           </section>
+
           <section className="box-section box-content-tour-detail background-body">
+
             <div className="container">
               <div className="tour-header">
                 <div className="tour-rate">
@@ -310,6 +326,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                 </div>
               </div>
             </div>
+
             <section className="section-box box-banner-home2 box-banner-tour-detail-2 background-body">
               <div className="box-banner-tour-detail-2-inner">
                 <div className="container-top">
@@ -320,9 +337,11 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                 </div>
               </div>
             </section>
+
             <div className="container">
               <div className="row mt-65">
                 <div className="col-lg-8">
+
                   <div className="box-info-tour">
                     <div className="tour-info-group">
                       <div
@@ -399,7 +418,9 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                       </div>
                     </div>
                   </div>
+
                   <div className="box-collapse-expand">
+
                     <div className="group-collapse-expand">
                       <button
                         className={
@@ -463,6 +484,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+
                     <div className="group-collapse-expand">
                       <button
                         className={
@@ -512,6 +534,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+
                     <div className="group-collapse-expand">
                       <button
                         className={
@@ -846,6 +869,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+
                     <div className="group-collapse-expand">
                       <button
                         className={
@@ -892,6 +916,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                         </div>
                       </div>
                     </div>
+
                   </div>
                 </div>
                 <div className="col-lg-4">
@@ -902,77 +927,60 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                     {/* <BookingForm /> */}
                   </div>
                   <div className="sidebar-left border-1 background-body">
-                    <h6 className="text-lg-bold neutral-1000">
-                      {t("dikkat")} 🤔
-                    </h6>
+                    <h6 className="text-lg-bold neutral-1000">{t2("popularTours")}</h6>
                     <div className="box-popular-posts box-popular-posts-md">
                       <ul>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img src={villa?.images[0]} alt="Travila" />
-                              </Link>
+                        {popularTours.slice(0, 4).map((tourItem) => (
+                          <li key={tourItem.id}>
+                            <div className="card-post">
+                              <div className="card-image">
+                                <Link href={`/tours/${tourItem.slug}`}>
+                                  <img style={{ width: "85px", height: "85px", objectFit: "cover" }} src={tourItem.tourImages?.[0]?.imageUrl || "https://placehold.co/500x500"} alt="Travila" />
+                                </Link>
+                              </div>
+                              <div className="card-info">
+                                <Link className="text-xs-bold" href={`/tours/${tourItem.slug}`}>
+                                  {tourItem.name}
+                                </Link>
+                                {/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
+                                {currency === 'USD' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    ${tourItem.tourPriceUSD}
+                                  </span>
+                                )}
+                                {currency === 'TL' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    ₺ {tourItem.tourPriceTRY}
+                                  </span>
+                                )}
+                                {currency === 'EUR' && (
+                                  <span className="price text-sm-bold neutral-1000">
+                                    € {tourItem.tourPriceEUR}
+                                  </span>
+                                )}
+
+                                {currency === 'USD' && (
+                                  <span className="price-through text-sm-bold neutral-500">
+                                    ${tourItem.tourPriceUSD * 1.2}
+                                  </span>
+                                )}
+                                {currency === 'TL' && (
+                                  <span className="price-through text-sm-bold neutral-500">
+                                    ₺ {tourItem.tourPriceTRY * 1.2}
+                                  </span>
+                                )}
+                                {currency === 'EUR' && (
+                                  <span className="price-through text-sm-bold neutral-500">
+                                    € {tourItem.tourPriceEUR * 1.2}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                {villa?.title}
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                {/* $48.25 */}
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                {/* $60.75 */}
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="card-post">
-                            <div className="card-image">
-                              {" "}
-                              <Link href="#">
-                                {" "}
-                                <img src={villa?.images[5]} alt="Travila" />
-                              </Link>
-                            </div>
-                            <div className="card-info">
-                              {" "}
-                              <Link className="text-xs-bold" href="#">
-                                {villa?.title}
-                              </Link>
-                              <span className="price text-sm-bold neutral-1000">
-                                {/* $48.25 */}
-                              </span>
-                              <span className="price-through text-sm-bold neutral-500">
-                                {/* $60.75 */}
-                              </span>
-                            </div>
-                          </div>
-                        </li>
+                          </li>
+                        ))}
+
                       </ul>
                     </div>
-                  </div>
-                  <div className="sidebar-banner">
-                    {" "}
-                    <Link href="#">
-                      <img
-                        src="/assets/imgs/page/tour-detail/banner-ads.png"
-                        alt="Travila"
-                      />
-                    </Link>
-                  </div>
-                  <div className="sidebar-banner">
-                    {" "}
-                    <Link href="#">
-                      <img
-                        src="/assets/imgs/page/tour-detail/banner-ads2.png"
-                        alt="Travila"
-                      />
-                    </Link>
                   </div>
                 </div>
               </div>

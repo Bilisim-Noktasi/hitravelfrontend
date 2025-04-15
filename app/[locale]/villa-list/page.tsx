@@ -87,7 +87,7 @@ export default function VillaGrid() {
 						<div className="container">
 							<div className="box-content-main">
 								<div className="content-right">
-									<div className="box-filters mb-25 pb-5 border-bottom border-1">
+									{/* <div className="box-filters mb-25 pb-5 border-bottom border-1">
 										<SortHotelsFilter
 											sortCriteria={sortCriteria}
 											handleSortChange={handleSortChange}
@@ -98,7 +98,7 @@ export default function VillaGrid() {
 											endItemIndex={endItemIndex}
 											sortedHotels={sortedHotels}
 										/>
-									</div>
+									</div> */}
 									<div className="box-grid-tours wow fadeIn">
 										{isLoading ? (
 											<div className="text-center">
@@ -128,7 +128,7 @@ export default function VillaGrid() {
 										handlePageChange={handlePageChange}
 									/>
 								</div>
-								<div className="content-left order-lg-first">
+								{/* <div className="content-left order-lg-first">
 									<div className="sidebar-left border-1 background-body">
 										<div className="box-filters-sidebar">
 											<div className="block-filter border-1">
@@ -175,7 +175,7 @@ export default function VillaGrid() {
 											</div>
 										</div>
 									</div>
-								</div>
+								</div> */}
 							</div>
 						</div>
 					</section>

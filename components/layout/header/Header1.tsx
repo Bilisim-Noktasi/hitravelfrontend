@@ -1,7 +1,7 @@
 "use client";
 import CurrencyDropdown from "@/components/elements/CurrencyDropdown";
 import LanguageDropdown from "@/components/elements/LanguageDropdown";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -24,6 +24,7 @@ export default function Header1({
   const { user, email, isAuthenticated } = useAuth();
 
   const dispatch = useDispatch<AppDispatch>();
+  const locale = useLocale();
 
   // Güvenli selector kullanımı
   const categoryState = useSelector((state: RootState) => state?.tourCategory);
@@ -104,7 +105,7 @@ export default function Header1({
                                               : "",
                                         }}
                                       >
-                                        {item.name}
+                                        {locale == "tr" ? item.name : item.nameEn}
                                         <FaChevronRight size={9} />
                                       </Link>
                                     </li>
@@ -124,7 +125,7 @@ export default function Header1({
                                     )
                                     .map((item: any, index: number) => (
                                       <li key={index}>
-                                        <Link href={`/tours?subCategory=${item.id}`}>{item.name}</Link>
+                                        <Link href={`/tours?subCategory=${item.id}`}>{locale == "tr" ? item.name : item.nameEn}</Link>
                                       </li>
                                     ))}
                               </ul>

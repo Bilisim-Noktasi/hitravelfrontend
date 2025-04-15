@@ -3552,7 +3552,7 @@ label {
 .card-popular .card-image {
   position: relative;
   overflow: hidden;
-  height: auto;
+  height: 115px;
   width: 100%;
   border-radius: 20px;
   margin-bottom: 18px;

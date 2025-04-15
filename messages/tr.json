@@ -58,7 +58,9 @@
     "categories": "Kategoriler",
     "duration": "Süre",
     "review": "Derecelendirme",
-    "price": "Fiyat Aralığı"
+    "price": "Fiyat Aralığı",
+    "tours": "Turlar",
+    "activities": "Aktiviteler"
   },
 
   "TourCard": {
@@ -265,7 +267,7 @@
     "support": "Hi Travel",
     "hiBlog": "Hi Blog",
     "services": "Popüler Turlar",
-    "legal": "Popüler Kategoriler",
+    "legal": "Popüler Turlar",
     "hitour": "Popüler Turlar",
     "phone": "+90 532 669 11 07",
     "need": "Yardıma ihtiyacınız mı var?",
@@ -814,7 +816,8 @@
     "odenecek25": "Şimdi sadece ödeyeceğiniz tutar:",
     "turdaOde": "Bu ödeme yöntemi ile ödemeyi tur başlangıcında yapacaksınız. Rezervasyonunuz şimdi oluşturulacak, ödemeyi tur günü rehberimize yapabilirsiniz.",
     "rehbereOde": "Bu tutarı tur gününde rehberinize ödeyeceksiniz.",
-    "kdv": "KDV Dahildir."
+    "kdv": "KDV Dahildir.",
+    "Sepet bilgileri bulunamadı": "Sepet bilgileri bulunamadı"
   },
   "thankYou": {
     "thank": "Teşekkürler!",

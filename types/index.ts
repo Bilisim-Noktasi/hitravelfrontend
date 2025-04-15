@@ -45,6 +45,7 @@ export interface Tour {
   export interface Category {
     id: string;
     name: string;
+    nameEn: string;
     sortOrder: number;
     subCategories: string[];
   }
@@ -52,8 +53,11 @@ export interface Tour {
   export interface SubCategory {
     id: string;
     name: string;
+    nameEn: string;
     sortOrder: number;
     categoryId: string;
+    categoryName: string;
+    imageUrl: string;
   }
   
   export interface TourLanguage {
@@ -220,7 +224,8 @@ export interface VillaPrice {
 
 export interface TourState {
     tour: Tour | null;
-    tours: Tour[]
+    tours: Tour[];
+    count: number;
 }
 
 export interface TourCategory {

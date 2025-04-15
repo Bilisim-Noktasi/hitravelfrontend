@@ -28,6 +28,9 @@
     "google": "Sign up with Google",
     "mail": "Email Address",
     "password": "Password",
+    "phone": "Phone",
+    "firstName": "First Name",
+    "surName": "Last Name",
     "password1": "Repeat Password",
     "subTitle": "I accept the terms and conditions",
     "button": "Create New Account",
@@ -55,9 +58,10 @@
     "categories": "Categories",
     "duration": "Duration",
     "review": "Rating",
-    "price": "Price Range"
+    "price": "Price Range",
+    "tours": "Tours",
+    "activities": "Activities"
   },
-
   "TourCard": {
     "reviews": "views",
     "hours": "hours",
@@ -141,7 +145,8 @@
     "days": "Days",
     "night": "Night",
     "guest": "Guest",
-    "bookNow": "Book Now"
+    "bookNow": "Book Now",
+    "person": "Person"
   },
   "HotelGrid": {
     "bigTitle": "A World of Luxury Awaits You",
@@ -239,7 +244,6 @@
     "mesaj": "Send us a message",
     "sub": "Our support team will answer your questions 24/7."
   },
-
   "SideBarMenu": {
     "logout": "Log Out",
     "signIn": "Sign In",
@@ -259,7 +263,7 @@
     "support": "Hi Travel",
     "hiBlog": "Hi Blog",
     "services": "Popular Tours",
-    "legal": "Popular Villas",
+    "legal": "Popular Tours",
     "hitour": "Popular Tours",
     "phone": "+90 532 669 11 07",
     "need": "Need help?",
@@ -283,10 +287,11 @@
     "popular_villa_subtitle": "Customers love these villas!😍",
     "popular_destinations": "Popular Destinations",
     "popular_destinations_subtitle": "Favorite destinations according to customer reviews",
-    "book": "Book Now"
+    "book": "Book Now",
+    "guest": "Guest"
   },
   "villaDetail": {
-    "Anasayfa": "Home",
+    "home": "Home",
     "yorum": "Review",
     "villa": "Villa",
     "villacode": "Villa Code",
@@ -375,7 +380,6 @@
     "Giriş Temizliği": "Entry Cleaning",
     "Fiyata Dahil Olmayanlar": "Not Included in the Price"
   },
-
   "Error": {
     "we": "We",
     "dontFind": "Can't Find This Page",
@@ -415,7 +419,6 @@
     "güven": "Hi Travel does not back up data or share it with third parties.",
     "mutlu": "Happy Customers"
   },
-
   "privacy": {
     "anasayfa": "Home",
     "gizlilik": "Privacy Policy",
@@ -437,7 +440,6 @@
     "closing": "Best regards,",
     "hi": "Hi Travel Team"
   },
-
   "term": {
     "anasayfa": "Home",
     "gizlilik": "Terms of Use",
@@ -459,7 +461,6 @@
     "closing": "Best regards,",
     "hi": "Hi Travel Team"
   },
-
   "distance": {
     "home": "Home",
     "distance": "Distance Sales Agreement",
@@ -478,26 +479,26 @@
     "hi": "Hi Travel Team"
   },
   "shipping": {
-  "home": "Home",
-  "intro": "Delivery and Return Conditions",
-  "title": "Parties",
-  "desc": "This agreement is electronically concluded between Hi Travel Turizm Ticaret Ltd. Şti. (Seller) and the person (Buyer) who purchases services such as tours, hotels, car rentals, etc. via the website hitravel.com.tr.",
-  "titl2": "Subject",
-  "desc2": "This agreement regulates the delivery and return conditions of the services ordered by the Buyer through the Seller’s website hitravel.com.tr.",
-  "title3": "Delivery Conditions",
-  "desc3": "The services purchased by the Buyer become valid upon confirmation of the reservation made through the system. Delivery takes place electronically by sending the reservation document, voucher, ticket, or other digital documents to the Buyer, depending on the type of service. There is no physical product delivery.",
-  "title4": "Cancellation and Refund Conditions",
-  "desc4": "When the Buyer wishes to cancel the reservation, cancellation conditions vary depending on the nature of the service. The cancellation period and refund policy for hotel, tour, or transfer services are specified in the service description and during the reservation. Cancellations and refunds may not be possible for promotional or special campaign services. Such conditions will be communicated to the Buyer in advance. No cancellations or refunds are accepted after the service has started. In case of cancellations caused by supplier companies, a full refund is provided or an equivalent service is offered to the Buyer.",
-  "title5": "Right of Withdrawal",
-  "desc5": "The Buyer has the right of withdrawal under distance sales contracts; however, according to the Consumer Protection Law No. 6502, the right of withdrawal does not apply to services such as accommodation, transportation, and food and beverage supply that are performed on a specific date or period.",
-  "title6": "General Provisions",
-  "desc6": "The Buyer acknowledges that they have read, understood, and approved this agreement. The Seller reserves the right to change the terms of the agreement without prior notice.",
-  "title7": "In Case of Dispute",
-  "desc7": "In case of disputes arising from this agreement, Consumer Arbitration Committees and Consumer Courts located in the Buyer’s residence area, within the limits announced by the Ministry of Trade of the Republic of Turkey, are authorized.",
-  "help": "If you have any questions or concerns, feel free to contact us:",
-  "closing": "Kind regards,",
-  "hi": "Hi Travel Team"
-},
+    "home": "Home",
+    "intro": "Delivery and Return Conditions",
+    "title": "Parties",
+    "desc": "This agreement is electronically concluded between Hi Travel Turizm Ticaret Ltd. Şti. (Seller) and the person (Buyer) who purchases services such as tours, hotels, car rentals, etc. via the website hitravel.com.tr.",
+    "titl2": "Subject",
+    "desc2": "This agreement regulates the delivery and return conditions of the services ordered by the Buyer through the Seller’s website hitravel.com.tr.",
+    "title3": "Delivery Conditions",
+    "desc3": "The services purchased by the Buyer become valid upon confirmation of the reservation made through the system. Delivery takes place electronically by sending the reservation document, voucher, ticket, or other digital documents to the Buyer, depending on the type of service. There is no physical product delivery.",
+    "title4": "Cancellation and Refund Conditions",
+    "desc4": "When the Buyer wishes to cancel the reservation, cancellation conditions vary depending on the nature of the service. The cancellation period and refund policy for hotel, tour, or transfer services are specified in the service description and during the reservation. Cancellations and refunds may not be possible for promotional or special campaign services. Such conditions will be communicated to the Buyer in advance. No cancellations or refunds are accepted after the service has started. In case of cancellations caused by supplier companies, a full refund is provided or an equivalent service is offered to the Buyer.",
+    "title5": "Right of Withdrawal",
+    "desc5": "The Buyer has the right of withdrawal under distance sales contracts; however, according to the Consumer Protection Law No. 6502, the right of withdrawal does not apply to services such as accommodation, transportation, and food and beverage supply that are performed on a specific date or period.",
+    "title6": "General Provisions",
+    "desc6": "The Buyer acknowledges that they have read, understood, and approved this agreement. The Seller reserves the right to change the terms of the agreement without prior notice.",
+    "title7": "In Case of Dispute",
+    "desc7": "In case of disputes arising from this agreement, Consumer Arbitration Committees and Consumer Courts located in the Buyer’s residence area, within the limits announced by the Ministry of Trade of the Republic of Turkey, are authorized.",
+    "help": "If you have any questions or concerns, feel free to contact us:",
+    "closing": "Kind regards,",
+    "hi": "Hi Travel Team"
+  },
   "refund": {
     "home": "Home",
     "refund": "Cancellation and Refund Policy",
@@ -524,7 +525,6 @@
     "closing": "Best regards",
     "hi": "Hi Travel Team"
   },
-
   "faq": {
     "home": "Home",
     "sss": "Frequently Asked Questions",
@@ -551,33 +551,34 @@
     "s9": "Yes, you can view discounted ticket options for children through Hi Travel. Additionally, you can get information about special services or reservation options that provide extra comfort for children."
   },
   "tour": {
-    "home": "Anasayfa",
-    "tours": "Turlar",
-    "hours": "saat",
-    "person": "Kişi",
-    "share": "Paylaş",
-    "fav": "Favorilere Ekle",
-    "genel": "'e Genel Bakış",
-    "maps": "Haritada Göster",
-    "highlight": "'de Öne Çıkanlar",
-    "Fiyat": "Fiyata Neler Dahil?",
-    "inc": "Dahil Olanlar",
-    "exc": "Dahil Olmayanlar",
-    "tourDetail": "Tur Süresi",
-    "tourcapacity": "Kapasite",
-    "tourType": "Tur Tipi",
-    "location": "Konum",
-    "sss": "Sıkça Sorulan Sorular",
-    "rate": "Hakkında müşteriler ne düşünüyor ",
-    "comment": " e Yorum Bırak",
-    "submit": "Gönder",
-    "ad": "Ad",
+    "home": "Home",
+    "tours": "Tours",
+    "hours": "Hour",
+    "person": "Person",
+    "share": "Share",
+    "Konum": "Location",
+    "fav": "Add to Favorites",
+    "genel": "Overview",
+    "maps": "Show on Map",
+    "highlight": "Highlights",
+    "Fiyat": "What's Included in the Price?",
+    "inc": "Included",
+    "exc": "Not Included",
+    "tourDetail": "Tour Duration",
+    "tourcapacity": "Capacity",
+    "tourType": "Tour Type",
+    "location": "Location",
+    "sss": "Frequently Asked Questions",
+    "rate": "What do customers think?",
+    "comment": "Leave a Review",
+    "submit": "Submit",
+    "ad": "Name",
     "mail": "Mail",
-    "yorum": "Yorumun",
+    "yorum": "Your Review",
     "form": "Reservation Form",
     "book": "Book Now",
     "Hours": "Hours",
-    "price": "Fiyat",
+    "price": "Price",
     "Tarih": "Date",
     "Ekstra": "Extra",
     "Transfer": "Transfer",
@@ -587,8 +588,11 @@
     "adults": "Adults",
     "children": "Children",
     "yardım": "Need help?",
-    "wishlish": "Favorilere Ekle",
-    "popularTours": "Popular Tours"
+    "wishlish": "Add to Favorites",
+    "Please select a date": "Please select a date",
+    "Please select a time": "Please select a time",
+    "popularTours": "Popular Tours",
+    "Harita_yükleniyor": "Loading Map"
   },
   "blog": {
     "ana": "Home",
@@ -596,6 +600,7 @@
     "title": "For Your Next Vacation",
     "esin": "Get Inspired🤩",
     "hi": "Hi Blog 🗞️",
+    "view": "View More",
     "keep": "Keep Reading"
   },
   "Villa": {
@@ -615,7 +620,6 @@
     "amenities": "Amenities",
     "bookingLocation": "Booking Location"
   },
-
   "activity": {
     "home": "Home",
     "satıs": "Hi Travel Activities",
@@ -636,12 +640,10 @@
     "closing": "Best regards,",
     "hi": "The Hi Travel Team"
   },
-
   "helpcenter": {
     "ana": "Home",
     "help": "Help Center",
     "hoş": "Welcome to the Help Center 😊",
-   
     "title": "Do you have any questions? We would be happy to assist you.",
     "bilet": "Create a Ticket",
     "rez": "Reservations",
@@ -699,7 +701,9 @@
     "d": "Day",
     "g": "Night",
     "odemeyap": "Make a Payment",
-    "An error occurred during booking":"An error occurred during booking"
+    "An error occurred during booking": "An error occurred during booking",
+    "discountCode": "Discount Code",
+    "islemYapiliyor": "Processing"
   },
   "pay": {
     "sepetOzeti": "Reservation Summary",
@@ -717,6 +721,7 @@
     "odemeyap": "Make Payment",
     "pay": "Payment",
     "payment": "Make Payment",
+    "islemYapiliyor": "Processing",
     "kart": "Pay by Card",
     "25": "Pay 25%",
     "tour": "Pay at the Tour",
@@ -744,6 +749,13 @@
     "t5": "Once your payment is successfully processed, your reservation details (Ticket) will be sent to you via email. The remaining 75% will be paid at the tour",
     "credi": "Pay by Credit Card",
     "mail": "Reservation details will be included in the email sent to you once you complete the reservation",
-    "İşlem Yapılıyor":"Processing"
+    "İşlem Yapılıyor": "Processing",
+    "ana": "Home",
+    "loading": "Loading...",
+    "kdv": "VAT Included.",
+    "Şirket Ünvanı": "Company Name",
+    "Fatura Adresi": "Billing Address",
+    "Sepet bilgileri yüklenemedi": "Cart information could not be loaded",
+    "Sepet bilgileri bulunamadı": "Cart information not found"
   }
 }
