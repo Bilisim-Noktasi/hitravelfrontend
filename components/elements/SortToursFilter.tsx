@@ -29,9 +29,9 @@ export default function SortToursFilter({
 						<button onClick={handleClearFilters}>{t("clearFilter")}</button>
 						<div className="item-sort border-1"><span className="text-xs-medium neutral-500 mr-5">{t("show")}</span>
 							<select value={itemsPerPage} onChange={handleItemsPerPageChange}>
-								<option value={20}>10</option>
-								<option value={30}>15</option>
-								<option value={40}>20</option>
+								<option value={12}>12</option>
+								<option value={24}>24</option>
+								<option value={48}>48</option>
 							</select>
 						</div>
 						<div className="item-sort border-1">

@@ -1,8 +1,6 @@
 'use client'
 import Layout from "@/components/layout/Layout"
-import { swiperGroupAnimate } from "@/util/swiperOption"
 import { Link } from "@/i18n/routing"
-import { Swiper, SwiperSlide } from "swiper/react"
 import { getBlogDispatch } from '@/redux/blogSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/redux/store'
@@ -10,13 +8,63 @@ import { useEffect, useState } from 'react'
 import { formatDate, timeAgo } from '@/utils/dateUtils'
 import { useTranslations } from "next-intl"
 import News1 from "@/components/sections/News1"
+import { addReview, getReviewsDispatch } from "@/redux/reviewSlice"
+import useAuth from "@/hooks/useAuth"
+import { cleanContent } from "@/utils/textEditor"
 
 export default function BlogDetail({ params }: { params: { slug: string } }) {
 	const [loading, setLoading] = useState(true);
 	const { slug } = params;
 	const dispatch = useDispatch<AppDispatch>();
 	const { blog } = useSelector((state: RootState) => state.blog);
+	const { user, isAuthenticated } = useAuth();
 	const t = useTranslations("blog");
+
+	const { items, total, page, pageSize } = useSelector((state: RootState) => state.review);
+
+	const totalPages = Math.ceil(total / pageSize);
+
+	const [name, setName] = useState<string>('');
+	const [email, setEmail] = useState<string>('');
+	const [comment, setComment] = useState<string>('');
+	const [rating, setRating] = useState<number>(5);
+
+	const handleFormSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!user?.id || !blog?.id) return;
+
+		const reviewPayload = {
+			userId: user.id,
+			targetId: blog.id,
+			rating: rating,
+			comment: comment,
+			isVerified: true,
+			isPublished: true,
+			targetType: 3,
+		};
+
+		// Burada addReview thunk'ını tetikleyerek yorum gönderilecek.
+		dispatch(addReview(reviewPayload));
+
+		// Formu sıfırla
+		setName('');
+		setEmail('');
+		setComment('');
+		setRating(5);
+	};
+
+	const handlePageChange = (pageNum: number) => {
+		if (blog?.id) {
+			dispatch(getReviewsDispatch({ targetId: blog.id, page: pageNum, pageSize }));
+		}
+	};
+
+	useEffect(() => {
+		if (blog?.id) {
+		  dispatch(getReviewsDispatch({ targetId: blog.id, page: 1, pageSize: 5 }));
+		}
+	  }, [dispatch, blog?.id]);
 
 	useEffect(() => {
 		dispatch(getBlogDispatch(slug, setLoading));
@@ -48,14 +96,15 @@ export default function BlogDetail({ params }: { params: { slug: string } }) {
 						<div className="container">
 							<div className="box-content-detail-blog">
 								<div className="box-content-info-detail">
-									<div className="head-blog-detail text-center"> <Link className="btn btn-label-tag-lg background-2" href="#">Wanderlust</Link><Link className="btn btn-label-tag-lg background-7" href="#">Adventure</Link>
+									<div className="head-blog-detail text-center">
+										<Link className="btn btn-label-tag-lg background-2" href="#">{blog?.categoryName}</Link>
 										<h4 className="neutral-1000 mt-25 mb-25">{blog?.title}</h4>
 										<div className="meta-post">
 											<div className="meta-user">
 												<div className="post-meta-date">
 													<div className="post-date neutral-1000">{formatDate(blog?.publishedDate ?? "")}</div>
 													<div className="post-time neutral-1000">{timeAgo(blog?.publishedDate)}</div>
-													<div className="post-comment neutral-1000">38 comments</div>
+													<div className="post-comment neutral-1000">{items.length} comments</div>
 												</div>
 											</div>
 										</div>
@@ -67,12 +116,16 @@ export default function BlogDetail({ params }: { params: { slug: string } }) {
 												overflowWrap: 'break-word',
 												whiteSpace: 'normal'
 											}}
-											dangerouslySetInnerHTML={{ __html: blog?.content || '' }}
+											dangerouslySetInnerHTML={{ __html:cleanContent(blog?.content || '') }}
 										></div>
 									</div>
 									<div className="content-detail-post">
 										<div className="footer-post-tags">
-											<div className="box-tags">  <Link className="btn btn-tag" href="#">Travel</Link><Link className="btn btn-tag" href="#">Temple tours</Link><Link className="btn btn-tag" href="#">Ancient</Link></div>
+											<div className="box-tags">
+												{blog?.tags.map((tag) => (
+													<Link key={tag.id} className="btn btn-tag" href="#">{tag.name}</Link>
+												))}
+											</div>
 											<div className="box-share">
 												<div className="d-flex align-items-center justify-content-center justify-content-md-end box-socials-footer-cover">
 													<p className="text-lg-bold neutral-1000 d-inline-block mr-10 mb-0">Share this:</p>
@@ -92,75 +145,141 @@ export default function BlogDetail({ params }: { params: { slug: string } }) {
 												</div>
 											</div>
 										</div>
-										{/* <div className="box-leave-comment background-100">
+										<div className="box-leave-comment background-100">
 											<div className="box-form-reviews">
 												<h5 className="neutral-1000 mb-25">Leave a Comment</h5>
 												<div className="row">
 													<div className="col-md-6">
 														<div className="form-group">
-															<input className="form-control" type="text" placeholder="Your name" />
+															<input
+																className="form-control"
+																type="text"
+																placeholder="Your name"
+																value={name}
+																onChange={(e) => setName(e.target.value)}
+															/>
 														</div>
 													</div>
 													<div className="col-md-6">
 														<div className="form-group">
-															<input className="form-control" type="text" placeholder="Email address" />
+															<input
+																className="form-control"
+																type="text"
+																placeholder="Email address"
+																value={email}
+																onChange={(e) => setEmail(e.target.value)}
+															/>
 														</div>
 													</div>
 													<div className="col-md-12">
 														<div className="form-group">
-															<textarea className="form-control" placeholder="Your comment" defaultValue={""} />
+															<textarea
+																className="form-control"
+																placeholder="Your comment"
+																value={comment}
+																onChange={(e) => setComment(e.target.value)}
+															/>
 														</div>
 													</div>
 													<div className="col-md-12">
-														<button className="btn btn-black-lg-square">Submit Comment
+														<button className="btn btn-black-lg-square" onClick={handleFormSubmit}>
+															Submit review
 															<svg width={16} height={16} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
 																<path d="M8 15L15 8L8 1M15 8L1 8" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
 															</svg>
-														</button >
+														</button>
 													</div>
 												</div>
 											</div>
 										</div>
 										<div className="box-list-comment background-card">
 											<div className="list-reviews">
-												<div className="item-review">
-													<div className="head-review">
-														<div className="author-review"> <img src="/assets/imgs/page/tour-detail/avatar.png" alt="Travila" />
-															<div className="author-info">
-																<p className="text-lg-bold">Sarah Johnson</p>
-																<p className="text-sm-medium neutral-500">December 4, 2024 at 3:12 pm</p>
+												{items.length === 0 ? (
+													<p>Henüz yorum yok.</p>
+												) : (
+													[...items]
+														.sort((a, b) => new Date(b.reviewDate).getTime() - new Date(a.reviewDate).getTime())
+														.map((review) => (
+															<div className="item-review" key={review.id}>
+																<div className="head-review">
+																	<div className="author-review">
+																		<img src="/assets/imgs/page/tour-detail/avatar.png" alt="Travila" />
+																		<div className="author-info">
+																			<p className="text-lg-bold">
+																				{review.userFirstName ?? "Kullanıcı"} {review.userLastName ?? ""}
+																			</p>
+																			<p className="text-sm-medium neutral-500">
+																				{new Date(review.reviewDate).toLocaleDateString("tr-TR", {
+																					year: "numeric",
+																					month: "long",
+																					day: "numeric",
+																					hour: "2-digit",
+																					minute: "2-digit",
+																				})}
+																			</p>
+																		</div>
+																	</div>
+																	<div className="rate-review">
+																		{[...Array(review.rating)].map((_, i) => (
+																			<img key={i} src="/assets/imgs/page/tour-detail/star-big.svg" alt="star" />
+																		))}
+																	</div>
+																</div>
+																<div className="content-review">
+																	<p className="text-sm-medium neutral-800">{review.comment}</p>
+																</div>
 															</div>
-														</div>
-														<div className="rate-review"> <img src="/assets/imgs/page/tour-detail/star-big.svg" alt="Travila" /><img src="/assets/imgs/page/tour-detail/star-big.svg" alt="Travila" /><img src="/assets/imgs/page/tour-detail/star-big.svg" alt="Travila" /><img src="/assets/imgs/page/tour-detail/star-big.svg" alt="Travila" /><img src="/assets/imgs/page/tour-detail/star-big.svg" alt="Travila" /></div>
-													</div>
-													<div className="content-review">
-														<p className="text-sm-medium neutral-800">The views from The High Roller were absolutely stunning! It's a fantastic way to see the Strip and the surrounding area. The cabins are spacious and comfortable, and the audio commentary adds an extra layer of enjoyment. Highly recommend!</p>
-													</div>
-												</div>
+														))
+												)}
 											</div>
 											<nav aria-label="Page navigation example">
 												<ul className="pagination">
-													<li className="page-item"><Link className="page-link" href="#" aria-label="Previous"><span aria-hidden="true">
-														<svg width={12} height={12} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-															<path d="M6.00016 1.33325L1.3335 5.99992M1.3335 5.99992L6.00016 10.6666M1.3335 5.99992H10.6668" strokeLinecap="round" strokeLinejoin="round" />
-														</svg></span></Link></li>
-													<li className="page-item"><Link className="page-link" href="#">1</Link></li>
-													<li className="page-item"><Link className="page-link active" href="#">2</Link></li>
-													<li className="page-item"><Link className="page-link" href="#">3</Link></li>
-													<li className="page-item"><Link className="page-link" href="#">...</Link></li>
-													<li className="page-item"><Link className="page-link" href="#" aria-label="Next"><span aria-hidden="true">
-														<svg width={12} height={12} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-															<path d="M5.99967 10.6666L10.6663 5.99992L5.99968 1.33325M10.6663 5.99992L1.33301 5.99992" strokeLinecap="round" strokeLinejoin="round" />
-														</svg></span></Link></li>
+													<li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+														<button
+															className="page-link"
+															onClick={() => handlePageChange(page - 1)}
+															disabled={page === 1}
+															aria-label="Previous"
+														>
+															<span aria-hidden="true">
+																<svg width={12} height={12} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+																	<path d="M6.00016 1.33325L1.3335 5.99992M1.3335 5.99992L6.00016 10.6666M1.3335 5.99992H10.6668" strokeLinecap="round" strokeLinejoin="round" />
+																</svg>
+															</span>
+														</button>
+													</li>
+
+													{Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+														<li key={pageNum} className={`page-item ${page === pageNum ? "active" : ""}`}>
+															<button className="page-link" onClick={() => handlePageChange(pageNum)}>
+																{pageNum}
+															</button>
+														</li>
+													))}
+
+													<li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
+														<button
+															className="page-link"
+															onClick={() => handlePageChange(page + 1)}
+															disabled={page === totalPages}
+															aria-label="Next"
+														>
+															<span aria-hidden="true">
+																<svg width={12} height={12} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+																	<path d="M5.99967 10.6666L10.6663 5.99992L5.99968 1.33325M10.6663 5.99992L1.33301 5.99992" strokeLinecap="round" strokeLinejoin="round" />
+																</svg>
+															</span>
+														</button>
+													</li>
 												</ul>
 											</nav>
-										</div> */}
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</section>
-					<News1/>
+					<News1 />
 					<section className="section-box box-media background-body">
 						<div className="container-media wow fadeInUp"> <img src="/assets/imgs/page/homepage5/media.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media2.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media3.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media4.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media5.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media6.png" alt="Travila" /><img src="/assets/imgs/page/homepage5/media7.png" alt="Travila" /></div>
 					</section>

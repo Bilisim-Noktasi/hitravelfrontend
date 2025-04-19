@@ -32,8 +32,9 @@ export default function PopularDestinations1() {
     }, [dispatch, subCategories]);
 
     useEffect(() => {
-        dispatch(getToursDispatch(0, 100));
-      }, [dispatch]);
+        const languageCode = locale === 'tr' ? 2 : 1;
+        dispatch(getToursDispatch(0, 100, languageCode));
+      }, [dispatch, locale]);
 
     return (
         <>

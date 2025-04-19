@@ -75,9 +75,8 @@ export default function TopRated1() {
                       <div className="card-rating">
                         <div className="card-left"> </div>
                         <div className="card-right">
-                          {" "}
                           <span className="rating">
-                           5.0{" "}
+                           5.0
                             <span className="text-sm-medium neutral-500">
                               (0 reviews)
                             </span>
@@ -85,7 +84,6 @@ export default function TopRated1() {
                         </div>
                       </div>
                       <div className="card-title">
-                        {" "}
                         <Link
                           className="heading-6 neutral-1000"
                           href={`/villa-detail/${urlParser(item.detailUrl)}`}
@@ -94,7 +92,7 @@ export default function TopRated1() {
                       </div>
                       <div className="card-program flex justify-between items-center">
                         <div className="text-right">
-                          <p className="text-location text-md-bold neutral-900 ">📍</p>
+                          {/* <p className="text-location text-md-bold neutral-900 ">📍</p> */}
                         </div>
                         <div className="endtime flex items-center space-x-4">
                           <div className="card-price">
@@ -104,7 +102,6 @@ export default function TopRated1() {
                             </p>
                           </div>
                           <div className="card-button">
-                            {" "}
                             <Link className="btn btn-gray" href={`/villa-detail/${urlParser(item.detailUrl)}`}>
                             {t("reserve")}
                             </Link>

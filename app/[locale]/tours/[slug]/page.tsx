@@ -10,9 +10,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Preloader from "@/components/elements/Preloader";
 import News1 from "@/components/sections/News1";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { useAppSelector } from "@/hooks/useCurrency";
+import { getReviewsDispatch, addReview } from "@/redux/reviewSlice";
+import { useAuth } from "@/hooks/useAuth";
+import { cleanContent } from "@/utils/textEditor";
 
 export default function TourDetail3({ params }: { params: { slug: string } }) {
   const [isAccordion, setIsAccordion] = useState(null);
@@ -20,6 +23,38 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const t = useTranslations("tour");
   const currency = useAppSelector((state) => state.currency.currency);
+  const { user, isAuthenticated } = useAuth();
+  const locale = useLocale();
+
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [comment, setComment] = useState<string>('');
+  const [rating, setRating] = useState<number>(5);
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user?.id || !tour?.id) return;
+
+    const reviewPayload = {
+      userId: user.id,
+      targetId: tour.id,
+      rating: rating,
+      comment: comment,
+      isVerified: true,
+      isPublished: true,
+      targetType: 1,
+    };
+
+    // Burada addReview thunk'ını tetikleyerek yorum gönderilecek.
+    dispatch(addReview(reviewPayload));
+
+    // Formu sıfırla
+    setName('');
+    setEmail('');
+    setComment('');
+    setRating(5);
+  };
 
   // Move the dynamic import here where t is available
   const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
@@ -68,6 +103,27 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
 
   const dispatch = useDispatch<AppDispatch>();
   const { tour, tours } = useSelector((state: RootState) => state.tour);
+  const { items, total, page, pageSize } = useSelector((state: RootState) => state.review);
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  const handlePageChange = (pageNum: number) => {
+    if (tour?.id) {
+      dispatch(getReviewsDispatch({ targetId: tour.id, page: pageNum, pageSize }));
+    }
+  };
+
+  const averageRating: string =
+    items.length > 0
+      ? (items.reduce((acc, review) => acc + review.rating, 0) / items.length).toFixed(2)
+      : "0.00";
+
+
+  useEffect(() => {
+    if (tour?.id) {
+      dispatch(getReviewsDispatch({ targetId: tour.id, page: 1, pageSize: 5 }));
+    }
+  }, [dispatch, tour?.id]);
 
   useEffect(() => {
     if (!tour) {
@@ -78,7 +134,8 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
 
   useEffect(() => {
     if (!tours.length) {
-      dispatch(getToursDispatch(0, 10));
+      const languageCode = locale === 'tr' ? 2 : 1;
+      dispatch(getToursDispatch(0, 100, languageCode));
     }
   }, [dispatch, tours]);
 
@@ -87,6 +144,7 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
     return <Preloader />;
   }
   const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
+
   return (
     <>
       <Layout headerStyle={1} footerStyle={1}>
@@ -529,16 +587,11 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                           />
                         </svg>
                       </button>
-                      <div
-                        className={
-                          isAccordion == 1 ? "collapse" : "collapse show"
-                        }
-                        id="collapseOverview"
-                      >
+                      <div className={ isAccordion == 1 ? "collapse" : "collapse show" } id="collapseOverview">
                         <div className="card card-body">
                           <div
                             dangerouslySetInnerHTML={{
-                              __html: tour?.overview || '',
+                              __html: cleanContent(tour?.overview || ''),
                             }}
                           />
                         </div>
@@ -635,7 +688,227 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                         </div>
                       </div>
                     </div>
+                    <div className="group-collapse-expand">
+                      <button className={isAccordion == 6 ? "btn btn-collapse collapsed" : "btn btn-collapse"} type="button" data-bs-toggle="collapse" data-bs-target="#collapseReviews" aria-expanded="false" aria-controls="collapseReviews" onClick={() => handleAccordion(6)}>
+                        <h6>Rate  Reviews</h6>
+                        <svg width={12} height={7} viewBox="0 0 12 7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 1L6 6L11 1" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                        </svg>
+                      </button>
+                      <div className={isAccordion == 6 ? "collapse" : "collapse show"} id="collapseReviews">
+                        <div className="card card-body">
+                          <div className="head-reviews">
+                            <div className="review-left">
+                              <div className="review-info-inner">
+                                <h6 className="neutral-1000">{averageRating} / 5</h6>
+                                <p className="text-sm-medium neutral-400">({total} reviews)</p>
+                                <div className="review-rate">
+                                  {Array.from({ length: 5 }, (_, index) => (
+                                    <img
+                                      key={index}
+                                      src="/assets/imgs/page/tour-detail/star.svg"
+                                      alt={`Star ${index + 1}`}
+                                      style={{
+                                        opacity: index < Math.floor(parseFloat(averageRating)) ? 1 : 0.3, // Yıldızların doluluk oranı
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="review-right">
+                              <div className="review-progress">
+                                <div className="item-review-progress">
+                                  <div className="text-rv-progress">
+                                    <p className="text-sm-bold">Genel</p>
+                                  </div>
+                                  <div className="bar-rv-progress">
+                                    <div className="progress">
+                                      <div
+                                        className="progress-bar"
+                                        style={{ width: `${(parseFloat(averageRating) / 5) * 100}%` }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                  <div className="text-avarage">
+                                    <p>{averageRating}/5</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="list-reviews">
+                            {items.length === 0 ? (
+                              <p>Henüz yorum yok.</p>
+                            ) : (
+                              [...items]
+                              .sort((a, b) => new Date(b.reviewDate).getTime() - new Date(a.reviewDate).getTime())
+                              .map((review) => (
+                                <div className="item-review" key={review.id}>
+                                  <div className="head-review">
+                                    <div className="author-review">
+                                      <img src="/assets/imgs/page/tour-detail/avatar.png" alt="Travila" />
+                                      <div className="author-info">
+                                        <p className="text-lg-bold">
+                                          {review.userFirstName ?? "Kullanıcı"} {review.userLastName ?? ""}
+                                        </p>
+                                        <p className="text-sm-medium neutral-500">
+                                          {new Date(review.reviewDate).toLocaleDateString("tr-TR", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                          })}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="rate-review">
+                                      {[...Array(review.rating)].map((_, i) => (
+                                        <img key={i} src="/assets/imgs/page/tour-detail/star-big.svg" alt="star" />
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div className="content-review">
+                                    <p className="text-sm-medium neutral-800">{review.comment}</p>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
 
+                          <nav aria-label="Page navigation example">
+                            <ul className="pagination">
+                              <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                                <button
+                                  className="page-link"
+                                  onClick={() => handlePageChange(page - 1)}
+                                  disabled={page === 1}
+                                  aria-label="Previous"
+                                >
+                                  <span aria-hidden="true">
+                                    <svg width={12} height={12} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M6.00016 1.33325L1.3335 5.99992M1.3335 5.99992L6.00016 10.6666M1.3335 5.99992H10.6668" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  </span>
+                                </button>
+                              </li>
+
+                              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                <li key={pageNum} className={`page-item ${page === pageNum ? "active" : ""}`}>
+                                  <button className="page-link" onClick={() => handlePageChange(pageNum)}>
+                                    {pageNum}
+                                  </button>
+                                </li>
+                              ))}
+
+                              <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
+                                <button
+                                  className="page-link"
+                                  onClick={() => handlePageChange(page + 1)}
+                                  disabled={page === totalPages}
+                                  aria-label="Next"
+                                >
+                                  <span aria-hidden="true">
+                                    <svg width={12} height={12} viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M5.99967 10.6666L10.6663 5.99992L5.99968 1.33325M10.6663 5.99992L1.33301 5.99992" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  </span>
+                                </button>
+                              </li>
+                            </ul>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group-collapse-expand">
+                      <button
+                        className={isAccordion == 7 ? "btn btn-collapse collapsed" : "btn btn-collapse"}
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseAddReview"
+                        aria-expanded="false"
+                        aria-controls="collapseAddReview"
+                        onClick={() => handleAccordion(7)}
+                      >
+                        <h6>Add a review</h6>
+                        <svg width={12} height={7} viewBox="0 0 12 7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 1L6 6L11 1" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                        </svg>
+                      </button>
+
+                      <div className={isAccordion == 7 ? "collapse" : "collapse show"} id="collapseAddReview">
+                        <div className="card card-body">
+                          <div className="box-type-reviews">
+                            <div className="row">
+                              <div className="col-md-12">
+                                <div className="box-type-review">
+                                  <p className="text-sm-bold text-type-rv">Rating</p>
+                                  <div className="rate-type-review" style={{ fontSize: '32px', cursor: 'pointer' }}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <span
+                                        key={star}
+                                        onClick={() => setRating(star)}
+                                        style={{ color: star <= rating ? '#FFD700' : '#ccc' }}
+                                      >
+                                        ★
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="box-form-reviews">
+                            <h6 className="text-md-bold neutral-1000 mb-15">Leave feedback</h6>
+                            <div className="row">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Your name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <input
+                                    className="form-control"
+                                    type="text"
+                                    placeholder="Email address"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-12">
+                                <div className="form-group">
+                                  <textarea
+                                    className="form-control"
+                                    placeholder="Your comment"
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-12">
+                                <button className="btn btn-black-lg-square" onClick={handleFormSubmit}>
+                                  Submit review
+                                  <svg width={16} height={16} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 15L15 8L8 1M15 8L1 8" stroke="" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="col-lg-4">
@@ -649,7 +922,9 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
                     <h6 className="text-lg-bold neutral-1000">{t("popularTours")}</h6>
                     <div className="box-popular-posts box-popular-posts-md">
                       <ul>
-                        {popularTours.slice(0, 4).map((tourItem) => (
+                        {popularTours
+                        ?.filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
+                        .slice(0, 5).map((tourItem) => (
                           <li key={tourItem.id}>
                             <div className="card-post">
                               <div className="card-image">
@@ -709,7 +984,6 @@ export default function TourDetail3({ params }: { params: { slug: string } }) {
           <News1></News1>
           <section className="section-box box-media background-body">
             <div className="container-media wow fadeInUp">
-              {" "}
               <img src="/assets/imgs/page/homepage5/media.png" alt="Travila" />
               <img src="/assets/imgs/page/homepage5/media2.png" alt="Travila" />
               <img src="/assets/imgs/page/homepage5/media3.png" alt="Travila" />

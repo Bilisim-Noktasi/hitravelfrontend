@@ -28,7 +28,7 @@ const useTourFilter = (toursData: Tour[], tourSubCategories: SubCategory[]) => {
 		groupSize: [],
 	})
 	const [sortCriteria, setSortCriteria] = useState<SortCriteria>("name")
-	const [itemsPerPage, setItemsPerPage] = useState<number>(20)
+	const [itemsPerPage, setItemsPerPage] = useState<number>(12)
 	const [currentPage, setCurrentPage] = useState<number>(1)
 	const locale = useLocale();
 
@@ -144,7 +144,7 @@ const useTourFilter = (toursData: Tour[], tourSubCategories: SubCategory[]) => {
 			groupSize: [],
 		})
 		setSortCriteria("name")
-		setItemsPerPage(20)
+		setItemsPerPage(12)
 		setCurrentPage(1)
 	}
 

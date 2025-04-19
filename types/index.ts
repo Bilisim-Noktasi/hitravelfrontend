@@ -21,6 +21,8 @@ export interface Tour {
     longitude: number;
     latitude: number;
     overview: string;
+    averageRating: number;
+    totalComment: string;
     departure: number;
     turnaround: number;
     note: string;
@@ -47,6 +49,8 @@ export interface Tour {
     name: string;
     nameEn: string;
     sortOrder: number;
+    imageUrl: string;
+    categoryType: number;
     subCategories: string[];
   }
 
@@ -247,7 +251,15 @@ export interface Blog {
   id: string;
   title: string;
   content: string;
+  categoryName: string;
+  categoryType: number;
+  tags: Tag[];
   slug: string;
   imageUrl: string;
   publishedDate: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
 }

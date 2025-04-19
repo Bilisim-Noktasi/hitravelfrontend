@@ -27,24 +27,16 @@ export interface User {
       return {
         id: '',
         email: email || 'Kullanıcı',
-        firstName: '',
-        lastName: '',
         status: true,
       };
     }
     
-    const userEmail = payload.email || 
-                     payload.mail || 
-                     payload.userEmail || 
-                     payload.user_email || 
-                     email ||
-                     'Kullanıcı';
+    const userEmail = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+    const userId = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     
     return {
-      id: payload.id || payload.sub || payload.userId || payload.user_id || '',
+      id: userId,
       email: userEmail,
-      firstName: payload.given_name || payload.firstName || payload.first_name || '',
-      lastName: payload.family_name || payload.lastName || payload.last_name || '',
       status: true,
     };
   };

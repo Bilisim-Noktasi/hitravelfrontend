@@ -16,7 +16,7 @@ export default function OurFeatured3() {
                             <p className="text-xl-medium neutral-500">Explore the world by multi adventure activities</p>
                         </div>
                         <div className="col-lg-6 mb-30 wow fadeInUp">
-						<CategoryFilter />
+						{/* <CategoryFilter /> */}
                         </div>
                     </div>
                 </div>

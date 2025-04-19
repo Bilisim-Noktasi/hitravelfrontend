@@ -68,7 +68,7 @@ export default function Destination2() {
 									<p className="text-xl-medium neutral-500">{t("miniTitle")}</p>
 								</div>
 								<div className="col-lg-6 mb-30">
-									<CategoryFilter />
+									{/* <CategoryFilter /> */}
 								</div>
 							</div>
 							<div className="box-list-populars">
@@ -397,7 +397,7 @@ export default function Destination2() {
 									<p className="text-xl-medium neutral-500">{t("miniTitle3")}</p>
 								</div>
 								<div className="col-lg-6 mb-30 wow fadeInUp">
-									<CategoryFilter />
+									{/* <CategoryFilter /> */}
 								</div>
 							</div>
 							<div className="box-list-featured">

@@ -37,7 +37,7 @@ export default function CategoryFilter({ setSelectedCategory }: { setSelectedCat
 					</Dropdown.Toggle>
 					<Dropdown.Menu as="ul" className="dropdown-menu dropdown-menu-light" aria-labelledby="dropdownCategory" style={{ margin: 0 }}>
 						{
-							sortedCategories.map((cat) => (
+							sortedCategories.filter((sortedCategories) => sortedCategories.categoryType == 1).map((cat) => (
 								<li key={cat.id}>
 									<button className="dropdown-item" onClick={() => handleCategorySelect(cat.name)}>
 										{locale === 'en' ? cat.nameEn : cat.name}

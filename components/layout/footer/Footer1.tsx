@@ -23,8 +23,9 @@ export default function Footer1() {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getToursDispatch(0, 100));
-  }, [dispatch]);
+    const languageCode = locale === 'tr' ? 2 : 1;
+    dispatch(getToursDispatch(0, 100, languageCode));
+  }, [dispatch, locale]);
 
   useEffect(() => {
     dispatch(getTourSubCategoriesDispatch(0, 10));

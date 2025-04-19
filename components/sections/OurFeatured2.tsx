@@ -13,7 +13,7 @@ export default function OurFeatured2() {
                             <p className="text-xl-medium neutral-500">Favorite destinations based on customer reviews</p>
                         </div>
                         <div className="col-lg-6 mb-30 wow fadeInUp">
-						<CategoryFilter />
+						{/* <CategoryFilter /> */}
                         </div>
                     </div>
                     <div className="box-list-featured">

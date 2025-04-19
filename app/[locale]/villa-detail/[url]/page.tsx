@@ -14,7 +14,7 @@ import { CiUser } from "react-icons/ci";
 import { PiBedThin } from "react-icons/pi";
 import { PiPersonSimpleSwimThin } from "react-icons/pi";
 import News1 from "@/components/sections/News1";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { getToursDispatch } from "@/redux/tourSlice";
 import { useAppSelector } from "@/hooks/useCurrency";
@@ -104,6 +104,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
   const { tours } = useSelector((state: RootState) => state.tour);
   const t = useTranslations("villaDetail");
   const t2 = useTranslations("tour");
+  const locale = useLocale();
 
   // Move the dynamic import here where t is available
   const MapComponent = dynamic(() => import("@/components/elements/MapComponent"), {
@@ -117,9 +118,10 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
 
   useEffect(() => {
     if (!tours.length) {
-      dispatch(getToursDispatch(0, 10));
+      const languageCode = locale === 'tr' ? 2 : 1;
+      dispatch(getToursDispatch(0, 10, languageCode));
     }
-  }, [dispatch, tours]);
+  }, [dispatch, tours, locale]);
 
   const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
 
@@ -930,7 +932,7 @@ export default function VillaDetail({ params }: { params: { url: string } }) {
                     <h6 className="text-lg-bold neutral-1000">{t2("popularTours")}</h6>
                     <div className="box-popular-posts box-popular-posts-md">
                       <ul>
-                        {popularTours.slice(0, 4).map((tourItem) => (
+                        {popularTours.slice(0, 5).map((tourItem) => (
                           <li key={tourItem.id}>
                             <div className="card-post">
                               <div className="card-image">

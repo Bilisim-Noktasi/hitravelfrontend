@@ -16,8 +16,17 @@ export default function TourCard1({ tour }: { tour: Tour }) {
 				</div>
 				<div className="card-info background-card">
 					<div className="card-rating">
-						<div className="card-left"> </div>
-						<div className="card-right"> <span className="rating">{tour.isPopular}4.9 <span className="text-sm-medium neutral-500">(8 {t("reviews")} )</span></span></div>
+						<div className="card-left"> 
+							
+						</div>
+						<div className="card-right">
+							<span className="rating">
+								{tour.averageRating.toFixed(1)}
+								<span className="text-sm-medium neutral-500">
+									({tour.totalComment} {t("reviews")} )
+								</span>
+							</span>
+						</div>
 					</div>
 					<div className="card-title">
 						<Link className="text-lg-bold neutral-1000" href={`tours/${tour.slug}`}>{tour.name.length > 23 ? tour.name.slice(0, 23) + "..." : tour.name}</Link></div>
@@ -29,15 +38,15 @@ export default function TourCard1({ tour }: { tour: Tour }) {
 						<div className="endtime">
 							<div className="card-price">
 								{/* Seçilen kuru kontrol et ve fiyatı uygun şekilde göster */}
-                                {currency === 'USD' && (
-                                  <h6 className="heading-6 neutral-1000">${tour.tourPriceUSD}</h6>
-                                )}
-                                {currency === 'TL' && (
-                                  <h6 className="heading-6 neutral-1000">₺{tour.tourPriceTRY}</h6>
-                                )}
-                                {currency === 'EUR' && (
-                                  <h6 className="heading-6 neutral-1000">€{tour.tourPriceEUR}</h6>
-                                )}
+								{currency === 'USD' && (
+									<h6 className="heading-6 neutral-1000">${tour.tourPriceUSD}</h6>
+								)}
+								{currency === 'TL' && (
+									<h6 className="heading-6 neutral-1000">₺{tour.tourPriceTRY}</h6>
+								)}
+								{currency === 'EUR' && (
+									<h6 className="heading-6 neutral-1000">€{tour.tourPriceEUR}</h6>
+								)}
 								{tour.pricingType == 1 &&
 									<p className="text-md-medium neutral-500">/ {t('person')}</p>
 								}

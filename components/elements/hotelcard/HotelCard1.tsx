@@ -12,7 +12,6 @@ export default function HotelCard1({ villa }: any) {
     <>
       <div className="card-journey-small background-card">
         <div className="card-image">
-          {" "}
           <Link className="label" href="#">
             {t("topRates")}
           </Link>
@@ -41,9 +40,8 @@ export default function HotelCard1({ villa }: any) {
           <div className="card-rating">
             <div className="card-left"> </div>
             <div className="card-right">
-              {" "}
               <span className="rating">
-                0{" "}
+                0
                 <span className="text-sm-medium neutral-500">
                   (0 {t("reviews")} )
                 </span>
@@ -51,14 +49,13 @@ export default function HotelCard1({ villa }: any) {
             </div>
           </div>
           <div className="card-title">
-            {" "}
             <Link className="text-lg-bold neutral-1000" href={`/villa-detail/${villa?.homeId || ''}`}>
-              {villa?.title}{" "}
+              {villa?.title}
             </Link>
           </div>
           <div className="card-program">
             <div className="card-location">
-              <p className=" text-sm-medium neutral-00">📍</p>
+              {/* <p className=" text-sm-medium neutral-00">📍</p> */}
             </div>
             <div className="endtime">
               <div className="card-price">
@@ -68,7 +65,6 @@ export default function HotelCard1({ villa }: any) {
                   </p>
               </div>
               <div className="card-button">
-                {" "}
                 <Link
                   className="btn btn-gray"
                   href={`/villa-detail/${villa?.homeId || ''}`}

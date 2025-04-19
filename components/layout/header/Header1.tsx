@@ -86,6 +86,7 @@ export default function Header1({
                               <ul className="sub-menu">
                                 {categories
                                   ?.slice()
+                                  .filter((category) => category.categoryType == 1)
                                   .sort((a, b) => a.sortOrder - b.sortOrder)
                                   .map((item, index) => (
                                     <li

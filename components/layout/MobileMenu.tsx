@@ -1,5 +1,5 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useEffect, useState } from "react";
 import PerfectScrollbar from "react-perfect-scrollbar";
@@ -16,6 +16,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
   const { user, isAuthenticated, logout } = useAuth();
 
   const dispatch = useDispatch<AppDispatch>();
+  const locale = useLocale();
 
   // Güvenli selector kullanımı
   const categoryState = useSelector((state: RootState) => state?.tourCategory);
@@ -118,6 +119,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                       <ul className="sub-menu" style={{ display: `${isAccordion == 2 ? "block" : "none"}`, }}>
                         {categories
                           ?.slice()
+                          .filter((item) => item.categoryType == 1)
                           .sort((a, b) => a.sortOrder - b.sortOrder)
                           .map((item, index) => (
                             <li onMouseEnter={() => handleHoverCategoryChange(item.id)} // Handle hover event
@@ -131,7 +133,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                                   alignItems: "center",
                                 }}
                               >
-                                {item.name}
+                                {locale === 'tr' ? item.name : item.nameEn}
                                 <FaChevronRight size={9} />
                               </Link>
                             </li>
@@ -144,7 +146,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, handleLogin
                             .map((subItem, index) => (
                               <li key={index}>
                                 <Link href={`/tours?subCategory=${subItem.id}`} onClick={handleMobileMenu}>
-                                  {subItem.name}
+                                  {locale == 'tr' ? subItem.name : subItem.nameEn}
                                 </Link>
                               </li>
                             ))}

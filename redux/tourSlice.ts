@@ -22,10 +22,10 @@ const tourSlice = createSlice({
     }
 })
 
-export const getToursDispatch = (page: number, size: number) => async (dispatch: Dispatch) => {
+export const getToursDispatch = (page: number, size: number, languageCode: number) => async (dispatch: Dispatch) => {
     getRequest({
         controller: "Tours",
-        params: { PageIndex: page, PageSize: size }
+        params: { PageIndex: page, PageSize: size, languageCode: languageCode }
     })
         .then(res => {
             if (res?.items) {

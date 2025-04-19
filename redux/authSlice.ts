@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { postRequest } from '../service/requestService';
+import { getGuardRequest, postRequest } from '../service/requestService';
 import { deleteCookie, setCookie, getCookie } from 'cookies-next';
 import { extractUserFromToken } from '@/utils/auth';
 
@@ -19,8 +19,8 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  tokenExpiresAt: number | null; // Token son kullanma zamanı
-  isRefreshing: boolean; // Token yenilenme durumu
+  tokenExpiresAt: number | null;
+  isRefreshing: boolean;
 }
 
 const initialState: AuthState = {
@@ -71,23 +71,16 @@ export const login = createAsyncThunk(
       if (!response?.accessToken?.token) throw new Error('Invalid token');
       const token = response.accessToken.token;
       
-      // API'den dönen kullanıcı bilgisini alalım - API yanıtındaki yapı değişebilir
-      const apiUser = response.user || response.userData || response.userInfo || {};
-      
       // API'den gelen email kullanıcı adını ayıklayalım (yoksa credentials'dan alalım)
-      const userEmail = apiUser.email || apiUser.mail || credentials.email;
+      const userEmail = credentials.email;
       
       // Token'dan kullanıcı bilgilerini çıkarmayı deneyelim
       const tokenUser = extractUserFromToken(token, userEmail);
       
       // Kullanıcı bilgisini her kaynaktan birleştirelim
       const user: User = {
-        id: apiUser.id || apiUser.userId || tokenUser.id || '',
-        email: userEmail,
-        firstName: apiUser.firstName || apiUser.first_name || tokenUser.firstName || '',
-        lastName: apiUser.lastName || apiUser.last_name || tokenUser.lastName || '',
-        phoneNumber: apiUser.phoneNumber || apiUser.phone || '',
-        status: apiUser.status !== undefined ? apiUser.status : true
+        id: tokenUser.id,
+        email: userEmail
       };
       
       // Token süresini hesapla
@@ -121,73 +114,61 @@ export const refreshToken = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const state = getState() as { auth: AuthState };
-      const oldToken = state.auth.token;
-      
-      if (!oldToken) {
+
+      const tokenInCookie = getCookie('next-auth.session-token');
+      if (!tokenInCookie) {
         throw new Error('No token to refresh');
       }
-      
-      const response = await postRequest(
-        { controller: 'Auth', action: 'RefreshToken' },
-        { token: oldToken }
-      );
-      
-      if (!response?.accessToken?.token) {
+
+      const response = await getGuardRequest({
+        controller: 'Auth',
+        action: 'RefreshToken',
+      });
+
+      const newToken = response?.accessToken?.token;
+      if (!newToken) {
         throw new Error('Invalid refresh token response');
       }
-      
-      const token = response.accessToken.token;
-      const tokenExpiresAt = calculateTokenExpiry(token);
-      
-      // Mevcut kullanıcı bilgilerini koru, varsa güncellemelerle birleştir
+
+      const tokenExpiresAt = calculateTokenExpiry(newToken);
       const currentUser = state.auth.user;
-      const tokenUser = extractUserFromToken(token, currentUser?.email || '');
-      
-      // API'den dönen kullanıcı bilgisini alalım (varsa)
-      const apiUser = response.user || response.userData || response.userInfo || {};
-      
-      // Kullanıcı bilgisini birleştir
+      const tokenUser = extractUserFromToken(newToken, currentUser?.email || '');
+
       const user: User = {
         ...currentUser,
-        id: apiUser.id || apiUser.userId || tokenUser.id || currentUser?.id || '',
-        email: apiUser.email || apiUser.mail || tokenUser.email || currentUser?.email || '',
-        firstName: apiUser.firstName || apiUser.first_name || tokenUser.firstName || currentUser?.firstName || '',
-        lastName: apiUser.lastName || apiUser.last_name || tokenUser.lastName || currentUser?.lastName || '',
-        phoneNumber: apiUser.phoneNumber || apiUser.phone || currentUser?.phoneNumber || '',
-        status: apiUser.status !== undefined ? apiUser.status : (currentUser?.status || true)
+        id: tokenUser.id,
+        email: tokenUser.email,
       };
-      
-      // Token bilgilerini güncelle
-      setCookie('next-auth.session-token', token, { 
-        maxAge: 30 * 24 * 60 * 60, 
+
+      setCookie('next-auth.session-token', newToken, {
+        maxAge: 30 * 24 * 60 * 60,
         path: '/',
         sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production',
       });
-      
-      // localStorage'taki bilgileri güncelle
+
       if (typeof window !== 'undefined') {
-        localStorage.setItem('auth-token', token);
+        localStorage.setItem('auth-token', newToken);
         localStorage.setItem('auth-user', JSON.stringify(user));
         localStorage.setItem('auth-token-expires', tokenExpiresAt.toString());
       }
-      
-      return { token, user, tokenExpiresAt };
+
+      return { token: newToken, user, tokenExpiresAt };
     } catch (error) {
       console.error('Token refresh error:', error);
-      
-      // Token yenileme başarısız olursa oturumu temizle
+
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth-token');
         localStorage.removeItem('auth-user');
         localStorage.removeItem('auth-token-expires');
       }
       deleteCookie('next-auth.session-token');
-      
+
       return rejectWithValue('Token refresh failed');
     }
   }
 );
+
 
 export const logout = createAsyncThunk('auth/logout', async () => {
   deleteCookie('next-auth.session-token');

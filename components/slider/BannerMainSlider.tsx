@@ -1,5 +1,6 @@
 "use client";
 import axios from "axios";
+import { useLocale } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import Slider from "react-slick";
 
@@ -9,6 +10,7 @@ export interface Banner {
   imageUrl: string;
   sortOrder: number;
   isActive: boolean;
+  languageCode: number;
 }
 
 const SlickArrowLeft = ({ currentSlide, slideCount, ...props }: any) => (
@@ -71,6 +73,8 @@ export default function BannerMainSlider() {
   const [isMobile, setIsMobile] = useState(false);
   const [banners, setBanners] = useState<Banner[]>([]);
 
+  const locale = useLocale();
+
   useEffect(() => {
     setNav1(slider1.current ?? undefined);
     setNav2(slider2.current ?? undefined);
@@ -91,7 +95,7 @@ export default function BannerMainSlider() {
     const fetchBanners = async () => {
       try {
         const response = await axios.get(
-          "https://api.hitravel.com.tr/api/Banners?PageIndex=0&PageSize=10"
+          "https://api.hitravel.com.tr/api/Banners?PageIndex=0&PageSize=20"
         );
         setBanners(response.data.items || []);
       } catch (error) {
@@ -128,19 +132,21 @@ export default function BannerMainSlider() {
       {!isMobile ? (
         <>
           <Slider {...settingsMain}>
-            {banners.filter((banner) => banner.type === 1).sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
+            {banners.filter((banner) => banner.type === 1 && (locale === 'tr' ? banner.languageCode === 2 : banner.languageCode === 1))
+            .sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
               <div key={banner.id}>
-                <img src={banner.imageUrl} style={{
+                <img src={banner.imageUrl ? banner.imageUrl : "/assets/imgs/page/homepage2/banner.png"} style={{
                   minHeight: '768px',
                   width: '100%',
-                  objectFit: 'cover' // opsiyonel
+                  objectFit: 'cover'
                 }} />
               </div>
             ))}
           </Slider>
           <div className="slider-thumnail">
             <Slider {...settingsThumbs} className="slider-nav-thumbnails">
-              {banners.filter((banner) => banner.type === 3).sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
+              {banners.filter((banner) => banner.type === 3 && (locale === 'tr' ? banner.languageCode === 2 : banner.languageCode === 1))
+              .sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
                 <div className="banner-slide" key={banner.id}>
                   <img src={banner.imageUrl} />
                 </div>
@@ -151,7 +157,8 @@ export default function BannerMainSlider() {
       ) : (
         <>
           <Slider {...settingsMain} ref={slider1} className="banner-main">
-            {banners.filter((banner) => banner.type === 2).sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
+            {banners.filter((banner) => banner.type === 2 && (locale === 'tr' ? banner.languageCode === 2 : banner.languageCode === 1))
+            .sort((a, b) => a.sortOrder - b.sortOrder).map((banner) => (
               <div className="banner-slide" key={banner.id}>
                 <img src={banner.imageUrl} />
               </div>

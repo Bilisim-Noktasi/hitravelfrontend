@@ -8993,7 +8993,7 @@ a.icon-socials:hover svg {
 }
 
 .box-news {
-  padding: 91px 0px 110px 0px;
+  padding: 50px 0px 50px 0px;
 }
 
 .box-list-news {
@@ -13616,12 +13616,12 @@ a.link-black:hover svg {
 }
 
 .box-posts-grid-2 {
-  padding: 90px 0px;
+  padding: 40px 0px;
 }
 
 .box-category-posts {
   position: relative;
-  padding: 0px 0px 90px 0px;
+  padding: 0px 0px 40px 0px;
 }
 .box-category-posts .box-list-populars {
   margin-top: 0px;

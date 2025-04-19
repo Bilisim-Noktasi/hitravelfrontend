@@ -140,7 +140,9 @@ export const getRequest = async (
 export const getGuardRequest = async (
   requestParameter: RequestParameter
 ): Promise<any> => {
+  
   const token = getCookie("next-auth.session-token");
+
   if (!token) {
     throw new Error("Oturum açmanız gerekiyor");
   }
@@ -149,14 +151,18 @@ export const getGuardRequest = async (
 
   try {
     const response: AxiosResponse = await api.get(url, {
-      params: requestParameter.params,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
+    console.log("Backend Response:", response.data);
     return response.data;
   } catch (err) {
     console.error("Guard API request error", err);
     throw err;
   }
 };
+
 
 export const postRequest = async (
   requestParameter: RequestParameter,
@@ -175,9 +181,10 @@ export const postRequest = async (
 
 export const postGuardRequest = async (
   requestParameter: RequestParameter,
-  body: object
+  data?: any
 ): Promise<any> => {
   const token = getCookie("next-auth.session-token");
+  
   if (!token) {
     throw new Error("Oturum açmanız gerekiyor");
   }
@@ -185,13 +192,20 @@ export const postGuardRequest = async (
   const url = buildUrl(requestParameter);
 
   try {
-    const response = await api.post(url, body);
+    const response: AxiosResponse = await api.post(url, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     return response.data;
   } catch (err) {
-    console.error("Guard POST request error", err);
+    console.error("Guard POST request error", err); // 🔥 Hata detaylı loglanıyor mu?
     throw err;
   }
 };
+
+
 
 export const putGuardRequest = async (
   requestParameter: RequestParameter,

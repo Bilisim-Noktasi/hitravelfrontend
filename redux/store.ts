@@ -9,6 +9,7 @@ import authSlice from './authSlice';
 import bookingSlice from './bookingSlice';
 import paymentSlice from './paymentSlice';
 import blogSlice from './blogSlice';
+import reviewSlice from './reviewSlice';
 import { User } from '@/utils/auth';
 
 // İstemci tarafında olup olmadığımızı kontrol et
@@ -63,6 +64,7 @@ const createStoreWithSafeDefaults = () => {
       booking: bookingSlice,
       payment: paymentSlice,
       blog: blogSlice,
+      review: reviewSlice,
     },
     // SSR ile CSR arasındaki hydration sorunlarını önlemek için
     middleware: (getDefaultMiddleware) =>

@@ -22,8 +22,9 @@ export default function YourJourney() {
   const locale = params.locale as string;
 
   useEffect(() => {
-    dispatch(getToursDispatch(0, 30));
-  }, [dispatch]);
+    const languageCode = locale === 'tr' ? 2 : 1;
+    dispatch(getToursDispatch(0, 100, languageCode));
+  }, [dispatch, locale]);
 
   return (
     <>
@@ -72,9 +73,7 @@ export default function YourJourney() {
           <div className="box-swiper mt-30">
             <div className="swiper-container mx-64 swiper-group-animate swiper-group-journey">
               <Swiper {...swiperGroupAnimate} loop={false}>
-                {tours
-                  ?.filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
-                  .map((item, index) => (
+                {tours.map((item, index) => (
                     <SwiperSlide key={index}>
                       <div className="card-journey-small background-card">
                         <div className="card-image">
@@ -108,7 +107,7 @@ export default function YourJourney() {
                             <div className="card-left"></div>
                             <div className="card-right">
                               <span className="rating">
-                                {item.isPopular} 5.0
+                                {item.averageRating.toFixed(1)}
                               </span>
                             </div>
                           </div>

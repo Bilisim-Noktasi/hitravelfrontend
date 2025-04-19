@@ -16,7 +16,7 @@ export default function FeaturedPropoerties() {
                             <p className="text-xl-medium neutral-500">Hand-Picked selection of quality places</p>
                         </div>
                         <div className="col-lg-6 mb-30 wow fadeInUp">
-						<CategoryFilter />
+						{/* <CategoryFilter /> */}
                         </div>
                     </div>
                     <div className="box-swiper mt-25">

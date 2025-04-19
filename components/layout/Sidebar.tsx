@@ -34,7 +34,6 @@ export default function Sidebar({ isSidebar, handleSidebar, handleLogin }: any) 
         <PerfectScrollbar className="sidebar-canvas-container">
           <div className="sidebar-canvas-head">
             <div className="sidebar-canvas-logo">
-              {" "}
               <Link className="d-flex" href="/">
                 <img
                   className="light-mode"
@@ -52,7 +51,6 @@ export default function Sidebar({ isSidebar, handleSidebar, handleLogin }: any) 
               <LanguageDropdown />
               <CurrencyDropdown />
               <a className="close-canvas" onClick={handleSidebar}>
-                {" "}
                 <img
                   alt="Travila"
                   src="/assets/imgs/template/icons/close.png"

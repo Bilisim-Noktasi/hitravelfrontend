@@ -14,7 +14,7 @@ export default function PopularSpots() {
                             <p className="text-xl-medium neutral-500">Dare to live the lift you’ve always wanted</p>
                         </div>
                         <div className="col-lg-6 mb-30 wow fadeInRight">
-						<CategoryFilter />
+						{/* <CategoryFilter /> */}
                         </div>
                     </div>
                     <div className="box-list-featured">

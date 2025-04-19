@@ -35,12 +35,14 @@ export default function TourGrid() {
   const locale = params.locale as string;
   const currency = useAppSelector((state) => state.currency.currency);
 
-  const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
-
   useEffect(() => {
-    dispatch(getToursDispatch(0, 100)).finally(() => setIsLoading(false));
+    const languageCode = locale === 'tr' ? 2 : 1;
+    dispatch(getToursDispatch(0, 100, languageCode))
+    .finally(() => setIsLoading(false));
   }, [dispatch]);
 
+  const popularTours = tours.filter((tourItem) => tourItem.isPopular === true);
+  
   useEffect(() => {
       if (!subCategories.length) {
         dispatch(getTourSubCategoriesDispatch(0, 10));
@@ -136,7 +138,6 @@ export default function TourGrid() {
                   <div className="box-grid-tours wow fadeIn">
                     <div className="row">
                       {paginatedTours
-                        ?.filter((tour) => tour.languageCode === (locale === 'tr' ? 2 : 1))
                         .map((tour) => (
                           <div className="col-xl-4 col-lg-6 col-md-6" key={tour.id}>
                             <TourCard1 tour={tour} />
@@ -222,7 +223,8 @@ export default function TourGrid() {
                     </h6>
                     <div className="box-popular-posts">
                       <ul>
-                        {popularTours.slice(0, 4).map((item) => (
+                        {popularTours
+                        .slice(0, 5).map((item) => (
                           <li key={item.id}>
                             <div className="card-post">
                               <div className="card-image">

@@ -8,8 +8,11 @@ import { useEffect, useState } from 'react';
 // Kullanıcı tipini belirleyelim
 interface User {
   email: string;
-  name?: string;
-  // Diğer kullanıcı özellikleri
+  firstName?: string;
+  id: string;
+  lastName: string;
+  phoneNumber: string;
+  status: boolean;
 }
 
 export const useAuth = () => {
@@ -27,8 +30,8 @@ export const useAuth = () => {
   
   const user = authState?.user || null;
   const token = authState?.token || null;
-  const isAuthenticated = !!authState?.isAuthenticated; // boolean tipine zorla
-  const isLoading = !!authState?.isLoading; // boolean tipine zorla
+  const isAuthenticated = !!authState?.isAuthenticated;
+  const isLoading = !!authState?.isLoading;
   const error = authState?.error || null;
 
   // Giriş işlemi
@@ -55,8 +58,8 @@ export const useAuth = () => {
   }
   
   // Kullanıcı objesinin mevcut olup olmadığını kontrol edelim ve varsayılan değer sağlayalım
-  const safeUser = user || null; // Eğer user objesi null ise, null olarak ayarla
-  const safeEmail = safeUser?.email || "Kullanıcı"; // email'e güvenli erişim
+  const safeUser = user || null;
+  const safeEmail = safeUser?.email || "Kullanıcı";
 
   return {
     user: safeUser,
